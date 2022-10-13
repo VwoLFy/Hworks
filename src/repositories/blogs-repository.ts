@@ -5,11 +5,7 @@ type typeBlog = {
 }
 type typeBlogs = Array<typeBlog>
 
-const blogs: typeBlogs = [{
-    id: "testBlogId",
-    name: "Wolf",
-    youtubeUrl: "https://www.youtube.com/c/ITKAMASUTRA"
-}];
+const blogs: typeBlogs = [];
 
 export const blogsRepository = {
     findBlogs() {

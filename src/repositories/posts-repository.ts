@@ -10,14 +10,7 @@ type typePost = {
 }
 type typePosts = Array<typePost>
 
-const posts: typePosts = [{
-    id: "testPostId",
-    title: "My Test Post",
-    shortDescription: "MTP",
-    content: "Text about content",
-    blogId: "testBlogId",
-    blogName: "Wolf"
-}]
+const posts: typePosts = []
 
 export const postsRepository = {
     findPosts() {
