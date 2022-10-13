@@ -34,7 +34,7 @@ export const postsRepository = {
             shortDescription,
             content,
             blogId,
-            blogName: blogsRepository.findBlog(blogId).name
+            blogName: blogsRepository.findBlog(blogId)?.name
         }
         posts.push(newPost);
         return newPost
