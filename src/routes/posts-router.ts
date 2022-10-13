@@ -7,8 +7,6 @@ import {blogsRepository} from "../repositories/blogs-repository";
 
 export const postsRouter = Router({});
 
-
-
 const titleValidation = body('title', "'title' must be  a string in range from 1 to 30 symbols").isString().trim().isLength({min: 1, max: 30});
 const shortDescriptionValidation = body('shortDescription', "'shortDescription' must be a string in range from 1 to 100 symbols").isString().trim().isLength({min: 1, max: 100});
 const contentValidation = body('content', "'content' must be a string  in range from 1 to 1000 symbols").isString().trim().isLength({min: 1, max: 1000});
