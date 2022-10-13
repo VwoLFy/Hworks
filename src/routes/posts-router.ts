@@ -1,15 +1,24 @@
 import {Request, Response, Router} from "express";
 import {postsRepository} from "../repositories/posts-repository";
-import {body} from "express-validator";
+import {body, CustomValidator} from "express-validator";
 import {checkAuthorizationMiddleware} from "../middlewares/check-authorization-middleware";
 import {inputValidationMiddleware} from "../middlewares/input-validation-middleware";
+import {blogsRepository} from "../repositories/blogs-repository";
 
 export const postsRouter = Router({});
+
+
 
 const titleValidation = body('title', "'title' must be  a string in range from 1 to 30 symbols").isString().trim().isLength({min: 1, max: 30});
 const shortDescriptionValidation = body('shortDescription', "'shortDescription' must be a string in range from 1 to 100 symbols").isString().trim().isLength({min: 1, max: 100});
 const contentValidation = body('content', "'content' must be a string  in range from 1 to 1000 symbols").isString().trim().isLength({min: 1, max: 1000});
-const blogIdValidation = body('blogId', "'blogId' must be a string").isString();
+const blogIdIsExist: CustomValidator = value => {
+    const foundBlog = blogsRepository.findBlog(value)
+    if (!foundBlog)  throw new Error();
+    return true;
+
+};
+const blogIdValidation = body('blogId', "'blogId' must be exist").custom(blogIdIsExist);
 
 postsRouter.get("/", (req:Request, res:Response) => {
     res.json(postsRepository.findPosts())
