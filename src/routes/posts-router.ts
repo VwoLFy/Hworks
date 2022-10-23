@@ -17,6 +17,7 @@ const blogIdIsExist: CustomValidator = value => {
 
 };
 const blogIdValidation = body('blogId', "'blogId' must be exist").custom(blogIdIsExist);
+const listOfValidation = [titleValidation, shortDescriptionValidation, contentValidation, blogIdValidation, inputValidationMiddleware];
 
 postsRouter.get("/", (req:Request, res:Response) => {
     res.json(postsRepository.findPosts())
@@ -26,11 +27,11 @@ postsRouter.get("/:id", (req:Request, res:Response) => {
     if (!foundPost) return res.sendStatus(404);
     return res.status(200).json(foundPost)
 })
-postsRouter.post("/", checkAuthorizationMiddleware, titleValidation, shortDescriptionValidation, contentValidation, blogIdValidation, inputValidationMiddleware, (req:Request, res:Response) => {
+postsRouter.post("/", checkAuthorizationMiddleware, listOfValidation, (req:Request, res:Response) => {
     const createdPost = postsRepository.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     res.status(201).json(createdPost)
 })
-postsRouter.put("/:id", checkAuthorizationMiddleware, titleValidation, shortDescriptionValidation, contentValidation, blogIdValidation, inputValidationMiddleware, (req:Request, res:Response) => {
+postsRouter.put("/:id", checkAuthorizationMiddleware, listOfValidation, (req:Request, res:Response) => {
     const isUpdatedPost = postsRepository.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     if (!isUpdatedPost) return res.sendStatus(404);
     return res.sendStatus(204)
