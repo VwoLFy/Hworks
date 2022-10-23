@@ -1,54 +1,40 @@
 import {blogsRepository} from "./blogs-repository";
-
-type typePost = {
-    id: string
-    title: string
-    shortDescription: string
-    content: string
-    blogId: string
-    blogName: string
-}
-type typePosts = Array<typePost>
-
-const posts: typePosts = []
+import {postCollection, typePost} from "./db";
 
 export const postsRepository = {
-    findPosts() {
-        return posts;
+    async findPosts(): Promise<typePost[]> {
+        return postCollection.find({}, {projection: {_id:0}}).toArray();
     },
-    findPost(id: string) {
-        const foundPost = posts.find(p => p.id === id);
-        return foundPost;
+    async findPost(id: string): Promise<typePost | null> {
+        return postCollection.findOne( {id}, {projection: {_id:0}})
     },
-    createPost (title: string, shortDescription: string, content: string, blogId: string) {
+    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<typePost> {
         const newPost: typePost = {
-            id: "Post" + (posts.length + 1),
+            id: "Post" + ( ( await postCollection.find().toArray()).length + 1),
             title,
             shortDescription,
             content,
             blogId,
-            blogName: blogsRepository.findBlog(blogId)?.name || ""
+            blogName: (await blogsRepository.findBlog(blogId))?.name || ""
         }
-        posts.push(newPost);
-        return newPost
+        const newPostWithoutId: typePost = Object.assign( {}, newPost);
+        await postCollection.insertOne(newPost)
+        return newPostWithoutId
     },
-    updatePost (id: string, title: string, shortDescription: string, content: string, blogId: string) {
-        const foundPost = posts.find(p => p.id === id);
-        if (!foundPost) return false;
-        foundPost.title = title;
-        foundPost.shortDescription = shortDescription;
-        foundPost.content = content;
-        foundPost.blogId = blogId;
-        return true
+    async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {
+        const result = await postCollection.updateOne(
+            {id},
+            {$set: {title, shortDescription, content, blogId}}
+        );
+        return result.matchedCount !== 0
     },
-    deletePost (id: string) {
-        const foundPost = posts.find(p => p.id === id);
-        if (!foundPost) return false;
-        posts.splice(posts.indexOf(foundPost), 1)
-        return true
+    async deletePost(id: string): Promise<boolean> {
+        const result = await postCollection.deleteOne(
+            {id}
+        );
+        return result.deletedCount !== 0
     },
-    deleteAll() {
-        posts.splice(0)
+    async deleteAll() {
+        await postCollection.deleteMany( {})
     }
-
 }

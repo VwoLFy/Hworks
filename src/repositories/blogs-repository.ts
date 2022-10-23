@@ -1,44 +1,35 @@
-type typeBlog = {
-    id: string
-    name: string
-    youtubeUrl: string
-}
-type typeBlogs = Array<typeBlog>
-
-const blogs: typeBlogs = [];
+import {blogCollection, typeBlog} from "./db";
 
 export const blogsRepository = {
-    findBlogs() {
-        return blogs
+    async findBlogs(): Promise<typeBlog[]> {
+        return blogCollection.find({}, {projection: {_id:0}}).toArray()
     },
-    findBlog(id: string) {
-        const foundBlog = blogs.find(b => b.id === id);
-        return foundBlog;
+    async findBlog(id: string): Promise<typeBlog | null> {
+        return blogCollection.findOne({id}, {projection: {_id:0}})
     },
-    createBlog(name: string, youtubeUrl: string) {
+    async createBlog(name: string, youtubeUrl: string): Promise<typeBlog> {
         const newBlog: typeBlog = {
-            id: "Blog" + (blogs.length + 1),
+            id: "Blog" + ((await blogCollection.find().toArray()).length + 1),
             name,
             youtubeUrl
         }
-        blogs.push(newBlog);
-        return newBlog;
+        const newBlogWithoutId: typeBlog = Object.assign( {}, newBlog);
+        await blogCollection.insertOne(newBlog)
+        return newBlogWithoutId;
     },
-    updateBlog(id: string, name: string, youtubeUrl: string) {
-        const foundBlog = blogs.find(b => b.id === id);
-        if (!foundBlog) return false;
+    async updateBlog(id: string, name: string, youtubeUrl: string): Promise<boolean> {
+        const result = await blogCollection.updateOne(
+            {id},
+            {$set: {name, youtubeUrl}}
+        );
+        return result.matchedCount !== 0;
 
-        foundBlog.name = name;
-        foundBlog.youtubeUrl = youtubeUrl
-        return true;
     },
-    deleteBlog(id: string) {
-        const foundBlog = blogs.find(b => b.id === id);
-        if (!foundBlog) return false;
-        blogs.splice(blogs.indexOf(foundBlog), 1);
-        return true;
+    async deleteBlog(id: string): Promise<boolean> {
+        const result = await blogCollection.deleteOne({id});
+        return result.deletedCount !== 0;
     },
-    deleteAll() {
-        blogs.splice(0);
+    async deleteAll() {
+        await blogCollection.deleteMany({})
     }
 }

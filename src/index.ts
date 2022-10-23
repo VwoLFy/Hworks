@@ -3,6 +3,7 @@ import {blogsRouter} from "./routes/blogs-router";
 import {postsRouter} from "./routes/posts-router";
 import {blogsRepository} from "./repositories/blogs-repository";
 import {postsRepository} from "./repositories/posts-repository";
+import {runDb} from "./repositories/db";
 
 const app = express();
 const bodyMidlle = express.json();
@@ -18,6 +19,11 @@ app.delete('/testing/all-data', (req: Request, res: Response) => {
     res.sendStatus(204)
 })
 
-app.listen(PORT, () => {
-    console.log(`Server listening ${PORT}`)
-})
+const startApp = async () => {
+    await runDb();
+    app.listen(PORT, () => {
+        console.log(`Server listening ${PORT}`)
+    })
+}
+
+startApp()

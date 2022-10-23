@@ -19,25 +19,25 @@ const blogIdIsExist: CustomValidator = value => {
 const blogIdValidation = body('blogId', "'blogId' must be exist").custom(blogIdIsExist);
 const listOfValidation = [titleValidation, shortDescriptionValidation, contentValidation, blogIdValidation, inputValidationMiddleware];
 
-postsRouter.get("/", (req:Request, res:Response) => {
-    res.json(postsRepository.findPosts())
+postsRouter.get("/", async (req: Request, res: Response) => {
+    res.json(await postsRepository.findPosts())
 })
-postsRouter.get("/:id", (req:Request, res:Response) => {
-    const foundPost = postsRepository.findPost(req.params.id)
+postsRouter.get("/:id", async (req: Request, res: Response) => {
+    const foundPost = await postsRepository.findPost(req.params.id)
     if (!foundPost) return res.sendStatus(404);
     return res.status(200).json(foundPost)
 })
-postsRouter.post("/", checkAuthorizationMiddleware, listOfValidation, (req:Request, res:Response) => {
-    const createdPost = postsRepository.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
+postsRouter.post("/", checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
+    const createdPost = await postsRepository.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     res.status(201).json(createdPost)
 })
-postsRouter.put("/:id", checkAuthorizationMiddleware, listOfValidation, (req:Request, res:Response) => {
-    const isUpdatedPost = postsRepository.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
+postsRouter.put("/:id", checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
+    const isUpdatedPost = await postsRepository.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     if (!isUpdatedPost) return res.sendStatus(404);
     return res.sendStatus(204)
 })
-postsRouter.delete("/:id", checkAuthorizationMiddleware, (req:Request, res:Response) => {
-    const isDeletedPost = postsRepository.deletePost(req.params.id)
+postsRouter.delete("/:id", checkAuthorizationMiddleware, async (req: Request, res: Response) => {
+    const isDeletedPost = await postsRepository.deletePost(req.params.id)
     if (!isDeletedPost) return res.sendStatus(404);
     return res.sendStatus(204)
 })
