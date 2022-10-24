@@ -5,13 +5,15 @@ const mongoUri = process.env.MONGOURI || 'mongodb://0.0.0.0:27017';
 export const client = new MongoClient(mongoUri)
 
 export type typeBlog = {
-    _id: ObjectId
+    _id?: ObjectId
+    id?: string
     name: string
     youtubeUrl: string
     createdAt: string
 };
 export type typePost = {
-    _id: ObjectId
+    _id?: ObjectId
+    id?: string
     title: string
     shortDescription: string
     content: string

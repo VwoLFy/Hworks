@@ -2,15 +2,33 @@ import {blogsRepository, isIdValid} from "./blogs-repository";
 import {postCollection, typePost} from "./db";
 import {ObjectId} from "mongodb";
 
+const postWithReplaceId = (object: typePost ): typePost => {
+    return {
+        id: object._id?.toString(),
+        title: object.title,
+        shortDescription: object.shortDescription,
+        content: object.content,
+        blogId: object.blogId,
+        blogName: object.blogName,
+        createdAt: object.createdAt
+    }
+}
+
 export const postsRepository = {
     async findPosts(): Promise<typePost[]> {
-        return postCollection.find({}).toArray();
+        return (await postCollection.find({}).toArray())
+            .map( foundPost => postWithReplaceId(foundPost) )
     },
     async findPost(id: string): Promise<typePost | null> {
         if ( !isIdValid(id) ) {
             return null
         }
-        return postCollection.findOne( {_id: new ObjectId(id)})
+        const foundPost = await postCollection.findOne({_id: new ObjectId(id)})
+        if (!foundPost) {
+            return null
+        } else {
+            return postWithReplaceId(foundPost)
+        }
     },
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<typePost> {
         const newPost: typePost = {
@@ -23,7 +41,7 @@ export const postsRepository = {
             createdAt: new Date().toISOString()
         }
         await postCollection.insertOne(newPost)
-        return newPost
+        return postWithReplaceId(newPost)
     },
     async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {
         if ( !isIdValid(id) ) {
