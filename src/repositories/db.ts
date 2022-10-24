@@ -1,17 +1,17 @@
 import 'dotenv/config'
-import {MongoClient} from "mongodb"
+import {MongoClient, ObjectId} from "mongodb"
 
 const mongoUri = process.env.MONGOURI || 'mongodb://0.0.0.0:27017';
 export const client = new MongoClient(mongoUri)
 
 export type typeBlog = {
-    id: string
+    _id: ObjectId
     name: string
     youtubeUrl: string
     createdAt: string
 };
 export type typePost = {
-    id: string
+    _id: ObjectId
     title: string
     shortDescription: string
     content: string

@@ -1,16 +1,20 @@
-import {blogsRepository} from "./blogs-repository";
+import {blogsRepository, isIdValid} from "./blogs-repository";
 import {postCollection, typePost} from "./db";
+import {ObjectId} from "mongodb";
 
 export const postsRepository = {
     async findPosts(): Promise<typePost[]> {
-        return postCollection.find({}, {projection: {_id:0}}).toArray();
+        return postCollection.find({}).toArray();
     },
     async findPost(id: string): Promise<typePost | null> {
-        return postCollection.findOne( {id}, {projection: {_id:0}})
+        if ( !isIdValid(id) ) {
+            return null
+        }
+        return postCollection.findOne( {_id: new ObjectId(id)})
     },
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<typePost> {
         const newPost: typePost = {
-            id: "Post" + ( ( await postCollection.find().toArray()).length + 1),
+            _id: new ObjectId(),
             title,
             shortDescription,
             content,
@@ -18,20 +22,25 @@ export const postsRepository = {
             blogName: (await blogsRepository.findBlog(blogId))?.name || "",
             createdAt: new Date().toISOString()
         }
-        const newPostWithoutId: typePost = Object.assign( {}, newPost);
         await postCollection.insertOne(newPost)
-        return newPostWithoutId
+        return newPost
     },
     async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {
+        if ( !isIdValid(id) ) {
+            return false
+        }
         const result = await postCollection.updateOne(
-            {id},
+            {_id: new ObjectId(id)},
             {$set: {title, shortDescription, content, blogId}}
         );
         return result.matchedCount !== 0
     },
     async deletePost(id: string): Promise<boolean> {
+        if ( !isIdValid(id) ) {
+            return false
+        }
         const result = await postCollection.deleteOne(
-            {id}
+            {_id: new ObjectId(id)}
         );
         return result.deletedCount !== 0
     },

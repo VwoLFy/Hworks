@@ -1,33 +1,45 @@
 import {blogCollection, typeBlog} from "./db";
+import {ObjectId} from "mongodb";
+
+export const isIdValid = (id: string): boolean => {
+    return ObjectId.isValid(id)
+}
 
 export const blogsRepository = {
     async findBlogs(): Promise<typeBlog[]> {
-        return blogCollection.find({}, {projection: {_id:0}}).toArray()
+        return blogCollection.find({}).toArray()
     },
     async findBlog(id: string): Promise<typeBlog | null> {
-        return blogCollection.findOne({id}, {projection: {_id:0}})
+        if ( !isIdValid(id) ) {
+            return null
+        }
+        return blogCollection.findOne({_id: new ObjectId(id)})
     },
     async createBlog(name: string, youtubeUrl: string): Promise<typeBlog> {
         const newBlog: typeBlog = {
-            id: "Blog" + ((await blogCollection.find().toArray()).length + 1),
+            _id: new ObjectId(),
             name,
             youtubeUrl,
             createdAt: new Date().toISOString()
         }
-        const newBlogWithoutId: typeBlog = Object.assign( {}, newBlog);
         await blogCollection.insertOne(newBlog)
-        return newBlogWithoutId;
+        return newBlog;
     },
     async updateBlog(id: string, name: string, youtubeUrl: string): Promise<boolean> {
+        if ( !isIdValid(id) ) {
+            return false
+        }
         const result = await blogCollection.updateOne(
-            {id},
+            {_id: new ObjectId(id)},
             {$set: {name, youtubeUrl}}
         );
         return result.matchedCount !== 0;
-
     },
     async deleteBlog(id: string): Promise<boolean> {
-        const result = await blogCollection.deleteOne({id});
+        if ( !isIdValid(id) ) {
+            return false
+        }
+        const result = await blogCollection.deleteOne({_id: new ObjectId(id)});
         return result.deletedCount !== 0;
     },
     async deleteAll() {

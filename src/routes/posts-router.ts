@@ -16,7 +16,7 @@ const blogIdIsExist: CustomValidator = async value => {
     return true;
 
 };
-const blogIdValidation = body('blogId', "'blogId' must be exist").custom(blogIdIsExist);
+const blogIdValidation = body('blogId', "'blogId' must be exist").isMongoId().custom(blogIdIsExist);
 const listOfValidation = [titleValidation, shortDescriptionValidation, contentValidation, blogIdValidation, inputValidationMiddleware];
 
 postsRouter.get("/", async (req: Request, res: Response) => {
