@@ -26,8 +26,8 @@ blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidation, async (req
 })
 blogsRouter.put('/:id', checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
     const isUpdatedBlog = await blogsRepository.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
-    if (!isUpdatedBlog) res.sendStatus(404);
-    res.sendStatus(204)
+    if (!isUpdatedBlog) return res.sendStatus(404);
+    return res.sendStatus(204)
 })
 blogsRouter.delete('/:id', checkAuthorizationMiddleware, async (req: Request, res: Response) => {
     const isDeletedBlog = await blogsRepository.deleteBlog(req.params.id);
