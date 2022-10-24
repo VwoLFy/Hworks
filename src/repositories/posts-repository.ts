@@ -15,7 +15,8 @@ export const postsRepository = {
             shortDescription,
             content,
             blogId,
-            blogName: (await blogsRepository.findBlog(blogId))?.name || ""
+            blogName: (await blogsRepository.findBlog(blogId))?.name || "",
+            createdAt: new Date().toISOString()
         }
         const newPostWithoutId: typePost = Object.assign( {}, newPost);
         await postCollection.insertOne(newPost)

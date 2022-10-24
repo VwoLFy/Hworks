@@ -11,7 +11,8 @@ export const blogsRepository = {
         const newBlog: typeBlog = {
             id: "Blog" + ((await blogCollection.find().toArray()).length + 1),
             name,
-            youtubeUrl
+            youtubeUrl,
+            createdAt: new Date().toISOString()
         }
         const newBlogWithoutId: typeBlog = Object.assign( {}, newBlog);
         await blogCollection.insertOne(newBlog)

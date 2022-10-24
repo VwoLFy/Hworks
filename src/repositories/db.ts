@@ -8,6 +8,7 @@ export type typeBlog = {
     id: string
     name: string
     youtubeUrl: string
+    createdAt: string
 };
 export type typePost = {
     id: string
@@ -16,6 +17,7 @@ export type typePost = {
     content: string
     blogId: string
     blogName: string
+    createdAt: string
 }
 
 const db = client.db("Homework-3");
