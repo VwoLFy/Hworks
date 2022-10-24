@@ -16,11 +16,8 @@ blogsRouter.get('/', async (req: Request, res: Response) => {
 })
 blogsRouter.get('/:id', async (req: Request, res: Response) => {
     const foundBlog = await blogsRepository.findBlog(req.params.id);
-    if (foundBlog) {
-        res.json(foundBlog)
-    } else {
-        res.sendStatus(404)
-    }
+    if (!foundBlog) return res.sendStatus(404);
+    return res.status(200).json(foundBlog)
 
 })
 blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
