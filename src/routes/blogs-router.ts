@@ -16,9 +16,11 @@ blogsRouter.get('/', async (req: Request, res: Response) => {
 })
 blogsRouter.get('/:id', async (req: Request, res: Response) => {
     const foundBlog = await blogsRepository.findBlog(req.params.id);
-    if (!foundBlog) return res.sendStatus(404);
-    return res.status(200).json(foundBlog)
-
+    if (!foundBlog) {
+        res.sendStatus(404)
+    } else {
+        res.status(200).json(foundBlog)
+    }
 })
 blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
     const createdBlog = await blogsRepository.createBlog(req.body.name, req.body.youtubeUrl);
@@ -26,8 +28,11 @@ blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidation, async (req
 })
 blogsRouter.put('/:id', checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
     const isUpdatedBlog = await blogsRepository.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
-    if (!isUpdatedBlog) return res.sendStatus(404);
-    return res.sendStatus(204)
+    if (!isUpdatedBlog) {
+        res.sendStatus(404)
+    } else {
+        res.sendStatus(204)
+    }
 })
 blogsRouter.delete('/:id', checkAuthorizationMiddleware, async (req: Request, res: Response) => {
     const isDeletedBlog = await blogsRepository.deleteBlog(req.params.id);
@@ -36,5 +41,4 @@ blogsRouter.delete('/:id', checkAuthorizationMiddleware, async (req: Request, re
     } else {
         res.sendStatus(204)
     }
-
 })
