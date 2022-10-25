@@ -23,7 +23,7 @@ blogsRouter.get('/:id', checkIdValidForMongodb, async (req: Request, res: Respon
         res.status(200).json(foundBlog)
     }
 })
-blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidation, checkIdValidForMongodb, async (req: Request, res: Response) => {
+blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
     const createdBlog = await blogsRepository.createBlog(req.body.name, req.body.youtubeUrl);
     res.status(201).json(createdBlog)
 })
@@ -35,7 +35,7 @@ blogsRouter.put('/:id', checkAuthorizationMiddleware, listOfValidation, checkIdV
         res.sendStatus(204)
     }
 })
-blogsRouter.delete('/:id', checkAuthorizationMiddleware, async (req: Request, res: Response) => {
+blogsRouter.delete('/:id', checkAuthorizationMiddleware, checkIdValidForMongodb, async (req: Request, res: Response) => {
     const isDeletedBlog = await blogsRepository.deleteBlog(req.params.id);
     if (!isDeletedBlog) {
         res.sendStatus(404)
