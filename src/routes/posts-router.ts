@@ -4,6 +4,7 @@ import {body, CustomValidator} from "express-validator";
 import {checkAuthorizationMiddleware} from "../middlewares/check-authorization-middleware";
 import {inputValidationMiddleware} from "../middlewares/input-validation-middleware";
 import {blogsRepository} from "../repositories/blogs-repository";
+import {checkIdValidForMongodb} from "../middlewares/check-id-valid-for-mongodb";
 
 export const postsRouter = Router({});
 
@@ -22,7 +23,7 @@ const listOfValidation = [titleValidation, shortDescriptionValidation, contentVa
 postsRouter.get("/", async (req: Request, res: Response) => {
     res.json(await postsRepository.findPosts())
 })
-postsRouter.get("/:id", async (req: Request, res: Response) => {
+postsRouter.get("/:id", checkIdValidForMongodb, async (req: Request, res: Response) => {
     const foundPost = await postsRepository.findPost(req.params.id)
     if (!foundPost) {
         res.sendStatus(404)
@@ -34,7 +35,7 @@ postsRouter.post("/", checkAuthorizationMiddleware, listOfValidation, async (req
     const createdPost = await postsRepository.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     res.status(201).json(createdPost)
 })
-postsRouter.put("/:id", checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
+postsRouter.put("/:id", checkAuthorizationMiddleware, listOfValidation, checkIdValidForMongodb, async (req: Request, res: Response) => {
     const isUpdatedPost = await postsRepository.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     if (!isUpdatedPost) {
         res.sendStatus(404)
@@ -42,7 +43,7 @@ postsRouter.put("/:id", checkAuthorizationMiddleware, listOfValidation, async (r
         res.sendStatus(204)
     }
 })
-postsRouter.delete("/:id", checkAuthorizationMiddleware, async (req: Request, res: Response) => {
+postsRouter.delete("/:id", checkAuthorizationMiddleware, checkIdValidForMongodb, async (req: Request, res: Response) => {
     const isDeletedPost = await postsRepository.deletePost(req.params.id)
     if (!isDeletedPost) {
         res.sendStatus(404)

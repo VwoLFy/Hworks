@@ -1,10 +1,6 @@
 import {blogCollection, typeBlog} from "./db";
 import {ObjectId} from "mongodb";
 
-export const isIdValid = (id: string): boolean => {
-    return ObjectId.isValid(id)
-}
-
 const blogWithReplaceId = (object: typeBlog ): typeBlog => {
     return {
         id: object._id?.toString(),
@@ -20,9 +16,6 @@ export const blogsRepository = {
             .map( foundBlog => blogWithReplaceId(foundBlog) )
     },
     async findBlog(id: string): Promise<typeBlog | null> {
-        if (!isIdValid(id)) {
-            return null
-        }
         const foundBlog = await blogCollection.findOne({_id: new ObjectId(id)})
         if (!foundBlog) {
             return null
@@ -41,9 +34,6 @@ export const blogsRepository = {
         return blogWithReplaceId(newBlog)
     },
     async updateBlog(id: string, name: string, youtubeUrl: string): Promise<boolean> {
-        if (!isIdValid(id)) {
-            return false
-        }
         const result = await blogCollection.updateOne(
             {_id: new ObjectId(id)},
             {$set: {name, youtubeUrl}}
@@ -51,9 +41,6 @@ export const blogsRepository = {
         return result.matchedCount !== 0;
     },
     async deleteBlog(id: string): Promise<boolean> {
-        if (!isIdValid(id)) {
-            return false
-        }
         const result = await blogCollection.deleteOne({_id: new ObjectId(id)});
         return result.deletedCount !== 0;
     },

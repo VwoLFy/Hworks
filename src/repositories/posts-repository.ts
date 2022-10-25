@@ -1,4 +1,4 @@
-import {blogsRepository, isIdValid} from "./blogs-repository";
+import {blogsRepository} from "./blogs-repository";
 import {postCollection, typePost} from "./db";
 import {ObjectId} from "mongodb";
 
@@ -20,9 +20,6 @@ export const postsRepository = {
             .map( foundPost => postWithReplaceId(foundPost) )
     },
     async findPost(id: string): Promise<typePost | null> {
-        if ( !isIdValid(id) ) {
-            return null
-        }
         const foundPost = await postCollection.findOne({_id: new ObjectId(id)})
         if (!foundPost) {
             return null
@@ -44,9 +41,6 @@ export const postsRepository = {
         return postWithReplaceId(newPost)
     },
     async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {
-        if ( !isIdValid(id) ) {
-            return false
-        }
         const result = await postCollection.updateOne(
             {_id: new ObjectId(id)},
             {$set: {title, shortDescription, content, blogId}}
@@ -54,9 +48,6 @@ export const postsRepository = {
         return result.matchedCount !== 0
     },
     async deletePost(id: string): Promise<boolean> {
-        if ( !isIdValid(id) ) {
-            return false
-        }
         const result = await postCollection.deleteOne(
             {_id: new ObjectId(id)}
         );

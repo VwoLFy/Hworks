@@ -3,6 +3,7 @@ import {blogsRepository} from "../repositories/blogs-repository";
 import {body} from "express-validator";
 import {inputValidationMiddleware} from "../middlewares/input-validation-middleware";
 import {checkAuthorizationMiddleware} from "../middlewares/check-authorization-middleware";
+import {checkIdValidForMongodb} from "../middlewares/check-id-valid-for-mongodb";
 
 export const blogsRouter = Router({});
 
@@ -14,7 +15,7 @@ const listOfValidation = [nameValidation, youtubeUrlValidation, inputValidationM
 blogsRouter.get('/', async (req: Request, res: Response) => {
     res.json(await blogsRepository.findBlogs())
 })
-blogsRouter.get('/:id', async (req: Request, res: Response) => {
+blogsRouter.get('/:id', checkIdValidForMongodb, async (req: Request, res: Response) => {
     const foundBlog = await blogsRepository.findBlog(req.params.id);
     if (!foundBlog) {
         res.sendStatus(404)
@@ -22,11 +23,11 @@ blogsRouter.get('/:id', async (req: Request, res: Response) => {
         res.status(200).json(foundBlog)
     }
 })
-blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
+blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidation, checkIdValidForMongodb, async (req: Request, res: Response) => {
     const createdBlog = await blogsRepository.createBlog(req.body.name, req.body.youtubeUrl);
     res.status(201).json(createdBlog)
 })
-blogsRouter.put('/:id', checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
+blogsRouter.put('/:id', checkAuthorizationMiddleware, listOfValidation, checkIdValidForMongodb, async (req: Request, res: Response) => {
     const isUpdatedBlog = await blogsRepository.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
     if (!isUpdatedBlog) {
         res.sendStatus(404)
