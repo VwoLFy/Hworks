@@ -27,14 +27,18 @@ export const postsRepository = {
             return postWithReplaceId(foundPost)
         }
     },
-    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<typePost> {
+    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<typePost | null> {
+        const foundBlog = await blogsRepository.findBlog(blogId)
+        if (!foundBlog) {
+            return null
+        }
         const newPost: typePost = {
             _id: new ObjectId(),
             title,
             shortDescription,
             content,
             blogId,
-            blogName: (await blogsRepository.findBlog(blogId))?.name || "",
+            blogName: foundBlog.name,
             createdAt: new Date().toISOString()
         }
         await postCollection.insertOne(newPost)

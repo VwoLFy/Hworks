@@ -33,7 +33,11 @@ postsRouter.get("/:id", checkIdValidForMongodb, async (req: Request, res: Respon
 })
 postsRouter.post("/", checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
     const createdPost = await postsRepository.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
-    res.status(201).json(createdPost)
+    if (!createdPost) {
+        res.sendStatus(404)
+    } else {
+        res.status(201).json(createdPost)
+    }
 })
 postsRouter.put("/:id", checkAuthorizationMiddleware, listOfValidation, checkIdValidForMongodb, async (req: Request, res: Response) => {
     const isUpdatedPost = await postsRepository.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
