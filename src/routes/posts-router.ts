@@ -3,8 +3,9 @@ import {body, CustomValidator} from "express-validator";
 import {checkAuthorizationMiddleware} from "../middlewares/check-authorization-middleware";
 import {inputValidationMiddleware} from "../middlewares/input-validation-middleware";
 import {checkIdValidForMongodb} from "../middlewares/check-id-valid-for-mongodb";
-import {blogsService} from "../domain/blogs-service";
 import {postsService} from "../domain/posts-service";
+import {postsQueryRepo} from "../repositories/posts-queryRepo";
+import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
 
 export const postsRouter = Router({});
 
@@ -12,7 +13,7 @@ const titleValidation = body('title', "'title' must be  a string in range from 1
 const shortDescriptionValidation = body('shortDescription', "'shortDescription' must be a string in range from 1 to 100 symbols").isString().trim().isLength({min: 1, max: 100});
 const contentValidation = body('content', "'content' must be a string  in range from 1 to 1000 symbols").isString().trim().isLength({min: 1, max: 1000});
 const blogIdIsExist: CustomValidator = async value => {
-    const foundBlog = await blogsService.findBlog(value)
+    const foundBlog = await blogsQueryRepo.findBlog(value)
     if (!foundBlog) throw new Error();
     return true;
 };
@@ -20,10 +21,10 @@ const blogIdValidation = body('blogId', "'blogId' must be exist").isMongoId().cu
 const listOfValidation = [titleValidation, shortDescriptionValidation, contentValidation, blogIdValidation, inputValidationMiddleware];
 
 postsRouter.get("/", async (req: Request, res: Response) => {
-    res.json(await postsService.findPosts())
+    res.json(await postsQueryRepo.findPosts())
 })
 postsRouter.get("/:id", checkIdValidForMongodb, async (req: Request, res: Response) => {
-    const foundPost = await postsService.findPost(req.params.id)
+    const foundPost = await postsQueryRepo.findPost(req.params.id)
     if (!foundPost) {
         res.sendStatus(404)
     } else {

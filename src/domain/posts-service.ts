@@ -1,6 +1,6 @@
 import {TypePostDB} from "../repositories/db";
 import {postsRepository} from "../repositories/posts-repository";
-import {blogsService} from "./blogs-service";
+import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
 
 export type TypePost = {
     id: string
@@ -46,7 +46,7 @@ export const postsService = {
         }
     },
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<TypePost | null> {
-        const foundBlog = await blogsService.findBlog(blogId)
+        const foundBlog = await blogsQueryRepo.findBlog(blogId)
         if (!foundBlog) {
             return null
         }
