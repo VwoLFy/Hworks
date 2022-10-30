@@ -4,6 +4,7 @@ import {body} from "express-validator";
 import {inputValidationMiddleware} from "../middlewares/input-validation-middleware";
 import {checkAuthorizationMiddleware} from "../middlewares/check-authorization-middleware";
 import {checkIdValidForMongodb} from "../middlewares/check-id-valid-for-mongodb";
+import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
 
 export const blogsRouter = Router({});
 
@@ -13,10 +14,10 @@ const youtubeUrlValidation = body('youtubeUrl', "'youtubeUrl' must be a string i
 const listOfValidation = [nameValidation, youtubeUrlValidation, inputValidationMiddleware];
 
 blogsRouter.get('/', async (req: Request, res: Response) => {
-    res.json(await blogsService.findBlogs())
+    res.json(await blogsQueryRepo.findBlogs())
 })
 blogsRouter.get('/:id', checkIdValidForMongodb, async (req: Request, res: Response) => {
-    const foundBlog = await blogsService.findBlog(req.params.id);
+    const foundBlog = await blogsQueryRepo.findBlog(req.params.id);
     if (!foundBlog) {
         res.sendStatus(404)
     } else {
