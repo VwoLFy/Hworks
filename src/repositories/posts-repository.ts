@@ -1,48 +1,16 @@
-import {blogsRepository} from "./blogs-repository";
 import {postCollection, typePost} from "./db";
 import {ObjectId} from "mongodb";
 
-const postWithReplaceId = (object: typePost ): typePost => {
-    return {
-        id: object._id?.toString(),
-        title: object.title,
-        shortDescription: object.shortDescription,
-        content: object.content,
-        blogId: object.blogId,
-        blogName: object.blogName,
-        createdAt: object.createdAt
-    }
-}
-
 export const postsRepository = {
     async findPosts(): Promise<typePost[]> {
-        return (await postCollection.find({}).toArray())
-            .map( foundPost => postWithReplaceId(foundPost) )
+        return await postCollection.find({}).toArray()
     },
     async findPost(id: string): Promise<typePost | null> {
-        const foundPost = await postCollection.findOne({_id: new ObjectId(id)})
-        if (!foundPost) {
-            return null
-        } else {
-            return postWithReplaceId(foundPost)
-        }
+        return await postCollection.findOne({_id: new ObjectId(id)})
     },
-    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<typePost | null> {
-        const foundBlog = await blogsRepository.findBlog(blogId)
-        if (!foundBlog) {
-            return null
-        }
-        const newPost: typePost = {
-            _id: new ObjectId(),
-            title,
-            shortDescription,
-            content,
-            blogId,
-            blogName: foundBlog.name,
-            createdAt: new Date().toISOString()
-        }
+    async createPost(newPost: typePost): Promise<typePost> {
         await postCollection.insertOne(newPost)
-        return postWithReplaceId(newPost)
+        return newPost
     },
     async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {
         const result = await postCollection.updateOne(

@@ -1,5 +1,5 @@
 import {Request, Response, Router} from "express";
-import {blogsRepository} from "../repositories/blogs-repository";
+import {blogsService} from "../domain/blogs-service";
 import {body} from "express-validator";
 import {inputValidationMiddleware} from "../middlewares/input-validation-middleware";
 import {checkAuthorizationMiddleware} from "../middlewares/check-authorization-middleware";
@@ -13,10 +13,10 @@ const youtubeUrlValidation = body('youtubeUrl', "'youtubeUrl' must be a string i
 const listOfValidation = [nameValidation, youtubeUrlValidation, inputValidationMiddleware];
 
 blogsRouter.get('/', async (req: Request, res: Response) => {
-    res.json(await blogsRepository.findBlogs())
+    res.json(await blogsService.findBlogs())
 })
 blogsRouter.get('/:id', checkIdValidForMongodb, async (req: Request, res: Response) => {
-    const foundBlog = await blogsRepository.findBlog(req.params.id);
+    const foundBlog = await blogsService.findBlog(req.params.id);
     if (!foundBlog) {
         res.sendStatus(404)
     } else {
@@ -24,11 +24,11 @@ blogsRouter.get('/:id', checkIdValidForMongodb, async (req: Request, res: Respon
     }
 })
 blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
-    const createdBlog = await blogsRepository.createBlog(req.body.name, req.body.youtubeUrl);
+    const createdBlog = await blogsService.createBlog(req.body.name, req.body.youtubeUrl);
     res.status(201).json(createdBlog)
 })
 blogsRouter.put('/:id', checkAuthorizationMiddleware, listOfValidation, checkIdValidForMongodb, async (req: Request, res: Response) => {
-    const isUpdatedBlog = await blogsRepository.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
+    const isUpdatedBlog = await blogsService.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
     if (!isUpdatedBlog) {
         res.sendStatus(404)
     } else {
@@ -36,7 +36,7 @@ blogsRouter.put('/:id', checkAuthorizationMiddleware, listOfValidation, checkIdV
     }
 })
 blogsRouter.delete('/:id', checkAuthorizationMiddleware, checkIdValidForMongodb, async (req: Request, res: Response) => {
-    const isDeletedBlog = await blogsRepository.deleteBlog(req.params.id);
+    const isDeletedBlog = await blogsService.deleteBlog(req.params.id);
     if (!isDeletedBlog) {
         res.sendStatus(404)
     } else {

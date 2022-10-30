@@ -1,37 +1,16 @@
 import {blogCollection, typeBlog} from "./db";
 import {ObjectId} from "mongodb";
 
-const blogWithReplaceId = (object: typeBlog ): typeBlog => {
-    return {
-        id: object._id?.toString(),
-        name: object.name,
-        youtubeUrl: object.youtubeUrl,
-        createdAt: object.createdAt
-    }
-}
-
 export const blogsRepository = {
     async findBlogs(): Promise<typeBlog[]> {
-        return (await blogCollection.find({}).toArray())
-            .map( foundBlog => blogWithReplaceId(foundBlog) )
+        return await blogCollection.find({}).toArray()
     },
     async findBlog(id: string): Promise<typeBlog | null> {
-        const foundBlog = await blogCollection.findOne({_id: new ObjectId(id)})
-        if (!foundBlog) {
-            return null
-        } else {
-            return blogWithReplaceId(foundBlog)
-        }
+        return await blogCollection.findOne({_id: new ObjectId(id)})
     },
-    async createBlog(name: string, youtubeUrl: string): Promise<typeBlog> {
-        const newBlog: typeBlog = {
-            _id: new ObjectId(),
-            name,
-            youtubeUrl,
-            createdAt: new Date().toISOString()
-        }
-        await blogCollection.insertOne(newBlog)
-        return blogWithReplaceId(newBlog)
+    async createBlog(newBlog: typeBlog): Promise<typeBlog> {
+        await blogCollection.insertOne(newBlog);
+        return newBlog
     },
     async updateBlog(id: string, name: string, youtubeUrl: string): Promise<boolean> {
         const result = await blogCollection.updateOne(
