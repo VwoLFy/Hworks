@@ -1,11 +1,28 @@
-import {typePost} from "../repositories/db";
-import {ObjectId} from "mongodb";
+import {TypePostDB} from "../repositories/db";
 import {postsRepository} from "../repositories/posts-repository";
 import {blogsService} from "./blogs-service";
 
-const postWithReplaceId = (object: typePost ): typePost => {
+export type TypePost = {
+    id: string
+    title: string
+    shortDescription: string
+    content: string
+    blogId: string
+    blogName: string
+    createdAt: string
+}
+export type TypeNewPost = {
+    title: string
+    shortDescription: string
+    content: string
+    blogId: string
+    blogName: string
+    createdAt: string
+}
+
+const postWithReplaceId = (object: TypePostDB ): TypePost => {
     return {
-        id: object._id?.toString(),
+        id: object._id.toString(),
         title: object.title,
         shortDescription: object.shortDescription,
         content: object.content,
@@ -16,11 +33,11 @@ const postWithReplaceId = (object: typePost ): typePost => {
 }
 
 export const postsService = {
-    async findPosts(): Promise<typePost[]> {
+    async findPosts(): Promise<TypePost[]> {
         return (await postsRepository.findPosts())
             .map( foundPost => postWithReplaceId(foundPost) )
     },
-    async findPost(id: string): Promise<typePost | null> {
+    async findPost(id: string): Promise<TypePost | null> {
         const foundPost = await postsRepository.findPost(id)
         if (!foundPost) {
             return null
@@ -28,13 +45,12 @@ export const postsService = {
             return postWithReplaceId(foundPost)
         }
     },
-    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<typePost | null> {
+    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<TypePost | null> {
         const foundBlog = await blogsService.findBlog(blogId)
         if (!foundBlog) {
             return null
         }
-        const newPost: typePost = {
-            _id: new ObjectId(),
+        const newPost: TypeNewPost = {
             title,
             shortDescription,
             content,

@@ -1,14 +1,14 @@
 import {NextFunction, Request, Response} from "express";
 import {validationResult} from "express-validator";
 
-type typeError = {
+type TypeError = {
     message: string
     field: string
 }
-type typeErrorResult = {
-    errorsMessages: Array<typeError>
+type TypeErrorResult = {
+    errorsMessages: Array<TypeError>
 }
-const apiErrorResult: typeErrorResult = {
+const apiErrorResult: TypeErrorResult = {
     errorsMessages: []
 }
 

@@ -11,13 +11,12 @@ export const postsRouter = Router({});
 const titleValidation = body('title', "'title' must be  a string in range from 1 to 30 symbols").isString().trim().isLength({min: 1, max: 30});
 const shortDescriptionValidation = body('shortDescription', "'shortDescription' must be a string in range from 1 to 100 symbols").isString().trim().isLength({min: 1, max: 100});
 const contentValidation = body('content', "'content' must be a string  in range from 1 to 1000 symbols").isString().trim().isLength({min: 1, max: 1000});
-const blogIdIsExist: CustomValidator = async value => {
-    const foundBlog = await blogsService.findBlog(value)
-    if (!foundBlog) throw new Error();
-    return true;
-
-};
-const blogIdValidation = body('blogId', "'blogId' must be exist").isMongoId().custom(blogIdIsExist);
+// const blogIdIsExist: CustomValidator = async value => {
+//     const foundBlog = await blogsService.findBlog(value)
+//     if (!foundBlog) throw new Error();
+//     return true;
+// };
+const blogIdValidation = body('blogId', "'blogId' must be exist").isMongoId()//.custom(blogIdIsExist);
 const listOfValidation = [titleValidation, shortDescriptionValidation, contentValidation, blogIdValidation, inputValidationMiddleware];
 
 postsRouter.get("/", async (req: Request, res: Response) => {
@@ -34,7 +33,7 @@ postsRouter.get("/:id", checkIdValidForMongodb, async (req: Request, res: Respon
 postsRouter.post("/", checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
     const createdPost = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     if (!createdPost) {
-        res.sendStatus(404)
+        res.sendStatus(400)
     } else {
         res.status(201).json(createdPost)
     }

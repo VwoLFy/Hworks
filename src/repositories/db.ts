@@ -4,16 +4,14 @@ import {MongoClient, ObjectId} from "mongodb"
 const mongoUri = process.env.MONGOURI || 'mongodb://0.0.0.0:27017';
 export const client = new MongoClient(mongoUri)
 
-export type typeBlog = {
-    _id?: ObjectId
-    id?: string
+export type TypeBlogDB = {
+    _id: ObjectId
     name: string
     youtubeUrl: string
     createdAt: string
 };
-export type typePost = {
-    _id?: ObjectId
-    id?: string
+export type TypePostDB = {
+    _id: ObjectId
     title: string
     shortDescription: string
     content: string
@@ -23,8 +21,8 @@ export type typePost = {
 }
 
 const db = client.db("Homework-3");
-export const blogCollection = db.collection<typeBlog>("blogs");
-export const postCollection = db.collection<typePost>("posts");
+export const blogCollection = db.collection<TypeBlogDB>("blogs");
+export const postCollection = db.collection<TypePostDB>("posts");
 
 export async function runDb() {
     try {
