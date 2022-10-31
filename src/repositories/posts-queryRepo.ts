@@ -1,7 +1,7 @@
 import {ObjectId} from "mongodb";
 import {postCollection} from "./db";
 
-type TypePost = {
+type TypePostOutputModel = {
     id: string
     title: string
     shortDescription: string
@@ -10,7 +10,7 @@ type TypePost = {
     blogName: string
     createdAt: string
 }
-type TypePostDB = {
+type TypePostFromDB = {
     _id: ObjectId
     title: string
     shortDescription: string
@@ -21,10 +21,10 @@ type TypePostDB = {
 }
 
 export const postsQueryRepo = {
-    async findPosts(): Promise<TypePost[]> {
+    async findPosts(): Promise<TypePostOutputModel[]> {
         return (await postCollection.find({}).toArray()).map( foundPost => this.postWithReplaceId(foundPost) )
     },
-    async findPostById(id: string): Promise<TypePost | null> {
+    async findPostById(id: string): Promise<TypePostOutputModel | null> {
         const foundPost = await postCollection.findOne({_id: new ObjectId(id)})
         if (!foundPost) {
             return null
@@ -32,7 +32,7 @@ export const postsQueryRepo = {
             return this.postWithReplaceId(foundPost)
         }
     },
-    postWithReplaceId (object: TypePostDB ): TypePost {
+    postWithReplaceId (object: TypePostFromDB ): TypePostOutputModel {
         return {
             id: object._id.toString(),
             title: object.title,

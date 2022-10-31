@@ -4,9 +4,8 @@ import {TypeNewPost} from "../domain/posts-service";
 
 export const postsRepository = {
     async createPost(newPost: TypeNewPost): Promise<string> {
-        const newPostWithId = {...newPost, _id: new ObjectId()};
-        await postCollection.insertOne(newPostWithId)
-        return newPostWithId._id.toString()
+        const result = await postCollection.insertOne(newPost)
+        return result.insertedId.toString()
     },
     async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {
         const result = await postCollection.updateOne(

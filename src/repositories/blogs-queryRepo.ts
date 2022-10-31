@@ -1,13 +1,13 @@
 import {blogCollection} from "./db";
 import {ObjectId} from "mongodb";
 
-type TypeBlog = {
+type TypeBlogOutputModel = {
     id: string
     name: string
     youtubeUrl: string
     createdAt: string
 };
-type TypeBlogDB = {
+type TypeBlogFromDB = {
     _id: ObjectId
     name: string
     youtubeUrl: string
@@ -15,10 +15,10 @@ type TypeBlogDB = {
 };
 
 export const blogsQueryRepo = {
-    async findBlogs(): Promise<TypeBlog[]> {
+    async findBlogs(): Promise<TypeBlogOutputModel[]> {
         return (await blogCollection.find({}).toArray()).map( foundBlog => this.blogWithReplaceId(foundBlog) )
     },
-    async findBlogById(id: string): Promise<TypeBlog | null> {
+    async findBlogById(id: string): Promise<TypeBlogOutputModel | null> {
         const foundBlog = await blogCollection.findOne({_id: new ObjectId(id)})
         if (!foundBlog) {
             return null
@@ -26,7 +26,7 @@ export const blogsQueryRepo = {
             return this.blogWithReplaceId(foundBlog)
         }
     },
-    blogWithReplaceId  (object: TypeBlogDB ): TypeBlog  {
+    blogWithReplaceId  (object: TypeBlogFromDB ): TypeBlogOutputModel  {
         return {
             id: object._id.toString(),
             name: object.name,

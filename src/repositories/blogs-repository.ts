@@ -11,9 +11,8 @@ export const blogsRepository = {
         return foundBlog.name
     },
     async createBlog(newBlog: TypeNewBlog): Promise<string> {
-        const newBlogWithId = {...newBlog, _id: new ObjectId()}
-        await blogCollection.insertOne(newBlogWithId);
-        return newBlogWithId._id.toString()
+        const result = await blogCollection.insertOne(newBlog);
+        return result.insertedId.toString()
     },
     async updateBlog(id: string, name: string, youtubeUrl: string): Promise<boolean> {
         const result = await blogCollection.updateOne(
