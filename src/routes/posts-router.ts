@@ -27,7 +27,7 @@ postsRouter.get("/", async (req: Request, res: Response) => {
     res.json(await postsQueryRepo.findPosts())
 })
 postsRouter.get("/:id", checkIdValidForMongodb, async (req: Request, res: Response) => {
-    const foundPost = await postsQueryRepo.findPost(req.params.id)
+    const foundPost = await postsQueryRepo.findPostById(req.params.id)
     if (!foundPost) {
         res.sendStatus(404)
     } else {
@@ -35,10 +35,11 @@ postsRouter.get("/:id", checkIdValidForMongodb, async (req: Request, res: Respon
     }
 })
 postsRouter.post("/", checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
-    const createdPost = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
-    if (!createdPost) {
+    const createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
+    if (!createdPostId) {
         res.sendStatus(404)
     } else {
+        const createdPost = await postsQueryRepo.findPostById(createdPostId)
         res.status(201).json(createdPost)
     }
 })

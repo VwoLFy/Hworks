@@ -24,7 +24,7 @@ export const postsQueryRepo = {
     async findPosts(): Promise<TypePost[]> {
         return (await postCollection.find({}).toArray()).map( foundPost => this.postWithReplaceId(foundPost) )
     },
-    async findPost(id: string): Promise<TypePost | null> {
+    async findPostById(id: string): Promise<TypePost | null> {
         const foundPost = await postCollection.findOne({_id: new ObjectId(id)})
         if (!foundPost) {
             return null
