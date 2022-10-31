@@ -1,5 +1,5 @@
 import {blogsRepository} from "../repositories/blogs-repository";
-import {TypeBlogDB} from "../repositories/db";
+//import {TypeBlogDB} from "../repositories/db";
 
 export type TypeBlog = {
     id: string
@@ -13,6 +13,7 @@ export type TypeNewBlog = {
     createdAt: string
 };
 
+/*
 const blogWithReplaceId = (object: TypeBlogDB ): TypeBlog => {
     return {
         id: object._id.toString(),
@@ -21,28 +22,30 @@ const blogWithReplaceId = (object: TypeBlogDB ): TypeBlog => {
         createdAt: object.createdAt
     }
 }
+*/
 
 export const blogsService = {
+/*
     async findBlogs(): Promise<TypeBlog[]> {
         return (await blogsRepository.findBlogs())
             .map( foundBlog => blogWithReplaceId(foundBlog) )
     },
-    async findBlog(id: string): Promise<TypeBlog | null> {
-        const foundBlog = await blogsRepository.findBlog(id)
+    async findBlogById(id: string): Promise<TypeBlog | null> {
+        const foundBlog = await blogsRepository.findBlogById(id)
         if (!foundBlog) {
             return null
         } else {
             return blogWithReplaceId(foundBlog)
         }
     },
-    async createBlog(name: string, youtubeUrl: string): Promise<TypeBlog> {
+*/
+    async createBlog(name: string, youtubeUrl: string): Promise<string> {
         const newBlog: TypeNewBlog = {
             name,
             youtubeUrl,
             createdAt: new Date().toISOString()
         }
-        const createdBlog = await blogsRepository.createBlog(newBlog)
-        return blogWithReplaceId(createdBlog)
+        return await blogsRepository.createBlog(newBlog)
     },
     async updateBlog(id: string, name: string, youtubeUrl: string): Promise<boolean> {
         return await blogsRepository.updateBlog(id, name, youtubeUrl);

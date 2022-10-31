@@ -9,11 +9,14 @@ import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
 
 export const postsRouter = Router({});
 
-const titleValidation = body('title', "'title' must be  a string in range from 1 to 30 symbols").isString().trim().isLength({min: 1, max: 30});
-const shortDescriptionValidation = body('shortDescription', "'shortDescription' must be a string in range from 1 to 100 symbols").isString().trim().isLength({min: 1, max: 100});
-const contentValidation = body('content', "'content' must be a string  in range from 1 to 1000 symbols").isString().trim().isLength({min: 1, max: 1000});
+const titleValidation = body('title', "'title' must be  a string in range from 1 to 30 symbols")
+    .isString().trim().isLength({min: 1, max: 30});
+const shortDescriptionValidation = body('shortDescription', "'shortDescription' must be a string in range from 1 to 100 symbols")
+    .isString().trim().isLength({min: 1, max: 100});
+const contentValidation = body('content', "'content' must be a string  in range from 1 to 1000 symbols")
+    .isString().trim().isLength({min: 1, max: 1000});
 const blogIdIsExist: CustomValidator = async value => {
-    const foundBlog = await blogsQueryRepo.findBlog(value)
+    const foundBlog = await blogsQueryRepo.findBlogById(value)
     if (!foundBlog) throw new Error();
     return true;
 };

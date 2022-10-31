@@ -1,6 +1,6 @@
 import {TypePostDB} from "../repositories/db";
 import {postsRepository} from "../repositories/posts-repository";
-import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
+import {blogsRepository} from "../repositories/blogs-repository";
 
 export type TypePost = {
     id: string
@@ -33,6 +33,7 @@ const postWithReplaceId = (object: TypePostDB ): TypePost => {
 }
 
 export const postsService = {
+/*
     async findPosts(): Promise<TypePost[]> {
         return (await postsRepository.findPosts())
             .map( foundPost => postWithReplaceId(foundPost) )
@@ -45,8 +46,9 @@ export const postsService = {
             return postWithReplaceId(foundPost)
         }
     },
+*/
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<TypePost | null> {
-        const foundBlog = await blogsQueryRepo.findBlog(blogId)
+        const foundBlog = await blogsRepository.findBlogById(blogId)
         if (!foundBlog) {
             return null
         }

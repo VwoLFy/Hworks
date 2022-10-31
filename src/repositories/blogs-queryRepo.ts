@@ -18,7 +18,7 @@ export const blogsQueryRepo = {
     async findBlogs(): Promise<TypeBlog[]> {
         return (await blogCollection.find({}).toArray()).map( foundBlog => this.blogWithReplaceId(foundBlog) )
     },
-    async findBlog(id: string): Promise<TypeBlog | null> {
+    async findBlogById(id: string): Promise<TypeBlog | null> {
         const foundBlog = await blogCollection.findOne({_id: new ObjectId(id)})
         if (!foundBlog) {
             return null
