@@ -22,8 +22,7 @@ enum sortDirection {
 export const blogsQueryRepo = {
     async findBlogs(searchNameTerm: string | null, pageNumber: number, pageSize: number, sortBy: string, sortDirectionStr: any): Promise<TypeBlogOutputModel[]> {
         const filter = {};
-        if (searchNameTerm) filter.name = { $regex: searchNameTerm}
-        //const sort = { sortBy: sortDirection[sortDirectionStr]}
+        if (searchNameTerm) filter.name = { $regex: searchNameTerm, $options: 'i'}
         const sort = {}
         sort[sortBy] = sortDirection[sortDirectionStr]
         console.log(searchNameTerm, pageNumber, pageSize, sortBy, sortDirection[sortDirectionStr], filter, sort)

@@ -28,7 +28,7 @@ const queryValidation = [
     query('searchNameTerm').customSanitizer(value => {
         if (!value) return null;
         return value
-    }).toLowerCase(),
+    }),
     query('pageNumber').customSanitizer(value => {
         value = Number(value)
         if (!value) return 1;
