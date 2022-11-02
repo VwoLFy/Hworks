@@ -64,7 +64,7 @@ postsRouter.get("/:id", checkIdValidForMongodb, async (req: Request, res: Respon
         res.status(200).json(foundPost)
     }
 })
-postsRouter.post("/", checkAuthorizationMiddleware, listOfValidationPost, async (req: Request, res: Response) => {
+postsRouter.post("/", checkAuthorizationMiddleware, blogIdValidation, listOfValidationPost, async (req: Request, res: Response) => {
     const createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     if (!createdPostId) {
         res.sendStatus(404)
