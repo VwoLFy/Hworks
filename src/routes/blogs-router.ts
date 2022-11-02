@@ -12,7 +12,7 @@ import {ObjectId} from "mongodb";
 
 export const blogsRouter = Router({});
 
-interface ReqQuery {
+type ReqQuery = {
     searchNameTerm: string | null
     pageNumber: number
     pageSize: number
@@ -65,14 +65,22 @@ blogsRouter.get('/:id', checkIdValidForMongodb, async (req: Request, res: Respon
     }
 })
 blogsRouter.get('/:id/posts', checkIdValidForMongodb, async (req: Request, res: Response) => {
-    const pageNumber = Number(req.query.pageNumber) || 1
-    const pageSize = Number(req.query.pageSize) || 10
-    let sortBy = req.query.sortBy?.toString()
-    sortBy = (!sortBy || !['id', 'name', 'youtubeUrl', 'createdAt'].includes(sortBy)) ? 'createdAt' : sortBy
-    let sortDirection = req.query.sortDirection?.toString()
-    sortDirection = (!sortDirection || !['asc', 'desc'].includes(sortDirection)) ? 'desc' : sortDirection
-
-    const foundBlog = await postsQueryRepo.findPostsByBlogId(req.params.id, pageNumber, pageSize, sortBy, sortDirection);
+    const checkQuery = (query: any): Omit<ReqQuery, "searchNameTerm"> => {
+        const pageNumber = Number(query.pageNumber) || 1
+        const pageSize = Number(query.pageSize) || 10
+        let sortBy = query.sortBy?.toString()
+        sortBy = (!sortBy || !['id', 'name', 'youtubeUrl', 'createdAt'].includes(sortBy)) ? 'createdAt' : sortBy
+        let sortDirection = query.sortDirection?.toString()
+        sortDirection = (!sortDirection || !['asc', 'desc'].includes(sortDirection)) ? 'desc' : sortDirection
+        return {
+            pageNumber,
+            pageSize,
+            sortBy,
+            sortDirection
+        }
+    }
+    const validQuery = checkQuery(req.query)
+    const foundBlog = await postsQueryRepo.findPostsByBlogId(req.params.id, validQuery.pageNumber, validQuery.pageSize, validQuery.sortBy, validQuery.sortDirection);
     if (!foundBlog) {
         res.sendStatus(404)
     } else {
@@ -80,8 +88,10 @@ blogsRouter.get('/:id/posts', checkIdValidForMongodb, async (req: Request, res: 
     }
 })
 blogsRouter.post('/:id/posts', checkAuthorizationMiddleware, listOfValidationPost, async (req: Request, res: Response) => {
-    if (!ObjectId.isValid(req.params.id)) return res.sendStatus(404)
-    const createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.id)
+    let createdPostId = null
+    if (ObjectId.isValid(req.params.id)) {
+        createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.id)
+    }
     if (!createdPostId) {
         res.sendStatus(404)
     } else {
