@@ -5,6 +5,7 @@ import {inputValidationMiddleware} from "../middlewares/input-validation-middlew
 import {checkAuthorizationMiddleware} from "../middlewares/check-authorization-middleware";
 import {checkIdValidForMongodb} from "../middlewares/check-id-valid-for-mongodb";
 import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
+import {postsQueryRepo} from "../repositories/posts-queryRepo";
 
 export const blogsRouter = Router({});
 
@@ -60,6 +61,22 @@ blogsRouter.get('/:id', checkIdValidForMongodb, async (req: Request, res: Respon
         res.status(200).json(foundBlog)
     }
 })
+blogsRouter.get('/:id/posts', checkIdValidForMongodb, async (req: Request, res: Response) => {
+    const pageNumber = Number(req.query.pageNumber) || 1
+    const pageSize = Number(req.query.pageSize) || 10
+    let sortBy = req.query.sortBy?.toString()
+    sortBy = (!sortBy || !['id', 'name', 'youtubeUrl', 'createdAt'].includes(sortBy)) ? 'createdAt' : sortBy
+    let sortDirection = req.query.sortDirection?.toString()
+    sortDirection = (!sortDirection || !['asc', 'desc'].includes(sortDirection)) ? 'desc' : sortDirection
+
+    const foundBlog = await postsQueryRepo.findPostsByBlogId(req.params.id, pageNumber, pageSize, sortBy, sortDirection);
+    if (!foundBlog) {
+        res.sendStatus(404)
+    } else {
+        res.status(200).json(foundBlog)
+    }
+})
+
 blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
     const createdBlogId = await blogsService.createBlog(req.body.name, req.body.youtubeUrl);
     const createdBlog = await blogsQueryRepo.findBlogById(createdBlogId);

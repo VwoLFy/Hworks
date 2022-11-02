@@ -63,6 +63,28 @@ export const postsQueryRepo = {
             return this.postWithReplaceId(foundPost)
         }
     },
+    async findPostsByBlogId(blogId: string, pageNumber: number, pageSize: number, sortBy: string, sortDirectionStr: any): Promise<TypePostOutputPage | null> {
+        const optionsSort: { [key: string]: any } = {};
+        optionsSort[sortBy] = sortDirection[sortDirectionStr]
+
+        const totalCount = await postCollection.count({blogId})
+        const pagesCount = Math.ceil(totalCount / pageSize)
+        const page = pageNumber;
+
+        const items = (await postCollection.find({blogId})
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .sort(optionsSort)
+            .toArray())
+            .map(foundBlog => this.postWithReplaceId(foundBlog))
+        return {
+            pagesCount,
+            page,
+            pageSize,
+            totalCount,
+            items
+        }
+    },
     postWithReplaceId (object: TypePostFromDB ): TypePostOutputModel {
         return {
             id: object._id.toString(),
