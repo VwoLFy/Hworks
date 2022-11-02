@@ -68,6 +68,8 @@ export const postsQueryRepo = {
         optionsSort[sortBy] = sortDirection[sortDirectionStr]
 
         const totalCount = await postCollection.count({blogId})
+        if (totalCount == 0) return null
+
         const pagesCount = Math.ceil(totalCount / pageSize)
         const page = pageNumber;
 
