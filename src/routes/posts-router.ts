@@ -1,5 +1,5 @@
 import {Request, Response, Router} from "express";
-import {body, CustomValidator} from "express-validator";
+import {body, CustomValidator, query} from "express-validator";
 import {checkAuthorizationMiddleware} from "../middlewares/check-authorization-middleware";
 import {inputValidationMiddleware} from "../middlewares/input-validation-middleware";
 import {checkIdValidForMongodb} from "../middlewares/check-id-valid-for-mongodb";
@@ -8,6 +8,13 @@ import {postsQueryRepo} from "../repositories/posts-queryRepo";
 import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
 
 export const postsRouter = Router({});
+
+interface ReqQuery {
+    pageNumber: number
+    pageSize: number
+    sortBy: string
+    sortDirection: string
+}
 
 const titleValidation = body('title', "'title' must be  a string in range from 1 to 30 symbols")
     .isString().trim().isLength({min: 1, max: 30});
@@ -22,9 +29,32 @@ const blogIdIsExist: CustomValidator = async value => {
 };
 const blogIdValidation = body('blogId', "'blogId' must be exist").isMongoId().custom(blogIdIsExist);
 const listOfValidation = [titleValidation, shortDescriptionValidation, contentValidation, blogIdValidation, inputValidationMiddleware];
+const queryValidation = [
+    query('pageNumber').customSanitizer(value => {
+        value = Number(value)
+        if (!value) return 1;
+        return value
+    }),
+    query('pageSize').customSanitizer(value => {
+        value = Number(value)
+        if (!value) return 10;
+        return value
+    }),
+    query('sortBy').customSanitizer(value => {
+        const fields = ['id', 'title', 'shortDescription', 'content', 'blogId', 'blogName', 'createdAt'];
+        if (!value || !fields.includes(value)) return 'createdAt'
+        return value
+    }),
+    query('sortDirection').customSanitizer(value => {
+        const fields = ['asc', 'desc'];
+        if (!value || !fields.includes(value)) return 'desc'
+        return value
+    }),
+]
 
-postsRouter.get("/", async (req: Request, res: Response) => {
-    res.json(await postsQueryRepo.findPosts())
+postsRouter.get("/", queryValidation, async (req: Request<{}, {}, {}, ReqQuery>, res: Response) => {
+    const {pageNumber, pageSize, sortBy, sortDirection} = req.query;
+    res.json(await postsQueryRepo.findPosts(pageNumber, pageSize, sortBy, sortDirection))
 })
 postsRouter.get("/:id", checkIdValidForMongodb, async (req: Request, res: Response) => {
     const foundPost = await postsQueryRepo.findPostById(req.params.id)

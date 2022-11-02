@@ -19,10 +19,7 @@ interface ReqQuery {
 const nameValidation = body('name', "'name' must be a string in range from 1 to 15 symbols")
     .isString().trim().isLength({min: 1, max: 15});
 const youtubeUrlValidation = body('youtubeUrl', "'youtubeUrl' must be a string in range from 1 to 100 symbols")
-    .isString().trim().matches("https://([a-zA-Z0-9_-]+.)+[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*/?$").isLength({
-        min: 1,
-        max: 100
-    });
+    .isString().trim().matches("https://([a-zA-Z0-9_-]+.)+[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*/?$").isLength({min: 1, max: 100});
 const listOfValidation = [nameValidation, youtubeUrlValidation, inputValidationMiddleware];
 const queryValidation = [
     query('searchNameTerm').customSanitizer(value => {
