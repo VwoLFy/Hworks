@@ -6,6 +6,9 @@ import {checkAuthorizationMiddleware} from "../middlewares/check-authorization-m
 import {checkIdValidForMongodb} from "../middlewares/check-id-valid-for-mongodb";
 import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
 import {postsQueryRepo} from "../repositories/posts-queryRepo";
+import {postsService} from "../domain/posts-service";
+import {listOfValidationPost} from "./posts-router";
+import {ObjectId} from "mongodb";
 
 export const blogsRouter = Router({});
 
@@ -21,7 +24,7 @@ const nameValidation = body('name', "'name' must be a string in range from 1 to 
     .isString().trim().isLength({min: 1, max: 15});
 const youtubeUrlValidation = body('youtubeUrl', "'youtubeUrl' must be a string in range from 1 to 100 symbols")
     .isString().trim().matches("https://([a-zA-Z0-9_-]+.)+[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*/?$").isLength({min: 1, max: 100});
-const listOfValidation = [nameValidation, youtubeUrlValidation, inputValidationMiddleware];
+const listOfValidationBlog = [nameValidation, youtubeUrlValidation, inputValidationMiddleware];
 const queryValidation = [
     query('searchNameTerm').customSanitizer(value => {
         if (!value) return null;
@@ -76,13 +79,22 @@ blogsRouter.get('/:id/posts', checkIdValidForMongodb, async (req: Request, res: 
         res.status(200).json(foundBlog)
     }
 })
-
-blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
+blogsRouter.post('/:id/posts', checkAuthorizationMiddleware, listOfValidationPost, async (req: Request, res: Response) => {
+    if (!ObjectId.isValid(req.params.id)) return res.sendStatus(404)
+    const createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.id)
+    if (!createdPostId) {
+        res.sendStatus(404)
+    } else {
+        const createdPost = await postsQueryRepo.findPostById(createdPostId)
+        res.status(201).json(createdPost)
+    }
+})
+blogsRouter.post('/', checkAuthorizationMiddleware, listOfValidationBlog, async (req: Request, res: Response) => {
     const createdBlogId = await blogsService.createBlog(req.body.name, req.body.youtubeUrl);
     const createdBlog = await blogsQueryRepo.findBlogById(createdBlogId);
     res.status(201).json(createdBlog)
 })
-blogsRouter.put('/:id', checkAuthorizationMiddleware, listOfValidation, checkIdValidForMongodb, async (req: Request, res: Response) => {
+blogsRouter.put('/:id', checkAuthorizationMiddleware, listOfValidationBlog, checkIdValidForMongodb, async (req: Request, res: Response) => {
     const isUpdatedBlog = await blogsService.updateBlog(req.params.id, req.body.name, req.body.youtubeUrl);
     if (!isUpdatedBlog) {
         res.sendStatus(404)

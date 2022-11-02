@@ -28,7 +28,7 @@ const blogIdIsExist: CustomValidator = async value => {
     return true;
 };
 const blogIdValidation = body('blogId', "'blogId' must be exist").isMongoId().custom(blogIdIsExist);
-const listOfValidation = [titleValidation, shortDescriptionValidation, contentValidation, blogIdValidation, inputValidationMiddleware];
+export const listOfValidationPost = [titleValidation, shortDescriptionValidation, contentValidation, inputValidationMiddleware];
 const queryValidation = [
     query('pageNumber').customSanitizer(value => {
         value = Number(value)
@@ -64,7 +64,7 @@ postsRouter.get("/:id", checkIdValidForMongodb, async (req: Request, res: Respon
         res.status(200).json(foundPost)
     }
 })
-postsRouter.post("/", checkAuthorizationMiddleware, listOfValidation, async (req: Request, res: Response) => {
+postsRouter.post("/", checkAuthorizationMiddleware, listOfValidationPost, async (req: Request, res: Response) => {
     const createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     if (!createdPostId) {
         res.sendStatus(404)
@@ -73,7 +73,7 @@ postsRouter.post("/", checkAuthorizationMiddleware, listOfValidation, async (req
         res.status(201).json(createdPost)
     }
 })
-postsRouter.put("/:id", checkAuthorizationMiddleware, listOfValidation, checkIdValidForMongodb, async (req: Request, res: Response) => {
+postsRouter.put("/:id", checkAuthorizationMiddleware, blogIdValidation, listOfValidationPost, checkIdValidForMongodb, async (req: Request, res: Response) => {
     const isUpdatedPost = await postsService.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     if (!isUpdatedPost) {
         res.sendStatus(404)
