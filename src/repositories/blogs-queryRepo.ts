@@ -28,10 +28,10 @@ enum sortDirection {
 
 export const blogsQueryRepo = {
     async findBlogs(searchNameTerm: string | null, pageNumber: number, pageSize: number, sortBy: string, sortDirectionStr: any): Promise<TypeBlogOutputPage> {
-        const filterFind: { name?: { $regex: string, $options: 'i' } } = {};
+        const filterFind: { name?: { $regex: string, $options: 'i' } } = {};   // 4) Использование такой типизации
         if (searchNameTerm) filterFind.name = {$regex: searchNameTerm, $options: 'i'}
 
-        const optionsSort: { [key: string]: any } = {};
+        const optionsSort: { [key: string]: any } = {};                         //  Использование такой типизации
         optionsSort[sortBy] = sortDirection[sortDirectionStr]
 
         const totalCount = await blogCollection.count(filterFind)

@@ -8,7 +8,6 @@ import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
 import {postsQueryRepo} from "../repositories/posts-queryRepo";
 import {postsService} from "../domain/posts-service";
 import {listOfValidationPost} from "./posts-router";
-import {ObjectId} from "mongodb";
 
 export const blogsRouter = Router({});
 
@@ -52,6 +51,7 @@ const queryValidation = [
     }),
 ]
 
+// 1) Правильно ли типизировать Request проводя полную проверку queryValidation в Middleware?
 blogsRouter.get('/', queryValidation, async (req: Request<{}, {}, {}, ReqQuery>, res: Response) => {
     const {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = req.query;
     res.json(await blogsQueryRepo.findBlogs(searchNameTerm, pageNumber, pageSize, sortBy, sortDirection))
@@ -64,6 +64,10 @@ blogsRouter.get('/:id', checkIdValidForMongodb, async (req: Request, res: Respon
         res.status(200).json(foundBlog)
     }
 })
+// 2) Или лучше делать проверку и приведение типов в коде?
+// Для строк из Request тоже пришлось делать преобразование в строки это ок?
+// Использование as string насколько правильно?
+// Обращение к чужому postsQueryRepo это норм?
 blogsRouter.get('/:id/posts', checkIdValidForMongodb, async (req: Request, res: Response) => {
     const checkQuery = (query: any): Omit<ReqQuery, "searchNameTerm"> => {
         const pageNumber = Number(query.pageNumber) || 1
@@ -87,11 +91,10 @@ blogsRouter.get('/:id/posts', checkIdValidForMongodb, async (req: Request, res: 
         res.status(200).json(foundBlog)
     }
 })
-blogsRouter.post('/:id/posts', checkAuthorizationMiddleware, listOfValidationPost, async (req: Request, res: Response) => {
-    let createdPostId = null
-    if (ObjectId.isValid(req.params.id)) {
-        createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.id)
-    }
+// 3) Использование Middleware из другого роутера это норм?
+// Обращение к чужому postsQueryRepo и postsService это норм?
+blogsRouter.post('/:id/posts', checkAuthorizationMiddleware, listOfValidationPost, checkIdValidForMongodb, async (req: Request, res: Response) => {
+    const createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.id)
     if (!createdPostId) {
         res.sendStatus(404)
     } else {
