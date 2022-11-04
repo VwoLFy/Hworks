@@ -21,18 +21,18 @@ type TypeBlogFromDB = {
     createdAt: string
 };
 
-enum sortDirection {
+enum SortDirection {
     asc = 1,
     desc = -1
 }
 
 export const blogsQueryRepo = {
-    async findBlogs(searchNameTerm: string | null, pageNumber: number, pageSize: number, sortBy: string, sortDirectionStr: any): Promise<TypeBlogOutputPage> {
-        const filterFind: { name?: { $regex: string, $options: 'i' } } = {};   // 4) Использование такой типизации
+    async findBlogs(searchNameTerm: string | null, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypeBlogOutputPage> {
+        const filterFind: { name?: { $regex: string, $options: 'i' } } = {};
         if (searchNameTerm) filterFind.name = {$regex: searchNameTerm, $options: 'i'}
 
-        const optionsSort: { [key: string]: any } = {};                         //  Использование такой типизации
-        optionsSort[sortBy] = sortDirection[sortDirectionStr]
+        const optionsSort: { [key: string]: SortDirection } = {};
+        optionsSort[sortBy] = sortDirection
 
         const totalCount = await blogCollection.count(filterFind)
         const pagesCount = Math.ceil(totalCount / pageSize)

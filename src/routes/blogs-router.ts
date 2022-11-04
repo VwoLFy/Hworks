@@ -11,12 +11,16 @@ import {listOfValidationPost} from "./posts-router";
 
 export const blogsRouter = Router({});
 
+enum SortDirection {
+    asc = "asc",
+    desc = "desc"
+}
 type ReqQuery = {
     searchNameTerm: string | null
     pageNumber: number
     pageSize: number
     sortBy: string
-    sortDirection: string
+    sortDirection: SortDirection
 }
 
 const nameValidation = body('name', "'name' must be a string in range from 1 to 15 symbols")
@@ -45,13 +49,11 @@ const queryValidation = [
         return value
     }),
     query('sortDirection').customSanitizer(value => {
-        const fields = ['asc', 'desc'];
-        if (!value || !fields.includes(value)) return 'desc'
-        return value
+        if (!value || value !== SortDirection.asc) return SortDirection.desc
+        return SortDirection.asc
     }),
 ]
 
-// 1) Правильно ли типизировать Request проводя полную проверку queryValidation в Middleware?
 blogsRouter.get('/', queryValidation, async (req: Request<{}, {}, {}, ReqQuery>, res: Response) => {
     const {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = req.query;
     res.json(await blogsQueryRepo.findBlogs(searchNameTerm, pageNumber, pageSize, sortBy, sortDirection))
@@ -64,35 +66,22 @@ blogsRouter.get('/:id', checkIdValidForMongodb, async (req: Request, res: Respon
         res.status(200).json(foundBlog)
     }
 })
-// 2) Или лучше делать проверку и приведение типов в коде?
-// Для строк из Request тоже пришлось делать преобразование в строки это ок?
-// Использование as string насколько правильно?
-// Обращение к чужому postsQueryRepo это норм?
 blogsRouter.get('/:id/posts', checkIdValidForMongodb, async (req: Request, res: Response) => {
-    const checkQuery = (query: any): Omit<ReqQuery, "searchNameTerm"> => {
-        const pageNumber = Number(query.pageNumber) || 1
-        const pageSize = Number(query.pageSize) || 10
-        let sortBy = query.sortBy?.toString()
-        sortBy = (!sortBy || !['id', 'name', 'youtubeUrl', 'createdAt'].includes(sortBy)) ? 'createdAt' : sortBy
-        let sortDirection = query.sortDirection?.toString()
-        sortDirection = (!sortDirection || !['asc', 'desc'].includes(sortDirection)) ? 'desc' : sortDirection
-        return {
-            pageNumber,
-            pageSize,
-            sortBy,
-            sortDirection
-        }
-    }
-    const validQuery = checkQuery(req.query)
-    const foundBlog = await postsQueryRepo.findPostsByBlogId(req.params.id, validQuery.pageNumber, validQuery.pageSize, validQuery.sortBy, validQuery.sortDirection);
+    let {pageNumber, pageSize, sortBy, sortDirection} = req.query
+    const pageNumberM = Number(pageNumber) || 1
+    const pageSizeM = Number(pageSize) || 10
+    sortBy = String(sortBy)
+    const sortByM = (!sortBy || !['id', 'name', 'youtubeUrl', 'createdAt'].includes(sortBy)) ? 'createdAt' : sortBy
+    sortDirection = String(sortDirection)
+    const sortDirectionM: SortDirection = (!sortDirection || sortDirection !== SortDirection.asc) ? SortDirection.desc : SortDirection.asc
+
+    const foundBlog = await postsQueryRepo.findPostsByBlogId(req.params.id, pageNumberM, pageSizeM, sortByM, sortDirectionM);
     if (!foundBlog) {
         res.sendStatus(404)
     } else {
         res.status(200).json(foundBlog)
     }
 })
-// 3) Использование Middleware из другого роутера это норм?
-// Обращение к чужому postsQueryRepo и postsService это норм?
 blogsRouter.post('/:id/posts', checkAuthorizationMiddleware, listOfValidationPost, checkIdValidForMongodb, async (req: Request, res: Response) => {
     const createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.id)
     if (!createdPostId) {
