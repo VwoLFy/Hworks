@@ -11,13 +11,15 @@ import {RequestWithBody, RequestWithParam, RequestWithParamAndBody, RequestWithQ
 import {TypePostQueryModel} from "../models/PostQueryModel";
 import {TypePostInputModel} from "../models/PostInputModel";
 import {TypePostUpdateModel} from "../models/PostUpdateModel";
+import {TypePostViewModelPage} from "../models/PostViewModelPage";
+import {TypePostViewModel} from "../models/PostViewModel";
 export const postsRouter = Router({});
 
-postsRouter.get("/", getPostsValidation, async (req: RequestWithQuery<TypePostQueryModel>, res: Response) => {
+postsRouter.get("/", getPostsValidation, async (req: RequestWithQuery<TypePostQueryModel>, res: Response<TypePostViewModelPage>) => {
     const {pageNumber, pageSize, sortBy, sortDirection} = req.query;
     res.json(await postsQueryRepo.findPosts(+pageNumber, +pageSize, sortBy, sortDirection))
 })
-postsRouter.get("/:id", getPostValidation, async (req: RequestWithParam<{id: string}>, res: Response) => {
+postsRouter.get("/:id", getPostValidation, async (req: RequestWithParam, res: Response<TypePostViewModel>) => {
     const foundPost = await postsQueryRepo.findPostById(req.params.id)
     if (!foundPost) {
         res.sendStatus(404)
@@ -25,16 +27,16 @@ postsRouter.get("/:id", getPostValidation, async (req: RequestWithParam<{id: str
         res.status(200).json(foundPost)
     }
 })
-postsRouter.post("/", createPostValidation, async (req: RequestWithBody<TypePostInputModel>, res: Response) => {
+postsRouter.post("/", createPostValidation, async (req: RequestWithBody<TypePostInputModel>, res: Response<TypePostViewModel>) => {
     const createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     if (!createdPostId) {
         res.sendStatus(404)
     } else {
         const createdPost = await postsQueryRepo.findPostById(createdPostId)
-        res.status(201).json(createdPost)
+        if (createdPost) res.status(201).json(createdPost)
     }
 })
-postsRouter.put("/:id", updatePostValidation, async (req: RequestWithParamAndBody<{id: string}, TypePostUpdateModel>, res: Response) => {
+postsRouter.put("/:id", updatePostValidation, async (req: RequestWithParamAndBody<TypePostUpdateModel>, res: Response) => {
     const isUpdatedPost = await postsService.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
     if (!isUpdatedPost) {
         res.sendStatus(404)
@@ -42,7 +44,7 @@ postsRouter.put("/:id", updatePostValidation, async (req: RequestWithParamAndBod
         res.sendStatus(204)
     }
 })
-postsRouter.delete("/:id", deletePostValidation, async (req: RequestWithParam<{id: string}>, res: Response) => {
+postsRouter.delete("/:id", deletePostValidation, async (req: RequestWithParam, res: Response) => {
     const isDeletedPost = await postsService.deletePost(req.params.id)
     if (!isDeletedPost) {
         res.sendStatus(404)
