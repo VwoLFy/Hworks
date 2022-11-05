@@ -27,15 +27,16 @@ type TypePostFromDB = {
     createdAt: string
 }
 
-enum sortDirection {
+enum SortDirection {
     asc = 1,
     desc = -1
 }
 
 export const postsQueryRepo = {
-    async findPosts(pageNumber: number, pageSize: number, sortBy: string, sortDirectionStr: any): Promise<TypePostOutputPage> {
-        const optionsSort: { [key: string]: any } = {};
-        optionsSort[sortBy] = sortDirection[sortDirectionStr]
+    async findPosts(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypePostOutputPage> {
+        const optionsSort: { [key: string]: SortDirection } = {};
+        sortBy = sortBy === 'id' ? '_id' : sortBy
+        optionsSort[sortBy] = sortDirection
 
         const totalCount = await postCollection.count({})
         const pagesCount = Math.ceil(totalCount / pageSize)
@@ -63,9 +64,9 @@ export const postsQueryRepo = {
             return this.postWithReplaceId(foundPost)
         }
     },
-    async findPostsByBlogId(blogId: string, pageNumber: number, pageSize: number, sortBy: string, sortDirectionStr: any): Promise<TypePostOutputPage | null> {
-        const optionsSort: { [key: string]: any } = {};
-        optionsSort[sortBy] = sortDirection[sortDirectionStr]
+    async findPostsByBlogId(blogId: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypePostOutputPage | null> {
+        const optionsSort: { [key: string]: SortDirection } = {};
+        optionsSort[sortBy] = sortDirection
 
         const totalCount = await postCollection.count({blogId})
         if (totalCount == 0) return null
