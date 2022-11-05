@@ -30,16 +30,15 @@ export const blogsQueryRepo = {
     async findBlogs(searchNameTerm: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypeBlogOutputPage> {
         const filterFind: { name?: { $regex: string, $options: 'i' } } = {};
         if (searchNameTerm) filterFind.name = {$regex: searchNameTerm, $options: 'i'}
-        console.log(searchNameTerm, pageNumber, pageSize, sortBy, sortDirection)
-        console.log(filterFind)
 
         const optionsSort: { [key: string]: SortDirection } = {};
+        sortBy = sortBy === 'id' ? '_id' : sortBy
         optionsSort[sortBy] = sortDirection
-        console.log(optionsSort)
+
         const totalCount = await blogCollection.count(filterFind)
         const pagesCount = Math.ceil(totalCount / pageSize)
         const page = pageNumber;
-        console.log((pageNumber - 1) * pageSize)
+
         const items = (await blogCollection.find(filterFind)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
