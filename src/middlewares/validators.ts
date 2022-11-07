@@ -1,9 +1,9 @@
 import {body, CustomValidator, query} from "express-validator";
-import {SortDirection} from "../routes/blogs-router";
 import {checkIdValidForMongodb} from "./check-id-valid-for-mongodb";
 import {checkAuthorizationMiddleware} from "./check-authorization-middleware";
 import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
 import {inputValidationMiddleware} from "./input-validation-middleware";
+import {SortDirection} from "../SortDirection";
 // blog
 const blogNameValidation = body('name', "'name' must be a string in range from 1 to 15 symbols")
     .isString().trim().isLength({min: 1, max: 15});
@@ -56,7 +56,24 @@ const postQueryValidation = [
         return SortDirection.asc
     }),
 ]
-
+//user
+const userQueryValidation = [
+    query('pageNumber').toInt().default("1").customSanitizer(value => {
+        return Number(value) < 1 ? "1" : value
+    }),
+    query('pageSize').toInt().default("10").customSanitizer(value => {
+        return Number(value) < 1 ? "10" : value
+    }),
+    query('sortBy').customSanitizer(value => {
+        const fields = ['id', 'login', 'email', 'createdAt'];
+        if (!value || !fields.includes(value)) return 'createdAt'
+        return value
+    }),
+    query('sortDirection').customSanitizer(value => {
+        if (!value || value !== SortDirection.asc) return SortDirection.desc
+        return SortDirection.asc
+    }),
+]
 
 //list for blog
 export const getBlogsValidation = blogQueryValidation
@@ -90,7 +107,7 @@ export const deleteBlogValidation = [
     checkAuthorizationMiddleware,
     checkIdValidForMongodb
 ]
-//list for blog
+//list for post
 export const getPostsValidation = postQueryValidation
 export const getPostValidation = checkIdValidForMongodb
 export const createPostValidation = [
@@ -114,3 +131,6 @@ export const deletePostValidation = [
     checkAuthorizationMiddleware,
     checkIdValidForMongodb
 ]
+
+//list for user
+export const getUsersValidation = userQueryValidation

@@ -4,6 +4,7 @@ import {postsRouter} from "./routes/posts-router";
 import {runDb} from "./repositories/db";
 import {blogsService} from "./domain/blogs-service";
 import {postsService} from "./domain/posts-service";
+import {usersRouter} from "./routes/users-router";
 
 const app = express();
 const bodyMiddle = express.json();
@@ -12,6 +13,7 @@ const PORT = process.env.PORT || 5000;
 app.use(bodyMiddle);
 app.use('/blogs', blogsRouter)
 app.use('/posts', postsRouter)
+app.use('/users', usersRouter)
 
 app.delete('/testing/all-data', (req: Request, res: Response) => {
     blogsService.deleteAll();

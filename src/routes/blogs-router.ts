@@ -27,11 +27,6 @@ import {TypePostViewModel} from "../models/PostViewModel";
 import {TypePostViewModelPage} from "../models/PostViewModelPage";
 export const blogsRouter = Router({});
 
-export enum SortDirection {
-    asc = "asc",
-    desc = "desc"
-}
-
 blogsRouter.get('/', getBlogsValidation, async (req: RequestWithQuery<TypeBlogQueryModel>, res: Response<TypeBlogViewModelPage>) => {
     const {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = req.query;
     res.json(await blogsQueryRepo.findBlogs(searchNameTerm, +pageNumber, +pageSize, sortBy, sortDirection))

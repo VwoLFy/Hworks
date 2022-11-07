@@ -1,4 +1,4 @@
-import {SortDirection} from "../routes/blogs-router";
+import {SortDirection} from "../SortDirection";
 
 export type TypeBlogQueryModel = {
     searchNameTerm: string
