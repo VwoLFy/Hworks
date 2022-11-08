@@ -24,6 +24,10 @@ export const usersService = {
     async deleteUser(id: string): Promise<boolean> {
         return await usersRepository.deleteUser(id)
     },
+    async authUser(login: string, password: string): Promise<boolean> {
+        const passwordHashFromDb = await usersRepository.getPassword(login)
+        return !(!passwordHashFromDb || ! await bcrypt.compare(password, passwordHashFromDb));
+    },
     async deleteAll() {
         await usersRepository.deleteAll()
     }

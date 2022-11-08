@@ -84,7 +84,7 @@ const userPasswordValidation = body("password", "'password' must be a string in 
 const userEmailValidation = body("email", "'email' must be a email")
     .isString().trim().matches("[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 
-//login
+//auth
 const authLogin = body("login", "'login' must be a string")
     .isString().trim().isLength({min: 1})
 const authPassword = body("password", "'password' must be a string")
@@ -162,8 +162,8 @@ export const deleteUserValidation = [
     checkIdValidForMongodb
 ]
 
-// list for login
-export const postLoginValidation = [
+// list for auth
+export const postAuthValidation = [
     authLogin,
     authPassword,
     inputValidationMiddleware
