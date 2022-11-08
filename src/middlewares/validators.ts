@@ -4,6 +4,7 @@ import {checkAuthorizationMiddleware} from "./check-authorization-middleware";
 import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
 import {inputValidationMiddleware} from "./input-validation-middleware";
 import {SortDirection} from "../SortDirection";
+
 // blog
 const blogNameValidation = body('name', "'name' must be a string in range from 1 to 15 symbols")
     .isString().trim().isLength({min: 1, max: 15});
@@ -26,6 +27,7 @@ const blogQueryValidation = [
         return SortDirection.asc
     }),
 ]
+
 //post
 const postTitleValidation = body('title', "'title' must be  a string in range from 1 to 30 symbols")
     .isString().trim().isLength({min: 1, max: 30});
@@ -56,6 +58,7 @@ const postQueryValidation = [
         return SortDirection.asc
     }),
 ]
+
 //user
 const userQueryValidation = [
     query('pageNumber').toInt().default("1").customSanitizer(value => {
@@ -74,6 +77,12 @@ const userQueryValidation = [
         return SortDirection.asc
     }),
 ]
+const userLoginValidation = body("login", "'login' must be a string in range from 3 to 10 symbols")
+    .isString().trim().isLength({min: 3, max: 10});
+const userPasswordValidation = body("password", "'password' must be a string in range from 6 to 20 symbols")
+    .isString().trim().isLength({min: 6, max: 20});
+const userEmailValidation = body("email", "'email' must be a email")
+    .isString().trim().matches("[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 
 //list for blog
 export const getBlogsValidation = blogQueryValidation
@@ -107,6 +116,7 @@ export const deleteBlogValidation = [
     checkAuthorizationMiddleware,
     checkIdValidForMongodb
 ]
+
 //list for post
 export const getPostsValidation = postQueryValidation
 export const getPostValidation = checkIdValidForMongodb
@@ -134,3 +144,14 @@ export const deletePostValidation = [
 
 //list for user
 export const getUsersValidation = userQueryValidation
+export const createUserValidation = [
+    checkAuthorizationMiddleware,
+    userLoginValidation,
+    userPasswordValidation,
+    userEmailValidation,
+    inputValidationMiddleware
+]
+export const deleteUserValidation = [
+    checkAuthorizationMiddleware,
+    checkIdValidForMongodb
+]

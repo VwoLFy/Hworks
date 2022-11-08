@@ -5,6 +5,7 @@ import {runDb} from "./repositories/db";
 import {blogsService} from "./domain/blogs-service";
 import {postsService} from "./domain/posts-service";
 import {usersRouter} from "./routes/users-router";
+import {usersService} from "./domain/user-service";
 
 const app = express();
 const bodyMiddle = express.json();
@@ -18,6 +19,7 @@ app.use('/users', usersRouter)
 app.delete('/testing/all-data', (req: Request, res: Response) => {
     blogsService.deleteAll();
     postsService.deleteAll();
+    usersService.deleteAll()
     res.sendStatus(204)
 })
 

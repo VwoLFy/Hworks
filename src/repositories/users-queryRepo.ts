@@ -29,16 +29,22 @@ enum SortDirection {
 export const usersQueryRepo = {
     async findUsers(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection, searchLoginTerm: string, searchEmailTerm: string): Promise<TypeUserOutputPage> {
         let filterFind = {}
+        console.log(searchLoginTerm)
+        console.log(searchEmailTerm)
 
-        if (searchLoginTerm && searchEmailTerm) filterFind = {
-            $or: [
-                {login: {$regex: searchLoginTerm, $options: 'i'}},
-                {login: {$regex: searchEmailTerm, $options: 'i'}}
-            ]
+        if (searchLoginTerm && searchEmailTerm) {
+            filterFind = {
+                $or: [
+                    {login: {$regex: searchLoginTerm, $options: 'i'}},
+                    {email: {$regex: searchEmailTerm, $options: 'i'}}
+                ]
+            }
+        } else if (searchLoginTerm) {
+            filterFind = {login: {$regex: searchLoginTerm, $options: 'i'}}
+        } else if (searchEmailTerm) {
+            filterFind = {email: {$regex: searchEmailTerm, $options: 'i'}}
         }
-        else if (searchLoginTerm) filterFind = {login: {$regex: searchLoginTerm, $options: 'i'}}
-        else if (searchEmailTerm) filterFind = {login: {$regex: searchEmailTerm, $options: 'i'}}
-
+        console.log(filterFind)
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const optionsSort = {[sortBy]: sortDirection}
 
@@ -58,6 +64,14 @@ export const usersQueryRepo = {
             pageSize,
             totalCount,
             items
+        }
+    },
+    async findUserById(id: string): Promise<TypeUserOutputModel | null> {
+        const foundUser = await userCollection.findOne({_id: new ObjectId(id)})
+        if (!foundUser) {
+            return null
+        } else {
+            return this.userWithReplaceId(foundUser)
         }
     },
     userWithReplaceId(object: TypeUserFromDB): TypeUserOutputModel {

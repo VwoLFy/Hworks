@@ -2,17 +2,14 @@ import 'dotenv/config'
 import {MongoClient} from "mongodb"
 import {TypeNewBlog} from "../domain/blogs-service";
 import {TypeNewPost} from "../domain/posts-service";
+import {TypeNewUser} from "../domain/user-service";
 
 const mongoUri = process.env.MONGOURI || 'mongodb://0.0.0.0:27017';
 export const client = new MongoClient(mongoUri)
 
-type TypeBlogDB = TypeNewBlog;
+type TypeBlogDB = TypeNewBlog
 type TypePostDB = TypeNewPost
-type TypeUserDB = {
-    login: string
-    email: string
-    createdAt: string
-}
+type TypeUserDB = TypeNewUser
 
 const db = client.db("Homework-3");
 export const blogCollection = db.collection<TypeBlogDB>("blogs");
