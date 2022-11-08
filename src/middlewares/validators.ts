@@ -84,6 +84,12 @@ const userPasswordValidation = body("password", "'password' must be a string in 
 const userEmailValidation = body("email", "'email' must be a email")
     .isString().trim().matches("[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 
+//login
+const authLogin = body("login", "'login' must be a string")
+    .isString().trim().isLength({min: 1})
+const authPassword = body("password", "'password' must be a string")
+    .isString().trim().isLength({min: 1})
+
 //list for blog
 export const getBlogsValidation = blogQueryValidation
 export const getBlogValidation = checkIdValidForMongodb
@@ -154,4 +160,11 @@ export const createUserValidation = [
 export const deleteUserValidation = [
     checkAuthorizationMiddleware,
     checkIdValidForMongodb
+]
+
+// list for login
+export const postLoginValidation = [
+    authLogin,
+    authPassword,
+    inputValidationMiddleware
 ]
