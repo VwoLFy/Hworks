@@ -29,8 +29,6 @@ enum SortDirection {
 export const usersQueryRepo = {
     async findUsers(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection, searchLoginTerm: string, searchEmailTerm: string): Promise<TypeUserOutputPage> {
         let filterFind = {}
-        console.log(searchLoginTerm)
-        console.log(searchEmailTerm)
 
         if (searchLoginTerm && searchEmailTerm) {
             filterFind = {
@@ -44,7 +42,7 @@ export const usersQueryRepo = {
         } else if (searchEmailTerm) {
             filterFind = {email: {$regex: searchEmailTerm, $options: 'i'}}
         }
-        console.log(filterFind)
+
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const optionsSort = {[sortBy]: sortDirection}
 

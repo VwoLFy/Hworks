@@ -1,5 +1,6 @@
 import {TypeNewUser} from "../domain/user-service";
 import {userCollection} from "./db";
+import {ObjectId} from "mongodb";
 
 
 export const usersRepository = {
@@ -8,7 +9,7 @@ export const usersRepository = {
         return result.insertedId.toString()
     },
     async deleteUser(id: string): Promise<boolean> {
-        const result = await userCollection.deleteOne({_id: new Object(id)})
+        const result = await userCollection.deleteOne({_id: new ObjectId(id)})
         return result.deletedCount !== 0;
     },
     async deleteAll() {

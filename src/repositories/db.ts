@@ -11,7 +11,7 @@ type TypeBlogDB = TypeNewBlog
 type TypePostDB = TypeNewPost
 type TypeUserDB = TypeNewUser
 
-const db = client.db("Homework-3");
+const db = client.db("Homework");
 export const blogCollection = db.collection<TypeBlogDB>("blogs");
 export const postCollection = db.collection<TypePostDB>("posts");
 export const userCollection = db.collection<TypeUserDB>("users");
