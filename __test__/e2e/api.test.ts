@@ -24,13 +24,7 @@ describe('/blogs', () => {
                 "items": []
             })
     });
-    it('GET By Id should return 404', async function () {
-        await request(app)
-            .get('/blogs/1')
-            .expect(404)
-
-    });
-    it('POST should`t create blog with incorrect "name"', async () => {
+    it('POST should`t create blog with incorrect "data"', async () => {
         await request(app)
             .post('/blogs')
             .auth('admin', 'qwerty', {type: 'basic'})
@@ -39,18 +33,6 @@ describe('/blogs', () => {
                 "youtubeUrl": " https://localhost:5000/blogs  "
             })
             .expect(400)
-
-        await request(app)
-            .get('/blogs')
-            .expect(200, {
-                "pagesCount": 0,
-                "page": 1,
-                "pageSize": 10,
-                "totalCount": 0,
-                "items": []
-            })
-    })
-    it('POST should`t create blog with incorrect "youtubeUrl"', async () => {
         await request(app)
             .post('/blogs')
             .auth('admin', 'qwerty', {type: 'basic'})
