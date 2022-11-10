@@ -8,7 +8,7 @@ import {usersRouter} from "./routes/users-router";
 import {usersService} from "./domain/user-service";
 import {authRouter} from "./routes/auth-router";
 
-const app = express();
+export const app = express();
 const bodyMiddle = express.json();
 const PORT = process.env.PORT || 5000;
 

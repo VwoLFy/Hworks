@@ -31,7 +31,7 @@ blogsRouter.get('/', getBlogsValidation, async (req: RequestWithQuery<TypeBlogQu
     const {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = req.query;
     res.json(await blogsQueryRepo.findBlogs(searchNameTerm, +pageNumber, +pageSize, sortBy, sortDirection))
 })
-blogsRouter.get('/:id', getBlogValidation, async (req: RequestWithParam, res: Response) => {
+blogsRouter.get('/:id', getBlogValidation, async (req: RequestWithParam, res: Response<TypeBlogViewModel>) => {
     const foundBlog = await blogsQueryRepo.findBlogById(req.params.id);
     if (!foundBlog) {
         res.sendStatus(404)
