@@ -1,13 +1,16 @@
 import request from "supertest"
 import {app} from "../../src";
 import {TypeBlogViewModel} from "../../src/models/BlogViewModel";
-import {runDb} from "../../src/repositories/db";
+//import {runDb} from "../../src/repositories/db";
 import {TypePostViewModel} from "../../src/models/PostViewModel";
 import {TypeUserViewModel} from "../../src/models/UserViewModel";
+import {client} from "../../src/repositories/db";
+import {jwtService} from "../../src/application/jwt-service";
+import {TypeLoginSuccessViewModel} from "../../src/models/LoginSuccessViewModel";
 
 describe('/blogs', () => {
     beforeAll(async () => {
-        await runDb()
+        //await runDb()
         await request(app)
             .delete('/testing/all-data').expect(204)
     })
@@ -158,7 +161,7 @@ describe('/blogs', () => {
 
 describe('/posts', () => {
     beforeAll(async () => {
-        await runDb()
+        //await runDb()
         await request(app)
             .delete('/testing/all-data').expect(204)
     })
@@ -384,7 +387,7 @@ describe('/posts', () => {
 
 describe('/users', () => {
     beforeAll(async () => {
-        await runDb()
+        //await runDb()
         await request(app)
             .delete('/testing/all-data').expect(204)
     })
@@ -490,13 +493,17 @@ describe('/users', () => {
     })
 })
 
-describe('/auth/login', () => {
+describe('/auth', () => {
     beforeAll(async () => {
-        await runDb()
+        //await runDb()
         await request(app)
             .delete('/testing/all-data').expect(204)
     })
+    afterAll(async () => {
+        await client.close()
+    })
     let user: TypeUserViewModel
+    let token: TypeLoginSuccessViewModel
     it('POST should`t authenticate user with incorrect data', async () => {
         const result = await request(app)
             .post('/users')
@@ -521,7 +528,7 @@ describe('/auth/login', () => {
             .auth('admin', 'qwerty', {type: 'basic'})
             .send({
                 "login": "",
-                "password": "password3",
+                "password": "password",
             })
             .expect(400)
         await request(app)
@@ -542,12 +549,21 @@ describe('/auth/login', () => {
             .expect(401)
     })
     it('POST should authenticate user with correct data', async () => {
-        await request(app)
+        const result = await request(app)
             .post('/auth/login')
             .send({
                 "login": "login",
                 "password": "password"
             })
-            .expect(204)
+            .expect(200)
+        token = result.body
+        expect(token).toEqual({"accessToken": expect.any(String)})
+        expect(token).toEqual(await jwtService.createJWT(user.id))
+    })
+    it('GET should get data about user by token', async () => {
+        await request(app)
+            .get('/auth/me')
+            .send()
+            .expect(200)
     })
 })

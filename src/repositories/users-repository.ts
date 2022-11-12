@@ -2,6 +2,14 @@ import {TypeNewUser} from "../domain/user-service";
 import {userCollection} from "./db";
 import {ObjectId} from "mongodb";
 
+type TypeUserFromDB = {
+    _id: ObjectId
+    login: string
+    password: string
+    email: string
+    createdAt: string
+};
+
 export const usersRepository = {
     async createUser(newUser: TypeNewUser): Promise<string> {
         const result = await userCollection.insertOne(newUser)
@@ -11,10 +19,8 @@ export const usersRepository = {
         const result = await userCollection.deleteOne({_id: new ObjectId(id)})
         return result.deletedCount !== 0;
     },
-    async getPassword(login: string): Promise<string> {
-        const user = await userCollection.findOne({login: login})
-        if (user) return user.password
-        return ''
+    async getUserByLogin(login: string): Promise<TypeUserFromDB | null> {
+        return await userCollection.findOne({login: login})
     },
     async deleteAll() {
         await userCollection.deleteMany({})

@@ -1,10 +1,10 @@
-import 'dotenv/config'
 import {MongoClient} from "mongodb"
 import {TypeNewBlog} from "../domain/blogs-service";
 import {TypeNewPost} from "../domain/posts-service";
 import {TypeNewUser} from "../domain/user-service";
+import {settings} from "../settings";
 
-const mongoUri = process.env.MONGOURI || 'mongodb://0.0.0.0:27017';
+const mongoUri = settings.MONGO_URI;
 export const client = new MongoClient(mongoUri)
 
 type TypeBlogDB = TypeNewBlog

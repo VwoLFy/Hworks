@@ -16,7 +16,7 @@ app.use(bodyMiddle);
 app.use('/blogs', blogsRouter)
 app.use('/posts', postsRouter)
 app.use('/users', usersRouter)
-app.use('/auth/login', authRouter)
+app.use('/auth', authRouter)
 
 app.delete('/testing/all-data', (req: Request, res: Response) => {
     blogsService.deleteAll();
