@@ -90,6 +90,10 @@ const authLogin = body("login", "'login' must be a string")
 const authPassword = body("password", "'password' must be a string")
     .isString().trim().isLength({min: 1})
 
+//comments
+const commentContentValidation = body('content', "'content' must be a string  in range from 20 to 300 symbols")
+    .isString().trim().isLength({min: 20, max: 300});
+
 //list for blog
 export const getBlogsValidation = blogQueryValidation
 export const getBlogValidation = checkIdValidForMongodb
@@ -170,4 +174,12 @@ export const postAuthValidation = [
 ]
 export const getAuthValidation = [
     checkAuthorizationMiddleware
+]
+
+//list for comment
+export const createCommentValidation = [
+    checkAuthorizationMiddleware,
+    commentContentValidation,
+    inputValidationMiddleware,
+    checkIdValidForMongodb
 ]

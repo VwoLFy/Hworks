@@ -2,6 +2,7 @@ import {Response, Router} from "express";
 import {postsService} from "../domain/posts-service";
 import {postsQueryRepo} from "../repositories/posts-queryRepo";
 import {
+    createCommentValidation,
     createPostValidation, deletePostValidation,
     getPostsValidation,
     getPostValidation,
@@ -13,6 +14,10 @@ import {TypePostInputModel} from "../models/PostInputModel";
 import {TypePostUpdateModel} from "../models/PostUpdateModel";
 import {TypePostViewModelPage} from "../models/PostViewModelPage";
 import {TypePostViewModel} from "../models/PostViewModel";
+import {TypeCommentInputModel} from "../models/CommentInputModel";
+import {TypeCommentViewModel} from "../models/CommentViewModel";
+import {commentsService} from "../domain/comments-service";
+import {commentsQueryRepo} from "../repositories/comments-queryRepo";
 export const postsRouter = Router({});
 
 postsRouter.get("/", getPostsValidation, async (req: RequestWithQuery<TypePostQueryModel>, res: Response<TypePostViewModelPage>) => {
@@ -42,6 +47,15 @@ postsRouter.put("/:id", updatePostValidation, async (req: RequestWithParamAndBod
         res.sendStatus(404)
     } else {
         res.sendStatus(204)
+    }
+})
+postsRouter.post("/:id/comments", createCommentValidation, async (req: RequestWithParamAndBody<TypeCommentInputModel>, res: Response<TypeCommentViewModel>) => {
+    const createdCommentId = await commentsService.createComment(req.params.id, req.body.content, req.userId)
+    if (!createdCommentId) {
+        return res.sendStatus(404)
+    } else {
+        const createdComment = await commentsQueryRepo.findCommentById(createdCommentId);
+        if (createdComment) return res.status(201).json(createdComment)
     }
 })
 postsRouter.delete("/:id", deletePostValidation, async (req: RequestWithParam, res: Response) => {

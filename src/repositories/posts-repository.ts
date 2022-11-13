@@ -20,6 +20,9 @@ export const postsRepository = {
         );
         return result.deletedCount !== 0
     },
+    async isPostExist (id: string): Promise<boolean> {
+        return !!( postCollection.findOne({_id: new ObjectId(id)}) )
+    },
     async deleteAll() {
         await postCollection.deleteMany( {})
     }

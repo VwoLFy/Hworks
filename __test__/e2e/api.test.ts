@@ -7,6 +7,7 @@ import {TypeUserViewModel} from "../../src/models/UserViewModel";
 import {client} from "../../src/repositories/db";
 import {jwtService} from "../../src/application/jwt-service";
 import {TypeLoginSuccessViewModel} from "../../src/models/LoginSuccessViewModel";
+import {TypeCommentViewModel} from "../../src/models/CommentViewModel";
 
 describe('/blogs', () => {
     beforeAll(async () => {
@@ -168,6 +169,9 @@ describe('/posts', () => {
     let post1: TypePostViewModel
     let post2: TypePostViewModel
     let blog1: TypeBlogViewModel
+    let token: TypeLoginSuccessViewModel
+    let user: TypeUserViewModel
+    let comment: TypeCommentViewModel
     it('GET should return 200', async function () {
         await request(app)
             .get('/posts')
@@ -203,7 +207,7 @@ describe('/posts', () => {
                 "title": "",
                 "content": "valid",
                 "blogId": `${blog1.id}`,
-                "shortDescription": "K8cqY3aPKo3XKwbfrmeWOJyQgGnlX5sP3aW3RlaRSQx"
+                "shortDescription": "K8cqY3aPKo3mWOJyQgGnlX5sP3aW3RlaRSQx"
             })
             .expect(400)
         await request(app)
@@ -213,7 +217,7 @@ describe('/posts', () => {
                 "title": "valid",
                 "content": "",
                 "blogId": `${blog1.id}`,
-                "shortDescription": "K8cqY3aPKo3XKwbfrmeWOJyQgGnlX5sP3aW3RlaRSQx"
+                "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
             })
             .expect(400)
         await request(app)
@@ -223,7 +227,7 @@ describe('/posts', () => {
                 "title": "valid",
                 "content": "valid",
                 "blogId": `1`,
-                "shortDescription": "K8cqY3aPKo3XKwbfrmeWOJyQgGnlX5sP3aW3RlaRSQx"
+                "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
             })
             .expect(400)
         await request(app)
@@ -247,7 +251,7 @@ describe('/posts', () => {
                 "items": []
             })
     })
-    it('POST should create blog with correct data', async () => {
+    it('POST should create post with correct data', async () => {
         const result = await request(app)
             .post('/posts')
             .auth('admin', 'qwerty', {type: 'basic'})
@@ -255,7 +259,7 @@ describe('/posts', () => {
                 "title": "valid",
                 "content": "valid",
                 "blogId": `${blog1.id}`,
-                "shortDescription": "K8cqY3aPKo3XKwbfrmeWOJyQgGnlX5sP3aW3RlaRSQx"
+                "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
             })
             .expect(201)
         post1 = result.body
@@ -267,7 +271,7 @@ describe('/posts', () => {
                 "content": "valid",
                 "blogId": `${blog1.id}`,
                 "blogName": `${blog1.name}`,
-                "shortDescription": "K8cqY3aPKo3XKwbfrmeWOJyQgGnlX5sP3aW3RlaRSQx",
+                "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
                 "createdAt": expect.any(String)
             }
         )
@@ -281,6 +285,67 @@ describe('/posts', () => {
                 "items": [post1]
             })
     })
+    it('POST should`t create comment with incorrect data', async () => {
+        const resultUser = await request(app)
+            .post('/users')
+            .auth('admin', 'qwerty', {type: 'basic'})
+            .send({
+                "login": "login",
+                "password": "password",
+                "email": "string2@sdf.ee"
+            })
+            .expect(201)
+        user = resultUser.body
+
+        const resultToken = await request(app)
+            .post('/auth/login')
+            .send({
+                "login": "login",
+                "password": "password"
+            })
+            .expect(200)
+        token = resultToken.body
+
+        await request(app)
+            .post(`/posts/${post1.id}/comments`)
+            .auth(token.accessToken + 'd', {type: "bearer"})
+            .send({content: "valid comment111111111"})
+            .expect(401)
+        await request(app)
+            .post(`/posts/${post1.id}/comments`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({content: "bad content"})
+            .expect(400)
+        await request(app)
+            .post(`/posts/${post1.id}/comments`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({content: "bad content11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222"})
+            .expect(400)
+        await request(app)
+            .post(`/posts/1/comments`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({content: "valid comment111111111"})
+            .expect(404)
+    })
+    it('POST should create comment with correct data', async () => {
+        const result = await request(app)
+            .post(`/posts/${post1.id}/comments`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({
+                content: "valid comment111111111"
+            })
+            .expect(201)
+        comment = result.body
+        expect(comment).toEqual(
+            {
+                id: expect.any(String),
+                content: "valid comment111111111",
+                userId: user.id,
+                userLogin: user.login,
+                createdAt: expect.any(String),
+            }
+        )
+    })
     it('PUT should`t update blog with incorrect "name"', async () => {
 
         await request(app)
@@ -290,7 +355,7 @@ describe('/posts', () => {
                 "title": "",
                 "content": "valid",
                 "blogId": `${blog1.id}`,
-                "shortDescription": "K8cqY3aPKo3XKwbfrmeWOJyQgGnlX5sP3aW3RlaRSQx"
+                "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
             })
             .expect(400)
         await request(app)
@@ -300,7 +365,7 @@ describe('/posts', () => {
                 "title": "valid",
                 "content": "",
                 "blogId": `/posts/${blog1.id}`,
-                "shortDescription": "K8cqY3aPKo3XKwbfrmeWOJyQgGnlX5sP3aW3RlaRSQx"
+                "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
             })
             .expect(400)
         await request(app)
@@ -310,7 +375,7 @@ describe('/posts', () => {
                 "title": "valid",
                 "content": "valid",
                 "blogId": `/posts/1`,
-                "shortDescription": "K8cqY3aPKo3XKwbfrmeWOJyQgGnlX5sP3aW3RlaRSQx"
+                "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
             })
             .expect(400)
         await request(app)
@@ -330,7 +395,7 @@ describe('/posts', () => {
                 "title": "valid",
                 "content": "valid",
                 "blogId": `/posts/${blog1.id}`,
-                "shortDescription": "K8cqY3aPKo3XKwbfrmeWOJyQgGnlX5sP3aW3RlaRSQx"
+                "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
             })
             .expect(400)
     })
@@ -428,7 +493,7 @@ describe('/users', () => {
             .send({
                 "login": "login",
                 "password": "password",
-                "email": "stringsdf.ee"
+                "email": "string12345.ee"
             })
             .expect(400)
 
@@ -563,7 +628,7 @@ describe('/auth', () => {
     it('GET shouldn`t get data about user by bad token', async () => {
         await request(app)
             .get('/auth/me')
-            .auth(token.accessToken + 'd', { type: "bearer" })
+            .auth(token.accessToken + 'd', {type: "bearer"})
             .expect(401)
 
         await request(app)
@@ -573,7 +638,7 @@ describe('/auth', () => {
     it('GET should get data about user by token', async () => {
         await request(app)
             .get('/auth/me')
-            .auth(token.accessToken, { type: "bearer" })
+            .auth(token.accessToken, {type: "bearer"})
             .expect(200)
     })
 })

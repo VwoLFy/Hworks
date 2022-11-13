@@ -25,7 +25,7 @@ export const usersService = {
         return await usersRepository.deleteUser(id)
     },
     async authUser(login: string, password: string): Promise<string> {
-        const foundUser = await usersRepository.getUserByLogin(login)
+        const foundUser = await usersRepository.findUserByLogin(login)
         if (!foundUser || ! await bcrypt.compare(password, foundUser.password)) return ''
         return foundUser._id.toString()
     },
