@@ -7,7 +7,7 @@ import {
     getPostValidation,
     updatePostValidation
 } from "../middlewares/validators";
-import {RequestWithBody, RequestWithParam, RequestWithParamAndBody, RequestWithQuery} from "../types";
+import {RequestWithBody, RequestWithParam, RequestWithParamAndBody, RequestWithQuery} from "../types/types";
 import {TypePostQueryModel} from "../models/PostQueryModel";
 import {TypePostInputModel} from "../models/PostInputModel";
 import {TypePostUpdateModel} from "../models/PostUpdateModel";

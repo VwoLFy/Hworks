@@ -60,18 +60,18 @@ describe('/blogs', () => {
             .post('/blogs')
             .auth('admin', 'qwerty', {type: 'basic'})
             .send({
-                "name": " NEW NAME   ",
-                "youtubeUrl": " https://localhost:5000/blogs  "
+                name: " NEW NAME   ",
+                youtubeUrl: " https://localhost:5000/blogs  "
             })
             .expect(201)
         blog1 = result.body
 
         expect(blog1).toEqual(
             {
-                "id": expect.any(String),
-                "name": "NEW NAME",
-                "youtubeUrl": "https://localhost:5000/blogs",
-                "createdAt": expect.any(String)
+                id: expect.any(String),
+                name: "NEW NAME",
+                youtubeUrl: "https://localhost:5000/blogs",
+                createdAt: expect.any(String)
             }
         )
         await request(app)
@@ -560,10 +560,20 @@ describe('/auth', () => {
         expect(token).toEqual({"accessToken": expect.any(String)})
         expect(token).toEqual(await jwtService.createJWT(user.id))
     })
+    it('GET shouldn`t get data about user by bad token', async () => {
+        await request(app)
+            .get('/auth/me')
+            .auth(token.accessToken + 'd', { type: "bearer" })
+            .expect(401)
+
+        await request(app)
+            .get('/auth/me')
+            .expect(401)
+    })
     it('GET should get data about user by token', async () => {
         await request(app)
             .get('/auth/me')
-            .send()
+            .auth(token.accessToken, { type: "bearer" })
             .expect(200)
     })
 })

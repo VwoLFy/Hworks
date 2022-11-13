@@ -1,5 +1,5 @@
 import {Response, Router} from "express";
-import {RequestWithBody, RequestWithParam, RequestWithQuery} from "../types";
+import {RequestWithBody, RequestWithParam, RequestWithQuery} from "../types/types";
 import {TypeUserViewModelPage} from "../models/UserViewModelPage";
 import {TypeUserQueryModel} from "../models/UserQueryModel";
 import {usersQueryRepo} from "../repositories/users-queryRepo";

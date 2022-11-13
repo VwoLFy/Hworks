@@ -9,7 +9,7 @@ import {
     RequestWithParamAndBody,
     RequestWithParamAndQuery,
     RequestWithQuery
-} from "../types";
+} from "../types/types";
 import {TypeBlogInputModel} from "../models/BlogInputModel";
 import {TypeBlogPostInputModel} from "../models/BlogPostInputModel";
 import {TypeBlogQueryModel} from "../models/BlogQueryModel";

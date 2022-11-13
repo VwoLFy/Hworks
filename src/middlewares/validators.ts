@@ -168,3 +168,6 @@ export const postAuthValidation = [
     authPassword,
     inputValidationMiddleware
 ]
+export const getAuthValidation = [
+    checkAuthorizationMiddleware
+]
