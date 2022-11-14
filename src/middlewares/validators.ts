@@ -93,6 +93,19 @@ const authPassword = body("password", "'password' must be a string")
 //comments
 const commentContentValidation = body('content', "'content' must be a string  in range from 20 to 300 symbols")
     .isString().trim().isLength({min: 20, max: 300});
+const commentQueryValidation = [
+    query("pageNumber").toInt().default("1").customSanitizer((value) => {
+        return Number(value) < 1 ? "1" : value
+    }),
+    query("pageSize").toInt().default("10").customSanitizer((value) => {
+        return Number(value) < 1 ? "10" : value
+    }),
+    query("sortBy").customSanitizer(value => {
+        const isInArray = ['id', 'content', 'userId', 'userLogin', 'createdAt'].includes(value)
+        return isInArray ? value : 'createdAt'
+    }),
+    query("sortDirection").customSanitizer(value => SortDirection.asc === value ? SortDirection.asc : SortDirection.desc),
+]
 
 //list for blog
 export const getBlogsValidation = blogQueryValidation
@@ -182,4 +195,8 @@ export const createCommentValidation = [
     commentContentValidation,
     inputValidationMiddleware,
     checkIdValidForMongodb
+]
+export const getCommentByPostIdValidation = [
+    checkIdValidForMongodb,
+    ...commentQueryValidation
 ]

@@ -5,7 +5,7 @@ type TypeError = {
     message: string
     field: string
 }
-type TypeErrorResult = {
+export type TypeErrorResult = {
     errorsMessages: Array<TypeError>
 }
 const apiErrorResult: TypeErrorResult = {

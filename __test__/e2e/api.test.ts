@@ -8,6 +8,18 @@ import {client} from "../../src/repositories/db";
 import {jwtService} from "../../src/application/jwt-service";
 import {TypeLoginSuccessViewModel} from "../../src/models/LoginSuccessViewModel";
 import {TypeCommentViewModel} from "../../src/models/CommentViewModel";
+import {TypeErrorResult} from "../../src/middlewares/input-validation-middleware";
+
+const checkError = (apiErrorResult: TypeErrorResult, field: string) => {
+    expect(apiErrorResult).toEqual({
+        errorsMessages: [
+            {
+                message: expect.any(String),
+                field: field
+            }
+        ]
+    })
+}
 
 describe('/blogs', () => {
     beforeAll(async () => {
@@ -311,20 +323,29 @@ describe('/posts', () => {
             .auth(token.accessToken + 'd', {type: "bearer"})
             .send({content: "valid comment111111111"})
             .expect(401)
-        await request(app)
+        let result = await request(app)
             .post(`/posts/${post1.id}/comments`)
             .auth(token.accessToken, {type: "bearer"})
             .send({content: "bad content"})
             .expect(400)
-        await request(app)
+        checkError(result.body, "content")
+
+        result = await request(app)
             .post(`/posts/${post1.id}/comments`)
             .auth(token.accessToken, {type: "bearer"})
             .send({content: "bad content11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222"})
             .expect(400)
+        checkError(result.body, "content")
+
         await request(app)
             .post(`/posts/1/comments`)
             .auth(token.accessToken, {type: "bearer"})
             .send({content: "valid comment111111111"})
+            .expect(404)
+    })
+    it('GET should return 404', async () => {
+        await request(app)
+            .get(`/posts/${post1.id}/comments`)
             .expect(404)
     })
     it('POST should create comment with correct data', async () => {
@@ -345,6 +366,24 @@ describe('/posts', () => {
                 createdAt: expect.any(String),
             }
         )
+    })
+    it('GET should return 200 and comments', async () => {
+        await request(app)
+            .get(`/posts/${post1.id}/comments`)
+            .expect(200, {
+                    pagesCount: 1,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 1,
+                    items: [{
+                        id: comment.id,
+                        content: comment.content,
+                        userId: comment.userId,
+                        userLogin: comment.userLogin,
+                        createdAt: comment.createdAt
+                    }]
+                }
+            )
     })
     it('PUT should`t update blog with incorrect "name"', async () => {
 
