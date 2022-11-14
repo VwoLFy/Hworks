@@ -171,7 +171,6 @@ describe('/blogs', () => {
             })
     })
 })
-
 describe('/posts', () => {
     beforeAll(async () => {
         //await runDb()
@@ -181,9 +180,6 @@ describe('/posts', () => {
     let post1: TypePostViewModel
     let post2: TypePostViewModel
     let blog1: TypeBlogViewModel
-    let token: TypeLoginSuccessViewModel
-    let user: TypeUserViewModel
-    let comment: TypeCommentViewModel
     it('GET should return 200', async function () {
         await request(app)
             .get('/posts')
@@ -297,94 +293,6 @@ describe('/posts', () => {
                 "items": [post1]
             })
     })
-    it('POST should`t create comment with incorrect data', async () => {
-        const resultUser = await request(app)
-            .post('/users')
-            .auth('admin', 'qwerty', {type: 'basic'})
-            .send({
-                "login": "login",
-                "password": "password",
-                "email": "string2@sdf.ee"
-            })
-            .expect(201)
-        user = resultUser.body
-
-        const resultToken = await request(app)
-            .post('/auth/login')
-            .send({
-                "login": "login",
-                "password": "password"
-            })
-            .expect(200)
-        token = resultToken.body
-
-        await request(app)
-            .post(`/posts/${post1.id}/comments`)
-            .auth(token.accessToken + 'd', {type: "bearer"})
-            .send({content: "valid comment111111111"})
-            .expect(401)
-        let result = await request(app)
-            .post(`/posts/${post1.id}/comments`)
-            .auth(token.accessToken, {type: "bearer"})
-            .send({content: "bad content"})
-            .expect(400)
-        checkError(result.body, "content")
-
-        result = await request(app)
-            .post(`/posts/${post1.id}/comments`)
-            .auth(token.accessToken, {type: "bearer"})
-            .send({content: "bad content11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222"})
-            .expect(400)
-        checkError(result.body, "content")
-
-        await request(app)
-            .post(`/posts/1/comments`)
-            .auth(token.accessToken, {type: "bearer"})
-            .send({content: "valid comment111111111"})
-            .expect(404)
-    })
-    it('GET should return 404', async () => {
-        await request(app)
-            .get(`/posts/${post1.id}/comments`)
-            .expect(404)
-    })
-    it('POST should create comment with correct data', async () => {
-        const result = await request(app)
-            .post(`/posts/${post1.id}/comments`)
-            .auth(token.accessToken, {type: "bearer"})
-            .send({
-                content: "valid comment111111111"
-            })
-            .expect(201)
-        comment = result.body
-        expect(comment).toEqual(
-            {
-                id: expect.any(String),
-                content: "valid comment111111111",
-                userId: user.id,
-                userLogin: user.login,
-                createdAt: expect.any(String),
-            }
-        )
-    })
-    it('GET should return 200 and comments', async () => {
-        await request(app)
-            .get(`/posts/${post1.id}/comments`)
-            .expect(200, {
-                    pagesCount: 1,
-                    page: 1,
-                    pageSize: 10,
-                    totalCount: 1,
-                    items: [{
-                        id: comment.id,
-                        content: comment.content,
-                        userId: comment.userId,
-                        userLogin: comment.userLogin,
-                        createdAt: comment.createdAt
-                    }]
-                }
-            )
-    })
     it('PUT should`t update blog with incorrect "name"', async () => {
 
         await request(app)
@@ -488,7 +396,6 @@ describe('/posts', () => {
             })
     })
 })
-
 describe('/users', () => {
     beforeAll(async () => {
         //await runDb()
@@ -596,15 +503,11 @@ describe('/users', () => {
             })
     })
 })
-
 describe('/auth', () => {
     beforeAll(async () => {
         //await runDb()
         await request(app)
             .delete('/testing/all-data').expect(204)
-    })
-    afterAll(async () => {
-        await client.close()
     })
     let user: TypeUserViewModel
     let token: TypeLoginSuccessViewModel
@@ -680,4 +583,240 @@ describe('/auth', () => {
             .auth(token.accessToken, {type: "bearer"})
             .expect(200)
     })
+})
+describe('comments from post or /comments', () => {
+    beforeAll(async () => {
+        //await runDb()
+        await request(app)
+            .delete('/testing/all-data').expect(204)
+    })
+    afterAll(async () => {
+        await client.close()
+    })
+    let token: TypeLoginSuccessViewModel
+    let user: TypeUserViewModel
+    let comment: TypeCommentViewModel
+    let post: TypePostViewModel
+    let blog: TypeBlogViewModel
+    let user2: TypeUserViewModel
+    let token2: TypeLoginSuccessViewModel
+    it('POST should`t create comment with incorrect data', async () => {
+        const resultBlog = await request(app)
+            .post('/blogs')
+            .auth('admin', 'qwerty', {type: 'basic'})
+            .send({
+                "name": "blogName",
+                "youtubeUrl": " https://localhost:5000/blogs  "
+            })
+            .expect(201)
+        blog = resultBlog.body
+
+        const resultPost = await request(app)
+            .post('/posts')
+            .auth('admin', 'qwerty', {type: 'basic'})
+            .send({
+                "title": "valid",
+                "content": "valid",
+                "blogId": `${blog.id}`,
+                "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+            })
+            .expect(201)
+        post = resultPost.body
+
+        const resultUser = await request(app)
+            .post('/users')
+            .auth('admin', 'qwerty', {type: 'basic'})
+            .send({
+                "login": "login",
+                "password": "password",
+                "email": "string2@sdf.ee"
+            })
+            .expect(201)
+        user = resultUser.body
+
+        const resultToken = await request(app)
+            .post('/auth/login')
+            .send({
+                "login": "login",
+                "password": "password"
+            })
+            .expect(200)
+        token = resultToken.body
+
+        await request(app)
+            .post(`/posts/${post.id}/comments`)
+            .auth(token.accessToken + 'd', {type: "bearer"})
+            .send({content: "valid comment111111111"})
+            .expect(401)
+        let result = await request(app)
+            .post(`/posts/${post.id}/comments`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({content: "bad content"})
+            .expect(400)
+        checkError(result.body, "content")
+
+        result = await request(app)
+            .post(`/posts/${post.id}/comments`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({content: "bad content11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222"})
+            .expect(400)
+        checkError(result.body, "content")
+
+        await request(app)
+            .post(`/posts/1/comments`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({content: "valid comment111111111"})
+            .expect(404)
+    })
+    it('GET comments should return 404', async () => {
+        await request(app)
+            .get(`/posts/${post.id}/comments`)
+            .expect(404)
+    })
+    it('POST should create comment with correct data', async () => {
+        const result = await request(app)
+            .post(`/posts/${post.id}/comments`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({
+                content: "valid comment111111111"
+            })
+            .expect(201)
+        comment = result.body
+        expect(comment).toEqual(
+            {
+                id: expect.any(String),
+                content: "valid comment111111111",
+                userId: user.id,
+                userLogin: user.login,
+                createdAt: expect.any(String),
+            }
+        )
+    })
+    it('GET should return 200 and comments', async () => {
+        await request(app)
+            .get(`/posts/${post.id}/comments`)
+            .expect(200, {
+                    pagesCount: 1,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 1,
+                    items: [{
+                        id: comment.id,
+                        content: comment.content,
+                        userId: comment.userId,
+                        userLogin: comment.userLogin,
+                        createdAt: comment.createdAt
+                    }]
+                }
+            )
+    })
+    it('GET should return 200 and found comment by id ', async () => {
+        await request(app)
+            .get(`/comments/${comment.id}`)
+            .expect(200, {
+                id: comment.id,
+                content: comment.content,
+                userId: comment.userId,
+                userLogin: comment.userLogin,
+                createdAt: comment.createdAt
+            })
+    });
+    it('GET should return 404', async () => {
+        await request(app)
+            .get(`/comments/1`)
+            .expect(404)
+    });
+    it('PUT should`t update comment and return 400', async () => {
+        await request(app)
+            .put(`/comments/${comment.id}`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({content: "bad content"})
+            .expect(400)
+        await request(app)
+            .put(`/comments/${comment.id}`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({content: "bad content111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
+            .expect(400)
+    });
+    it('PUT should`t update comment and return 401', async () => {
+        await request(app)
+            .put(`/comments/${comment.id}`)
+            .auth(token.accessToken + 'd', {type: "bearer"})
+            .send({content: "new content"})
+            .expect(401)
+    });
+    it('PUT should`t update comment and return 404', async () => {
+        await request(app)
+            .put(`/comments/1`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({content: "new content!!!!!!!!!!!"})
+            .expect(404)
+    });
+    it('PUT should`t update comment and return 403', async () => {
+        const resultUser = await request(app)
+            .post('/users')
+            .auth('admin', 'qwerty', {type: "basic"})
+            .send({
+                login: 'login2',
+                password: 'password2',
+                email: "email@mail.com"
+            })
+            .expect(201)
+        user2 = resultUser.body
+        const resultToken = await request(app)
+            .post('/auth/login')
+            .send({
+                login: 'login2',
+                password: 'password2'
+            })
+            .expect(200)
+        token2 = resultToken.body
+
+        await request(app)
+            .put(`/comments/${comment.id}`)
+            .auth(token2.accessToken, {type: "bearer"})
+            .send({content: "new content_new content"})
+            .expect(403)
+    });
+    it('PUT should update comment', async () => {
+        await request(app)
+            .put(`/comments/${comment.id}`)
+            .auth(token.accessToken, {type: "bearer"})
+            .send({content: "new content_new content"})
+            .expect(204)
+        const newComment = await request(app)
+            .get(`/comments/${comment.id}`)
+            .expect(200)
+
+        expect(comment).not.toEqual(newComment.body)
+        expect(newComment.body.content).toBe('new content_new content')
+        expect(comment.content).not.toBe('new content_new content')
+    });
+    it('DELETE should`t delete comment and return 401', async () => {
+        await request(app)
+            .delete(`/comments/${comment.id}`)
+            .auth(token.accessToken + 'd', {type: "bearer"})
+            .expect(401)
+    });
+    it('DELETE should`t delete comment and return 404', async () => {
+        await request(app)
+            .delete(`/comments/1`)
+            .auth(token.accessToken, {type: "bearer"})
+            .expect(404)
+    });
+    it('DELETE should`t delete comment and return 403', async () => {
+        await request(app)
+            .delete(`/comments/${comment.id}`)
+            .auth(token2.accessToken, {type: "bearer"})
+            .expect(403)
+    });
+    it('DELETE should delete comment', async () => {
+        await request(app)
+            .delete(`/comments/${comment.id}`)
+            .auth(token.accessToken, {type: "bearer"})
+            .expect(204)
+        await request(app)
+            .get(`/comments/${comment.id}`)
+            .expect(404)
+    });
 })

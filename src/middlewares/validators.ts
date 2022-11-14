@@ -200,3 +200,16 @@ export const getCommentByPostIdValidation = [
     checkIdValidForMongodb,
     ...commentQueryValidation
 ]
+export const getCommentByIdValidation = [
+    checkIdValidForMongodb
+]
+export const updateCommentByIdValidation = [
+    checkAuthorizationMiddleware,
+    commentContentValidation,
+    inputValidationMiddleware,
+    checkIdValidForMongodb
+]
+export const deleteCommentByIdValidation = [
+    checkAuthorizationMiddleware,
+    checkIdValidForMongodb
+]
