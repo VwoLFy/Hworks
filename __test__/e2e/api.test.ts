@@ -663,7 +663,7 @@ describe('comments from post or /comments', () => {
         checkError(result.body, "content")
 
         await request(app)
-            .post(`/posts/1/comments`)
+            .post(`/posts/63189b06003380064c4193be/comments`)
             .auth(token.accessToken, {type: "bearer"})
             .send({content: "valid comment111111111"})
             .expect(404)
