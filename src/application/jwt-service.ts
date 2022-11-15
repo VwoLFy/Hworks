@@ -1,6 +1,7 @@
 import {TypeLoginSuccessViewModel} from "../models/LoginSuccessViewModel";
 import jwt from 'jsonwebtoken'
 import {settings} from "../settings";
+type TypeUserId = {userId: string}
 
 export const jwtService = {
     async createJWT(userId: string): Promise<TypeLoginSuccessViewModel> {
@@ -9,7 +10,7 @@ export const jwtService = {
     },
     async getUserIdByToken(token: string): Promise<string | null> {
         try {
-            const result: any = jwt.verify(token, settings.JWT_SECRET)
+            const result = jwt.verify(token, settings.JWT_SECRET) as TypeUserId
             return result.userId
         }
         catch (e) {

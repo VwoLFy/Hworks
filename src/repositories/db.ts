@@ -5,8 +5,9 @@ import {TypeNewUser} from "../domain/user-service";
 import {settings} from "../settings";
 import {TypeNewComment} from "../domain/comments-service";
 
-const mongoUri = settings.MONGO_URI;
+const mongoUri = process.env.NODE_ENV === "test" ? settings.MONGO_URI_LOC : settings.MONGO_URI;
 export const client = new MongoClient(mongoUri)
+console.log(mongoUri)
 
 type TypeBlogDB = TypeNewBlog
 type TypePostDB = TypeNewPost
