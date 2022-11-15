@@ -9,7 +9,9 @@ export type TypeNewUser = {
 }
 
 export const usersService = {
-    async createUser(login: string, password: string, email: string): Promise<string> {
+    async createUser(login: string, password: string, email: string): Promise<string | null> {
+        const isFreeLogin = await usersRepository.isFreeLogin(login)
+        if (!isFreeLogin) return null
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await bcrypt.hash(password, passwordSalt)
 

@@ -23,5 +23,8 @@ export const checkAuthorizationMiddleware = async (req: Request, res: Response, 
         if (!userId) return res.sendStatus(401)
         req.userId = userId
         next()
+        return
+    } else {
+        return res.sendStatus(401)
     }
 }

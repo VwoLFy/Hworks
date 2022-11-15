@@ -20,7 +20,7 @@ authRouter.post('/login', postAuthValidation, async (req: RequestWithBody<TypeLo
 authRouter.get('/me', getAuthValidation, async (req: Request, res: Response<TypeMeViewModel>) => {
     const userId = req.userId
     const userData = await usersQueryRepo.findUserById(userId)
-    if (!userData) return
+    if (!userData) return res.sendStatus(401)
     return res.status(200).json({
         email: userData.email,
         login: userData.login,

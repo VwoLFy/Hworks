@@ -42,7 +42,7 @@ describe('Test of the Homework', () => {
                     "items": []
                 })
         });
-        it('POST should`t create blog with incorrect "data"', async () => {
+        it('POST shouldn`t create blog with incorrect "data"', async () => {
             await request(app)
                 .post('/blogs')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -99,7 +99,7 @@ describe('Test of the Homework', () => {
                     "items": [blog1]
                 })
         })
-        it('PUT should`t update blog with incorrect "name"', async () => {
+        it('PUT shouldn`t update blog with incorrect "name"', async () => {
 
             await request(app).put(`/blogs/${blog1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -109,7 +109,7 @@ describe('Test of the Homework', () => {
                 })
                 .expect(400)
         })
-        it('PUT should`t update blog with incorrect "youtubeUrl"', async () => {
+        it('PUT shouldn`t update blog with incorrect "youtubeUrl"', async () => {
 
             await request(app).put(`/blogs/${blog1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -119,7 +119,7 @@ describe('Test of the Homework', () => {
                 })
                 .expect(400)
         })
-        it('PUT should`t update blog with incorrect "id"', async () => {
+        it('PUT shouldn`t update blog with incorrect "id"', async () => {
             await request(app).put(`/blogs/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
@@ -149,7 +149,7 @@ describe('Test of the Homework', () => {
                 })
             expect(blog2).not.toEqual(blog1)
         })
-        it('DELETE should`t delete blog with incorrect "id"', async () => {
+        it('DELETE shouldn`t delete blog with incorrect "id"', async () => {
             await request(app).delete(`/blogs/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .expect(404)
@@ -198,7 +198,7 @@ describe('Test of the Homework', () => {
                 .expect(404)
 
         });
-        it('POST should`t create post with incorrect data', async () => {
+        it('POST shouldn`t create post with incorrect data', async () => {
             const result = await request(app)
                 .post('/blogs')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -294,7 +294,7 @@ describe('Test of the Homework', () => {
                     "items": [post1]
                 })
         })
-        it('PUT should`t update blog with incorrect "name"', async () => {
+        it('PUT shouldn`t update blog with incorrect "name"', async () => {
 
             await request(app)
                 .put(`/posts/${post1.id}`)
@@ -373,7 +373,7 @@ describe('Test of the Homework', () => {
                 })
             expect(post2).not.toEqual(post1)
         })
-        it('DELETE should`t delete blog with incorrect "id"', async () => {
+        it('DELETE shouldn`t delete blog with incorrect "id"', async () => {
             await request(app).delete(`/posts/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .expect(404)
@@ -414,7 +414,7 @@ describe('Test of the Homework', () => {
                     "items": []
                 })
         });
-        it('POST should`t create user with incorrect data', async () => {
+        it('POST shouldn`t create user with incorrect data', async () => {
             await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -483,7 +483,37 @@ describe('Test of the Homework', () => {
                     "items": [user1]
                 })
         })
-        it('DELETE should`t delete blog with incorrect "id"', async () => {
+        it('POST shouldn`t create user with existed login', async () => {
+            await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    "login": "login",
+                    "password": "password",
+                    "email": "string2@sdf.ee"
+                })
+                .expect(400)
+            await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    "login": "Login",
+                    "password": "password",
+                    "email": "string2@sdf.ee"
+                })
+                .expect(400)
+                        await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    "login": "LOGIN",
+                    "password": "password",
+                    "email": "string2@sdf.ee"
+                })
+                .expect(400)
+
+        })
+        it('DELETE shouldn`t delete blog with incorrect "id"', async () => {
             await request(app).delete(`/users/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .expect(404)
@@ -510,7 +540,7 @@ describe('Test of the Homework', () => {
         })
         let user: TypeUserViewModel
         let token: TypeLoginSuccessViewModel
-        it('POST should`t authenticate user with incorrect data', async () => {
+        it('POST shouldn`t authenticate user with incorrect data', async () => {
             const result = await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -571,6 +601,10 @@ describe('Test of the Homework', () => {
                 .get('/auth/me')
                 .auth(token.accessToken + 'd', {type: "bearer"})
                 .expect(401)
+await request(app)
+                .get('/auth/me')
+                .auth('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MzcxMzkzNTQ5OTYxNWM1MTAwZGM5YjQiLCJpYXQiOjE2NjgzNjU0MDUsImV4cCI6MTY3NTAxODIwNX0.Mb02J2SwIzjfXVX0RIihvR1ioj-rcP0fVt3TQcY-BlY', {type: "bearer"})
+                .expect(401)
 
             await request(app)
                 .get('/auth/me')
@@ -595,7 +629,7 @@ describe('Test of the Homework', () => {
         let blog: TypeBlogViewModel
         let user2: TypeUserViewModel
         let token2: TypeLoginSuccessViewModel
-        it('POST should`t create comment with incorrect data', async () => {
+        it('POST shouldn`t create comment with incorrect data', async () => {
             const resultBlog = await request(app)
                 .post('/blogs')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -721,7 +755,7 @@ describe('Test of the Homework', () => {
                 .get(`/comments/1`)
                 .expect(404)
         });
-        it('PUT should`t update comment and return 400', async () => {
+        it('PUT shouldn`t update comment and return 400', async () => {
             await request(app)
                 .put(`/comments/${comment.id}`)
                 .auth(token.accessToken, {type: "bearer"})
@@ -733,21 +767,21 @@ describe('Test of the Homework', () => {
                 .send({content: "bad content111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
                 .expect(400)
         });
-        it('PUT should`t update comment and return 401', async () => {
+        it('PUT shouldn`t update comment and return 401', async () => {
             await request(app)
                 .put(`/comments/${comment.id}`)
                 .auth(token.accessToken + 'd', {type: "bearer"})
                 .send({content: "new content"})
                 .expect(401)
         });
-        it('PUT should`t update comment and return 404', async () => {
+        it('PUT shouldn`t update comment and return 404', async () => {
             await request(app)
                 .put(`/comments/1`)
                 .auth(token.accessToken, {type: "bearer"})
                 .send({content: "new content!!!!!!!!!!!"})
                 .expect(404)
         });
-        it('PUT should`t update comment and return 403', async () => {
+        it('PUT shouldn`t update comment and return 403', async () => {
             const resultUser = await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: "basic"})
@@ -787,19 +821,19 @@ describe('Test of the Homework', () => {
             expect(newComment.body.content).toBe('new content_new content')
             expect(comment.content).not.toBe('new content_new content')
         });
-        it('DELETE should`t delete comment and return 401', async () => {
+        it('DELETE shouldn`t delete comment and return 401', async () => {
             await request(app)
                 .delete(`/comments/${comment.id}`)
                 .auth(token.accessToken + 'd', {type: "bearer"})
                 .expect(401)
         });
-        it('DELETE should`t delete comment and return 404', async () => {
+        it('DELETE shouldn`t delete comment and return 404', async () => {
             await request(app)
                 .delete(`/comments/1`)
                 .auth(token.accessToken, {type: "bearer"})
                 .expect(404)
         });
-        it('DELETE should`t delete comment and return 403', async () => {
+        it('DELETE shouldn`t delete comment and return 403', async () => {
             await request(app)
                 .delete(`/comments/${comment.id}`)
                 .auth(token2.accessToken, {type: "bearer"})

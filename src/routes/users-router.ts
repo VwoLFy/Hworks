@@ -16,6 +16,7 @@ usersRouter.get('/', getUsersValidation, async (req: RequestWithQuery<TypeUserQu
 })
 usersRouter.post('/', createUserValidation, async (req: RequestWithBody<TypeUserInputModel>, res: Response<TypeUserViewModel>) => {
     const createdUserId = await usersService.createUser(req.body.login, req.body.password, req.body.email)
+    if (!createdUserId) return res.sendStatus(400)
     const createdUser = await usersQueryRepo.findUserById(createdUserId)
     if (createdUser) res.status(201).json(createdUser)
 })

@@ -27,6 +27,9 @@ export const usersRepository = {
         if (!result) return null
         return result.login
     },
+    async isFreeLogin(login: string): Promise<boolean> {
+        return !(await userCollection.findOne({login: {$regex: login, $options: 'i'}}))
+    },
     async deleteAll() {
         await userCollection.deleteMany({})
     }
