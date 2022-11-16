@@ -22,7 +22,8 @@ export const blogsService = {
     async deleteBlog(id: string): Promise<boolean> {
         const isDeletedBlog = await blogsRepository.deleteBlog(id);
         if (!isDeletedBlog) return false
-        return await postsRepository.deleteAllPostsOfBlog(id)
+        await postsRepository.deleteAllPostsOfBlog(id)
+        return true
     },
     async deleteAll() {
         await blogsRepository.deleteAll()
