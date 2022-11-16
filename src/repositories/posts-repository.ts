@@ -23,6 +23,10 @@ export const postsRepository = {
     async isPostExist (id: string): Promise<boolean> {
         return !!( await postCollection.findOne({_id: new ObjectId(id)}) )
     },
+    async deleteAllPostsOfBlog(id: string): Promise<boolean> {
+        const result = await postCollection.deleteMany({blogId: id})
+        return result.deletedCount !== 0
+    },
     async deleteAll() {
         await postCollection.deleteMany( {})
     }

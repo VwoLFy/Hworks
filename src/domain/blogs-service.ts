@@ -1,4 +1,5 @@
 import {blogsRepository} from "../repositories/blogs-repository";
+import {postsRepository} from "../repositories/posts-repository";
 
 export type TypeNewBlog = {
     name: string
@@ -19,7 +20,9 @@ export const blogsService = {
         return await blogsRepository.updateBlog(id, name, youtubeUrl);
     },
     async deleteBlog(id: string): Promise<boolean> {
-        return await blogsRepository.deleteBlog(id);
+        const isDeletedBlog = await blogsRepository.deleteBlog(id);
+        if (!isDeletedBlog) return false
+        return await postsRepository.deleteAllPostsOfBlog(id)
     },
     async deleteAll() {
         await blogsRepository.deleteAll()

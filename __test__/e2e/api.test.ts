@@ -396,6 +396,48 @@ describe('Test of the Homework', () => {
                     "items": []
                 })
         })
+        it('DELETE blog should delete all posts of this blog', async () => {
+            const result1 = await request(app)
+                .post('/posts')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    "title": "valid1",
+                    "content": "valid1",
+                    "blogId": `${blog1.id}`,
+                    "shortDescription": "1 K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                })
+                .expect(201)
+            post1 = result1.body
+
+            const result2 = await request(app)
+                .post('/posts')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    "title": "valid2",
+                    "content": "valid2",
+                    "blogId": `${blog1.id}`,
+                    "shortDescription": "2 K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                })
+                .expect(201)
+            post2 = result2.body
+
+            await request(app).delete(`/blogs/${blog1.id}`)
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .expect(204)
+            await request(app)
+                .get(`/blogs/${blog1.id}`)
+                .expect(404)
+            await request(app)
+                .get(`/blogs/${blog1.id}/posts`)
+                .expect(404)
+            await request(app)
+                .get(`/posts/${post1.id}`)
+                .expect(404)
+            await request(app)
+                .get(`/posts/${post2.id}`)
+                .expect(404)
+        })
+
     })
     describe('/users', () => {
         beforeAll(async () => {
