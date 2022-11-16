@@ -437,7 +437,6 @@ describe('Test of the Homework', () => {
                 .get(`/posts/${post2.id}`)
                 .expect(404)
         })
-
     })
     describe('/users', () => {
         beforeAll(async () => {
@@ -532,7 +531,7 @@ describe('Test of the Homework', () => {
                 .send({
                     "login": "login",
                     "password": "password",
-                    "email": "string2@sdf.ee"
+                    "email": "1string2@sdf.ee"
                 })
                 .expect(400)
             await request(app)
@@ -541,7 +540,7 @@ describe('Test of the Homework', () => {
                 .send({
                     "login": "Login",
                     "password": "password",
-                    "email": "string2@sdf.ee"
+                    "email": "2string2@sdf.ee"
                 })
                 .expect(400)
                         await request(app)
@@ -550,10 +549,48 @@ describe('Test of the Homework', () => {
                 .send({
                     "login": "LOGIN",
                     "password": "password",
-                    "email": "string2@sdf.ee"
+                    "email": "3string2@sdf.ee"
                 })
                 .expect(400)
 
+        })
+        it('POST shouldn`t create user with existed email', async () => {
+            await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    "login": "1login",
+                    "password": "password",
+                    "email": "string2@sdf.ee"
+                })
+                .expect(400)
+            await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    "login": "2login",
+                    "password": "password",
+                    "email": "STRING2@sdf.ee"
+                })
+                .expect(400)
+                        await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    "login": "3login",
+                    "password": "password",
+                    "email": "String2@sdf.ee"
+                })
+                .expect(400)
+            await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    "login": "3login",
+                    "password": "password",
+                    "email": "string2@sdf.EE"
+                })
+                .expect(400)
         })
         it('DELETE shouldn`t delete blog with incorrect "id"', async () => {
             await request(app).delete(`/users/1`)
