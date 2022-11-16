@@ -3,7 +3,7 @@ import {checkIdValidForMongodb} from "./check-id-valid-for-mongodb";
 import {checkAuthorizationMiddleware} from "./check-authorization-middleware";
 import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
 import {inputValidationMiddleware} from "./input-validation-middleware";
-import {SortDirection} from "../SortDirection";
+import {SortDirection} from "../enums";
 
 // blog
 const blogNameValidation = body('name', "'name' must be a string in range from 1 to 15 symbols")

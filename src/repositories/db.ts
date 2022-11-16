@@ -7,7 +7,6 @@ import {TypeNewComment} from "../domain/comments-service";
 
 const mongoUri = process.env.NODE_ENV === "test" ? settings.MONGO_URI_LOC : settings.MONGO_URI;
 export const client = new MongoClient(mongoUri)
-console.log(mongoUri)
 
 type TypeBlogDB = TypeNewBlog
 type TypePostDB = TypeNewPost

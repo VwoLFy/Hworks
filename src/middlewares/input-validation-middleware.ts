@@ -1,5 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import {validationResult} from "express-validator";
+import {HTTP_Status} from "../enums";
 
 type TypeError = {
     message: string
@@ -24,7 +25,7 @@ export const inputValidationMiddleware = (req: Request, res: Response, next: Nex
     apiErrorResult.errorsMessages = newRes(req).array({onlyFirstError: true})
 
     if (apiErrorResult.errorsMessages.length > 0) {
-        return res.status(400).json(apiErrorResult);
+        return res.status(HTTP_Status.BAD_REQUEST_400).json(apiErrorResult);
     } else {
         next()
     }

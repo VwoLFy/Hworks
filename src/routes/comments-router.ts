@@ -9,30 +9,31 @@ import {
     updateCommentByIdValidation
 } from "../middlewares/validators";
 import {commentsService} from "../domain/comments-service";
+import {HTTP_Status} from "../enums";
 
 export const commentsRouter = Router({})
 
 commentsRouter.get(('/:id'), getCommentByIdValidation, async (req: RequestWithParam, res: Response<TypeCommentViewModel>) => {
     const foundComment = await commentsQueryRepo.findCommentById(req.params.id);
     if (!foundComment) {
-        res.sendStatus(404)
+        res.sendStatus(HTTP_Status.NOT_FOUND_404)
     } else {
-        res.status(200).json(foundComment)
+        res.status(HTTP_Status.OK_200).json(foundComment)
     }
 })
 commentsRouter.put(('/:id'), updateCommentByIdValidation, async (req: RequestWithParamAndBody<TypeCommentInputModel>, res: Response) => {
     const updateStatus = await commentsService.updateComment(req.params.id, req.body.content, req.userId)
     if (!updateStatus) {
-        res.sendStatus(404)
+        res.sendStatus(HTTP_Status.NOT_FOUND_404)
     } else {
-        res.sendStatus(updateStatus)
+        res.sendStatus(updateStatus as HTTP_Status)
     }
 })
 commentsRouter.delete(('/:id'), deleteCommentByIdValidation, async (req: RequestWithParam, res: Response) => {
     const deleteStatus = await commentsService.deleteComment(req.params.id, req.userId)
     if (!deleteStatus) {
-        res.sendStatus(404)
+        res.sendStatus(HTTP_Status.NOT_FOUND_404)
     } else {
-        res.sendStatus(deleteStatus)
+        res.sendStatus(deleteStatus as HTTP_Status)
     }
 })

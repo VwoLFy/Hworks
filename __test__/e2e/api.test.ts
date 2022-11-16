@@ -8,6 +8,7 @@ import {TypeLoginSuccessViewModel} from "../../src/models/LoginSuccessViewModel"
 import {TypeCommentViewModel} from "../../src/models/CommentViewModel";
 import {TypeErrorResult} from "../../src/middlewares/input-validation-middleware";
 import {app} from "../../src/app_config";
+import {HTTP_Status} from "../../src/enums";
 
 const checkError = (apiErrorResult: TypeErrorResult, field: string) => {
     expect(apiErrorResult).toEqual({
@@ -27,14 +28,14 @@ describe('Test of the Homework', () => {
     describe('/blogs', () => {
         beforeAll(async () => {
             await request(app)
-                .delete('/testing/all-data').expect(204)
+                .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
         let blog1: TypeBlogViewModel
         let blog2: TypeBlogViewModel
         it('GET should return 200', async function () {
             await request(app)
                 .get('/blogs')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 0,
                     "page": 1,
                     "pageSize": 10,
@@ -50,7 +51,7 @@ describe('Test of the Homework', () => {
                     "name": "    ",
                     "youtubeUrl": " https://localhost:5000/blogs  "
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/blogs')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -58,11 +59,11 @@ describe('Test of the Homework', () => {
                     "name": "valid name",
                     "youtubeUrl": " htt://localhost:5000/blogs  "
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
 
             await request(app)
                 .get('/blogs')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 0,
                     "page": 1,
                     "pageSize": 10,
@@ -78,7 +79,7 @@ describe('Test of the Homework', () => {
                     name: " NEW NAME   ",
                     youtubeUrl: " https://localhost:5000/blogs  "
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             blog1 = result.body
 
             expect(blog1).toEqual(
@@ -91,7 +92,7 @@ describe('Test of the Homework', () => {
             )
             await request(app)
                 .get('/blogs')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 1,
                     "page": 1,
                     "pageSize": 10,
@@ -107,7 +108,7 @@ describe('Test of the Homework', () => {
                     "name": "    ",
                     "youtubeUrl": "https://api-swagger.it-incubator.ru/"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
         })
         it('PUT shouldn`t update blog with incorrect "youtubeUrl"', async () => {
 
@@ -117,7 +118,7 @@ describe('Test of the Homework', () => {
                     "name": "valid name",
                     "youtubeUrl": "http://api-swagger.it-incubator"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
         })
         it('PUT shouldn`t update blog with incorrect "id"', async () => {
             await request(app).put(`/blogs/1`)
@@ -126,7 +127,7 @@ describe('Test of the Homework', () => {
                     "name": " Updating NAME   ",
                     "youtubeUrl": "https://api-swagger.it-incubator.ru/"
                 })
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
         })
         it('PUT should update blog with correct data', async () => {
             await request(app).put(`/blogs/${blog1.id}`)
@@ -135,10 +136,10 @@ describe('Test of the Homework', () => {
                     "name": " Updating NAME   ",
                     "youtubeUrl": "https://api-swagger.it-incubator.ru/"
                 })
-                .expect(204)
+                .expect(HTTP_Status.NO_CONTENT_204)
             const result = await request(app)
                 .get(`/blogs/${blog1.id}`)
-                .expect(200)
+                .expect(HTTP_Status.OK_200)
             blog2 = result.body
             expect(blog2).toEqual(
                 {
@@ -152,19 +153,19 @@ describe('Test of the Homework', () => {
         it('DELETE shouldn`t delete blog with incorrect "id"', async () => {
             await request(app).delete(`/blogs/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
 
             await request(app)
                 .get(`/blogs/${blog1.id}`)
-                .expect(200, blog2)
+                .expect(HTTP_Status.OK_200, blog2)
         })
         it('DELETE should delete blog with correct "id"', async () => {
             await request(app).delete(`/blogs/${blog1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
-                .expect(204)
+                .expect(HTTP_Status.NO_CONTENT_204)
             await request(app)
                 .get('/blogs')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 0,
                     "page": 1,
                     "pageSize": 10,
@@ -176,7 +177,7 @@ describe('Test of the Homework', () => {
     describe('/posts', () => {
         beforeAll(async () => {
             await request(app)
-                .delete('/testing/all-data').expect(204)
+                .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
         let post1: TypePostViewModel
         let post2: TypePostViewModel
@@ -184,7 +185,7 @@ describe('Test of the Homework', () => {
         it('GET should return 200', async function () {
             await request(app)
                 .get('/posts')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 0,
                     "page": 1,
                     "pageSize": 10,
@@ -195,7 +196,7 @@ describe('Test of the Homework', () => {
         it('GET By Id should return 404', async function () {
             await request(app)
                 .get('/posts/1')
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
 
         });
         it('POST shouldn`t create post with incorrect data', async () => {
@@ -206,7 +207,7 @@ describe('Test of the Homework', () => {
                     "name": "blogName",
                     "youtubeUrl": " https://localhost:5000/blogs  "
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             blog1 = result.body
 
             await request(app)
@@ -218,7 +219,7 @@ describe('Test of the Homework', () => {
                     "blogId": `${blog1.id}`,
                     "shortDescription": "K8cqY3aPKo3mWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/posts')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -228,7 +229,7 @@ describe('Test of the Homework', () => {
                     "blogId": `${blog1.id}`,
                     "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/posts')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -238,7 +239,7 @@ describe('Test of the Homework', () => {
                     "blogId": `1`,
                     "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/posts')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -248,11 +249,11 @@ describe('Test of the Homework', () => {
                     "blogId": `${blog1.id}`,
                     "shortDescription": ""
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
 
             await request(app)
                 .get('/posts')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 0,
                     "page": 1,
                     "pageSize": 10,
@@ -270,7 +271,7 @@ describe('Test of the Homework', () => {
                     "blogId": `${blog1.id}`,
                     "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             post1 = result.body
 
             expect(post1).toEqual(
@@ -286,7 +287,7 @@ describe('Test of the Homework', () => {
             )
             await request(app)
                 .get('/posts')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 1,
                     "page": 1,
                     "pageSize": 10,
@@ -305,7 +306,7 @@ describe('Test of the Homework', () => {
                     "blogId": `${blog1.id}`,
                     "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .put(`/posts/${post1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -315,7 +316,7 @@ describe('Test of the Homework', () => {
                     "blogId": `/posts/${blog1.id}`,
                     "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .put(`/posts/${post1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -325,7 +326,7 @@ describe('Test of the Homework', () => {
                     "blogId": `/posts/1`,
                     "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .put(`/posts/${post1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -335,7 +336,7 @@ describe('Test of the Homework', () => {
                     "blogId": `/posts/${blog1.id}`,
                     "shortDescription": ""
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .put(`/posts/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -345,7 +346,7 @@ describe('Test of the Homework', () => {
                     "blogId": `/posts/${blog1.id}`,
                     "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
         })
         it('PUT should update blog with correct data', async () => {
             await request(app).put(`/posts/${post1.id}`)
@@ -356,10 +357,10 @@ describe('Test of the Homework', () => {
                     "content": "Update content",
                     "blogId": `${blog1.id}`
                 })
-                .expect(204)
+                .expect(HTTP_Status.NO_CONTENT_204)
             const result = await request(app)
                 .get(`/posts/${post1.id}`)
-                .expect(200)
+                .expect(HTTP_Status.OK_200)
             post2 = result.body
             expect(post2).toEqual(
                 {
@@ -376,19 +377,19 @@ describe('Test of the Homework', () => {
         it('DELETE shouldn`t delete blog with incorrect "id"', async () => {
             await request(app).delete(`/posts/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
 
             await request(app)
                 .get(`/posts/${post1.id}`)
-                .expect(200, post2)
+                .expect(HTTP_Status.OK_200, post2)
         })
         it('DELETE should delete blog with correct "id"', async () => {
             await request(app).delete(`/posts/${post1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
-                .expect(204)
+                .expect(HTTP_Status.NO_CONTENT_204)
             await request(app)
                 .get('/posts')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 0,
                     "page": 1,
                     "pageSize": 10,
@@ -406,7 +407,7 @@ describe('Test of the Homework', () => {
                     "blogId": `${blog1.id}`,
                     "shortDescription": "1 K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             post1 = result1.body
 
             const result2 = await request(app)
@@ -418,36 +419,36 @@ describe('Test of the Homework', () => {
                     "blogId": `${blog1.id}`,
                     "shortDescription": "2 K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             post2 = result2.body
 
             await request(app).delete(`/blogs/${blog1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
-                .expect(204)
+                .expect(HTTP_Status.NO_CONTENT_204)
             await request(app)
                 .get(`/blogs/${blog1.id}`)
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
             await request(app)
                 .get(`/blogs/${blog1.id}/posts`)
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
             await request(app)
                 .get(`/posts/${post1.id}`)
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
             await request(app)
                 .get(`/posts/${post2.id}`)
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
         })
     })
     describe('/users', () => {
         beforeAll(async () => {
             await request(app)
-                .delete('/testing/all-data').expect(204)
+                .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
         let user1: TypeUserViewModel
         it('GET should return 200', async function () {
             await request(app)
                 .get('/users')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 0,
                     "page": 1,
                     "pageSize": 10,
@@ -464,7 +465,7 @@ describe('Test of the Homework', () => {
                     "password": "password",
                     "email": "string2@sdf.ee"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -473,7 +474,7 @@ describe('Test of the Homework', () => {
                     "password": "",
                     "email": "string2@sdf.ee"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -482,11 +483,11 @@ describe('Test of the Homework', () => {
                     "password": "password",
                     "email": "string12345.ee"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
 
             await request(app)
                 .get('/users')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 0,
                     "page": 1,
                     "pageSize": 10,
@@ -503,7 +504,7 @@ describe('Test of the Homework', () => {
                     "password": "password",
                     "email": "string2@sdf.ee"
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             user1 = result.body
 
             expect(user1).toEqual(
@@ -516,7 +517,7 @@ describe('Test of the Homework', () => {
             )
             await request(app)
                 .get('/users')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 1,
                     "page": 1,
                     "pageSize": 10,
@@ -533,7 +534,7 @@ describe('Test of the Homework', () => {
                     "password": "password",
                     "email": "1string2@sdf.ee"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -542,7 +543,7 @@ describe('Test of the Homework', () => {
                     "password": "password",
                     "email": "2string2@sdf.ee"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
                         await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -551,7 +552,7 @@ describe('Test of the Homework', () => {
                     "password": "password",
                     "email": "3string2@sdf.ee"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
 
         })
         it('POST shouldn`t create user with existed email', async () => {
@@ -563,7 +564,7 @@ describe('Test of the Homework', () => {
                     "password": "password",
                     "email": "string2@sdf.ee"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -572,7 +573,7 @@ describe('Test of the Homework', () => {
                     "password": "password",
                     "email": "STRING2@sdf.ee"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
                         await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -581,7 +582,7 @@ describe('Test of the Homework', () => {
                     "password": "password",
                     "email": "String2@sdf.ee"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -590,20 +591,20 @@ describe('Test of the Homework', () => {
                     "password": "password",
                     "email": "string2@sdf.EE"
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
         })
         it('DELETE shouldn`t delete blog with incorrect "id"', async () => {
             await request(app).delete(`/users/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
         })
         it('DELETE should delete blog with correct "id"', async () => {
             await request(app).delete(`/users/${user1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
-                .expect(204)
+                .expect(HTTP_Status.NO_CONTENT_204)
             await request(app)
                 .get('/users')
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     "pagesCount": 0,
                     "page": 1,
                     "pageSize": 10,
@@ -615,7 +616,7 @@ describe('Test of the Homework', () => {
     describe('/auth', () => {
         beforeAll(async () => {
             await request(app)
-                .delete('/testing/all-data').expect(204)
+                .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
         let user: TypeUserViewModel
         let token: TypeLoginSuccessViewModel
@@ -628,7 +629,7 @@ describe('Test of the Homework', () => {
                     "password": "password",
                     "email": "string2@sdf.ee"
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             user = result.body
             await request(app)
                 .post('/auth/login')
@@ -637,7 +638,7 @@ describe('Test of the Homework', () => {
                     "login": "login",
                     "password": "password3",
                 })
-                .expect(401)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
             await request(app)
                 .post('/auth/login')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -645,7 +646,7 @@ describe('Test of the Homework', () => {
                     "login": "",
                     "password": "password",
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/auth/login')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -653,7 +654,7 @@ describe('Test of the Homework', () => {
                     "login": "login",
                     "password": "",
                 })
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/auth/login')
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -661,7 +662,7 @@ describe('Test of the Homework', () => {
                     "login": "login1",
                     "password": "password",
                 })
-                .expect(401)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
         })
         it('POST should authenticate user with correct data', async () => {
             const result = await request(app)
@@ -670,7 +671,7 @@ describe('Test of the Homework', () => {
                     "login": "login",
                     "password": "password"
                 })
-                .expect(200)
+                .expect(HTTP_Status.OK_200)
             token = result.body
             expect(token).toEqual({"accessToken": expect.any(String)})
             expect(token).toEqual(await jwtService.createJWT(user.id))
@@ -679,27 +680,27 @@ describe('Test of the Homework', () => {
             await request(app)
                 .get('/auth/me')
                 .auth(token.accessToken + 'd', {type: "bearer"})
-                .expect(401)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
 await request(app)
                 .get('/auth/me')
                 .auth('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MzcxMzkzNTQ5OTYxNWM1MTAwZGM5YjQiLCJpYXQiOjE2NjgzNjU0MDUsImV4cCI6MTY3NTAxODIwNX0.Mb02J2SwIzjfXVX0RIihvR1ioj-rcP0fVt3TQcY-BlY', {type: "bearer"})
-                .expect(401)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
 
             await request(app)
                 .get('/auth/me')
-                .expect(401)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
         })
         it('GET should get data about user by token', async () => {
             await request(app)
                 .get('/auth/me')
                 .auth(token.accessToken, {type: "bearer"})
-                .expect(200)
+                .expect(HTTP_Status.OK_200)
         })
     })
     describe('comments from post or /comments', () => {
         beforeAll(async () => {
             await request(app)
-                .delete('/testing/all-data').expect(204)
+                .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
         let token: TypeLoginSuccessViewModel
         let user: TypeUserViewModel
@@ -716,7 +717,7 @@ await request(app)
                     "name": "blogName",
                     "youtubeUrl": " https://localhost:5000/blogs  "
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             blog = resultBlog.body
 
             const resultPost = await request(app)
@@ -728,7 +729,7 @@ await request(app)
                     "blogId": `${blog.id}`,
                     "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             post = resultPost.body
 
             const resultUser = await request(app)
@@ -739,7 +740,7 @@ await request(app)
                     "password": "password",
                     "email": "string2@sdf.ee"
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             user = resultUser.body
 
             const resultToken = await request(app)
@@ -748,38 +749,38 @@ await request(app)
                     "login": "login",
                     "password": "password"
                 })
-                .expect(200)
+                .expect(HTTP_Status.OK_200)
             token = resultToken.body
 
             await request(app)
                 .post(`/posts/${post.id}/comments`)
                 .auth(token.accessToken + 'd', {type: "bearer"})
                 .send({content: "valid comment111111111"})
-                .expect(401)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
             let result = await request(app)
                 .post(`/posts/${post.id}/comments`)
                 .auth(token.accessToken, {type: "bearer"})
                 .send({content: "bad content"})
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             checkError(result.body, "content")
 
             result = await request(app)
                 .post(`/posts/${post.id}/comments`)
                 .auth(token.accessToken, {type: "bearer"})
                 .send({content: "bad content11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222"})
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             checkError(result.body, "content")
 
             await request(app)
                 .post(`/posts/63189b06003380064c4193be/comments`)
                 .auth(token.accessToken, {type: "bearer"})
                 .send({content: "valid comment111111111"})
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
         })
         it('GET comments should return 404', async () => {
             await request(app)
                 .get(`/posts/${post.id}/comments`)
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
         })
         it('POST should create comment with correct data', async () => {
             const result = await request(app)
@@ -788,7 +789,7 @@ await request(app)
                 .send({
                     content: "valid comment111111111"
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             comment = result.body
             expect(comment).toEqual(
                 {
@@ -803,7 +804,7 @@ await request(app)
         it('GET should return 200 and comments', async () => {
             await request(app)
                 .get(`/posts/${post.id}/comments`)
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                         pagesCount: 1,
                         page: 1,
                         pageSize: 10,
@@ -821,7 +822,7 @@ await request(app)
         it('GET should return 200 and found comment by id ', async () => {
             await request(app)
                 .get(`/comments/${comment.id}`)
-                .expect(200, {
+                .expect(HTTP_Status.OK_200, {
                     id: comment.id,
                     content: comment.content,
                     userId: comment.userId,
@@ -832,33 +833,33 @@ await request(app)
         it('GET should return 404', async () => {
             await request(app)
                 .get(`/comments/1`)
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
         });
         it('PUT shouldn`t update comment and return 400', async () => {
             await request(app)
                 .put(`/comments/${comment.id}`)
                 .auth(token.accessToken, {type: "bearer"})
                 .send({content: "bad content"})
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .put(`/comments/${comment.id}`)
                 .auth(token.accessToken, {type: "bearer"})
                 .send({content: "bad content111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"})
-                .expect(400)
+                .expect(HTTP_Status.BAD_REQUEST_400)
         });
         it('PUT shouldn`t update comment and return 401', async () => {
             await request(app)
                 .put(`/comments/${comment.id}`)
                 .auth(token.accessToken + 'd', {type: "bearer"})
                 .send({content: "new content"})
-                .expect(401)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
         });
         it('PUT shouldn`t update comment and return 404', async () => {
             await request(app)
                 .put(`/comments/1`)
                 .auth(token.accessToken, {type: "bearer"})
                 .send({content: "new content!!!!!!!!!!!"})
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
         });
         it('PUT shouldn`t update comment and return 403', async () => {
             const resultUser = await request(app)
@@ -869,7 +870,7 @@ await request(app)
                     password: 'password2',
                     email: "email@mail.com"
                 })
-                .expect(201)
+                .expect(HTTP_Status.CREATED_201)
             user2 = resultUser.body
             const resultToken = await request(app)
                 .post('/auth/login')
@@ -877,24 +878,24 @@ await request(app)
                     login: 'login2',
                     password: 'password2'
                 })
-                .expect(200)
+                .expect(HTTP_Status.OK_200)
             token2 = resultToken.body
 
             await request(app)
                 .put(`/comments/${comment.id}`)
                 .auth(token2.accessToken, {type: "bearer"})
                 .send({content: "new content_new content"})
-                .expect(403)
+                .expect(HTTP_Status.FORBIDDEN_403)
         });
         it('PUT should update comment', async () => {
             await request(app)
                 .put(`/comments/${comment.id}`)
                 .auth(token.accessToken, {type: "bearer"})
                 .send({content: "new content_new content"})
-                .expect(204)
+                .expect(HTTP_Status.NO_CONTENT_204)
             const newComment = await request(app)
                 .get(`/comments/${comment.id}`)
-                .expect(200)
+                .expect(HTTP_Status.OK_200)
 
             expect(comment).not.toEqual(newComment.body)
             expect(newComment.body.content).toBe('new content_new content')
@@ -904,28 +905,28 @@ await request(app)
             await request(app)
                 .delete(`/comments/${comment.id}`)
                 .auth(token.accessToken + 'd', {type: "bearer"})
-                .expect(401)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
         });
         it('DELETE shouldn`t delete comment and return 404', async () => {
             await request(app)
                 .delete(`/comments/1`)
                 .auth(token.accessToken, {type: "bearer"})
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
         });
         it('DELETE shouldn`t delete comment and return 403', async () => {
             await request(app)
                 .delete(`/comments/${comment.id}`)
                 .auth(token2.accessToken, {type: "bearer"})
-                .expect(403)
+                .expect(HTTP_Status.FORBIDDEN_403)
         });
         it('DELETE should delete comment', async () => {
             await request(app)
                 .delete(`/comments/${comment.id}`)
                 .auth(token.accessToken, {type: "bearer"})
-                .expect(204)
+                .expect(HTTP_Status.NO_CONTENT_204)
             await request(app)
                 .get(`/comments/${comment.id}`)
-                .expect(404)
+                .expect(HTTP_Status.NOT_FOUND_404)
         });
     })
 })
