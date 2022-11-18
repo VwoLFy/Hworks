@@ -71,6 +71,15 @@ describe('Test of the Homework', () => {
                     websiteUrl: " https://localhost1.uuu/blogs  "
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/blogs')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    name: "valid name",
+                    description: "a".repeat(501),
+                    websiteUrl: " https://localhost1.uuu/blogs  "
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
 
             await request(app)
                 .get('/blogs')
@@ -113,8 +122,7 @@ describe('Test of the Homework', () => {
                     items: [blog1]
                 })
         })
-        it('PUT shouldn`t update blog with incorrect "name"', async () => {
-
+        it('PUT shouldn`t update blog with incorrect data', async () => {
             await request(app).put(`/blogs/${blog1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
@@ -123,9 +131,6 @@ describe('Test of the Homework', () => {
                     websiteUrl: "https://api-swagger.it-incubator.ru/"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
-        })
-        it('PUT shouldn`t update blog with incorrect "websiteUrl"', async () => {
-
             await request(app).put(`/blogs/${blog1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
@@ -134,8 +139,6 @@ describe('Test of the Homework', () => {
                     websiteUrl: "http://api-swagger.it-incubator"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
-        })
-        it('PUT shouldn`t update blog with incorrect "id"', async () => {
             await request(app).put(`/blogs/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
