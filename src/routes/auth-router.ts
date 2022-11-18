@@ -12,7 +12,7 @@ import {HTTP_Status} from "../enums";
 export const authRouter = Router({})
 
 authRouter.post('/login', postAuthValidation, async (req: RequestWithBody<TypeLoginInputModel>, res: Response<TypeLoginSuccessViewModel>) => {
-    const userId = await usersService.authUser(req.body.login, req.body.password)
+    const userId = await usersService.checkCredentials(req.body.login, req.body.password)
     if (!userId) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
 
     const token = await jwtService.createJWT(userId)

@@ -8,8 +8,8 @@ import {SortDirection} from "../enums";
 // blog
 const blogNameValidation = body('name', "'name' must be a string in range from 1 to 15 symbols")
     .isString().trim().isLength({min: 1, max: 15});
-const blogYoutubeUrlValidation = body('youtubeUrl', "'youtubeUrl' must be a string in range from 1 to 100 symbols")
-    .isString().trim().matches("https://([a-zA-Z0-9_-]+.)+[a-zA-Z0-9_-]+(/[a-zA-Z0-9_-]+)*/?$").isLength({min: 1, max: 100});
+const blogWebsiteUrlValidation = body('websiteUrl', "'websiteUrl' must be a string in range from 1 to 100 symbols")
+    .isString().trim().matches("^https://([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$").isLength({min: 1, max: 100});
 const blogQueryValidation = [
     query('pageNumber').toInt().default("1").customSanitizer(value => {
         return Number(value) < 1 ? "1" : value
@@ -18,7 +18,7 @@ const blogQueryValidation = [
         return Number(value) < 1 ? "10" : value
     }),
     query('sortBy').customSanitizer(value => {
-        const fields = ['id', 'name', 'youtubeUrl', 'createdAt'];
+        const fields = ['id', 'name', 'websiteUrl', 'createdAt'];
         if (!value || !fields.includes(value)) return 'createdAt'
         return value
     }),
@@ -78,17 +78,17 @@ const userQueryValidation = [
     }),
 ]
 const userLoginValidation = body("login", "'login' must be a string in range from 3 to 10 symbols")
-    .isString().trim().isLength({min: 3, max: 10});
+    .isString().trim().matches("^[a-zA-Z0-9_-]*$").isLength({min: 3, max: 10});
 const userPasswordValidation = body("password", "'password' must be a string in range from 6 to 20 symbols")
     .isString().trim().isLength({min: 6, max: 20});
 const userEmailValidation = body("email", "'email' must be a email")
-    .isString().trim().matches("[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+    .isString().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 
 //auth
 const authLogin = body("login", "'login' must be a string")
-    .isString().trim().isLength({min: 1})
+    .isString().trim().isLength({min: 3, max: 10})
 const authPassword = body("password", "'password' must be a string")
-    .isString().trim().isLength({min: 1})
+    .isString().trim().isLength({min: 6, max: 20})
 
 //comments
 const commentContentValidation = body('content', "'content' must be a string  in range from 20 to 300 symbols")
@@ -125,13 +125,13 @@ export const createPostsByBlogIdValidation = [
 export const createBlogValidation = [
     checkAuthorizationMiddleware,
     blogNameValidation,
-    blogYoutubeUrlValidation,
+    blogWebsiteUrlValidation,
     inputValidationMiddleware
 ]
 export const updateBlogValidation = [
     checkAuthorizationMiddleware,
     blogNameValidation,
-    blogYoutubeUrlValidation,
+    blogWebsiteUrlValidation,
     inputValidationMiddleware,
     checkIdValidForMongodb
 ]

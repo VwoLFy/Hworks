@@ -49,7 +49,7 @@ describe('Test of the Homework', () => {
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
                     "name": "    ",
-                    "youtubeUrl": " https://localhost:5000/blogs  "
+                    "websiteUrl": " https://localhost:5000/blogs  "
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
@@ -57,7 +57,7 @@ describe('Test of the Homework', () => {
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
                     "name": "valid name",
-                    "youtubeUrl": " htt://localhost:5000/blogs  "
+                    "websiteUrl": " htt://localhost:5000/blogs  "
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
 
@@ -77,7 +77,7 @@ describe('Test of the Homework', () => {
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
                     name: " NEW NAME   ",
-                    youtubeUrl: " https://localhost:5000/blogs  "
+                    websiteUrl: " https://localhost:5000/blogs  "
                 })
                 .expect(HTTP_Status.CREATED_201)
             blog1 = result.body
@@ -86,7 +86,7 @@ describe('Test of the Homework', () => {
                 {
                     id: expect.any(String),
                     name: "NEW NAME",
-                    youtubeUrl: "https://localhost:5000/blogs",
+                    websiteUrl: "https://localhost:5000/blogs",
                     createdAt: expect.any(String)
                 }
             )
@@ -106,17 +106,17 @@ describe('Test of the Homework', () => {
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
                     "name": "    ",
-                    "youtubeUrl": "https://api-swagger.it-incubator.ru/"
+                    "websiteUrl": "https://api-swagger.it-incubator.ru/"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
-        it('PUT shouldn`t update blog with incorrect "youtubeUrl"', async () => {
+        it('PUT shouldn`t update blog with incorrect "websiteUrl"', async () => {
 
             await request(app).put(`/blogs/${blog1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
                     "name": "valid name",
-                    "youtubeUrl": "http://api-swagger.it-incubator"
+                    "websiteUrl": "http://api-swagger.it-incubator"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
@@ -125,7 +125,7 @@ describe('Test of the Homework', () => {
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
                     "name": " Updating NAME   ",
-                    "youtubeUrl": "https://api-swagger.it-incubator.ru/"
+                    "websiteUrl": "https://api-swagger.it-incubator.ru/"
                 })
                 .expect(HTTP_Status.NOT_FOUND_404)
         })
@@ -134,18 +134,20 @@ describe('Test of the Homework', () => {
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
                     "name": " Updating NAME   ",
-                    "youtubeUrl": "https://api-swagger.it-incubator.ru/"
+                    "websiteUrl": "https://api-swagger.it-incubator.ru/"
                 })
                 .expect(HTTP_Status.NO_CONTENT_204)
             const result = await request(app)
                 .get(`/blogs/${blog1.id}`)
                 .expect(HTTP_Status.OK_200)
             blog2 = result.body
+            console.log(blog2)
+            console.log(blog1)
             expect(blog2).toEqual(
                 {
                     "id": expect.any(String),
                     "name": "Updating NAME",
-                    "youtubeUrl": "https://api-swagger.it-incubator.ru/",
+                    "websiteUrl": "https://api-swagger.it-incubator.ru/",
                     "createdAt": expect.any(String)
                 })
             expect(blog2).not.toEqual(blog1)
@@ -205,7 +207,7 @@ describe('Test of the Homework', () => {
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
                     "name": "blogName",
-                    "youtubeUrl": " https://localhost:5000/blogs  "
+                    "websiteUrl": " https://localhost:5000/blogs  "
                 })
                 .expect(HTTP_Status.CREATED_201)
             blog1 = result.body
@@ -715,7 +717,7 @@ await request(app)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
                     "name": "blogName",
-                    "youtubeUrl": " https://localhost:5000/blogs  "
+                    "websiteUrl": " https://localhost:5000/blogs  "
                 })
                 .expect(HTTP_Status.CREATED_201)
             blog = resultBlog.body

@@ -4,7 +4,7 @@ import {ObjectId} from "mongodb";
 type TypeBlogOutputModel = {
     id: string
     name: string
-    youtubeUrl: string
+    websiteUrl: string
     createdAt: string
 };
 type TypeBlogOutputPage = {
@@ -17,7 +17,7 @@ type TypeBlogOutputPage = {
 type TypeBlogFromDB = {
     _id: ObjectId
     name: string
-    youtubeUrl: string
+    websiteUrl: string
     createdAt: string
 };
 
@@ -65,7 +65,7 @@ export const blogsQueryRepo = {
         return {
             id: object._id.toString(),
             name: object.name,
-            youtubeUrl: object.youtubeUrl,
+            websiteUrl: object.websiteUrl,
             createdAt: object.createdAt
         }
     }
