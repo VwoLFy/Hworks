@@ -36,11 +36,11 @@ describe('Test of the Homework', () => {
             await request(app)
                 .get('/blogs')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 0,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 0,
-                    "items": []
+                    pagesCount: 0,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 0,
+                    items: []
                 })
         });
         it('POST shouldn`t create blog with incorrect "data"', async () => {
@@ -48,27 +48,38 @@ describe('Test of the Homework', () => {
                 .post('/blogs')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "name": "    ",
-                    "websiteUrl": " https://localhost:5000/blogs  "
+                    name: "    ",
+                    description: "description",
+                    websiteUrl: " https://localhost1.uuu/blogs  "
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/blogs')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "name": "valid name",
-                    "websiteUrl": " htt://localhost:5000/blogs  "
+                    name: "valid name",
+                    description: "description",
+                    websiteUrl: " htt://localhost1.uuu/blogs  "
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/blogs')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    name: "valid name",
+                    description: "        ",
+                    websiteUrl: " https://localhost1.uuu/blogs  "
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
 
             await request(app)
                 .get('/blogs')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 0,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 0,
-                    "items": []
+                    pagesCount: 0,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 0,
+                    items: []
                 })
         })
         it('POST should create blog with correct data', async () => {
@@ -77,7 +88,8 @@ describe('Test of the Homework', () => {
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
                     name: " NEW NAME   ",
-                    websiteUrl: " https://localhost:5000/blogs  "
+                    description: "description",
+                    websiteUrl: " https://localhost1.uuu/blogs  "
                 })
                 .expect(HTTP_Status.CREATED_201)
             blog1 = result.body
@@ -86,18 +98,19 @@ describe('Test of the Homework', () => {
                 {
                     id: expect.any(String),
                     name: "NEW NAME",
-                    websiteUrl: "https://localhost:5000/blogs",
+                    description: "description",
+                    websiteUrl: "https://localhost1.uuu/blogs",
                     createdAt: expect.any(String)
                 }
             )
             await request(app)
                 .get('/blogs')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 1,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 1,
-                    "items": [blog1]
+                    pagesCount: 1,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 1,
+                    items: [blog1]
                 })
         })
         it('PUT shouldn`t update blog with incorrect "name"', async () => {
@@ -105,8 +118,9 @@ describe('Test of the Homework', () => {
             await request(app).put(`/blogs/${blog1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "name": "    ",
-                    "websiteUrl": "https://api-swagger.it-incubator.ru/"
+                    name: "    ",
+                    description: "Updating description",
+                    websiteUrl: "https://api-swagger.it-incubator.ru/"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
@@ -115,8 +129,9 @@ describe('Test of the Homework', () => {
             await request(app).put(`/blogs/${blog1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "name": "valid name",
-                    "websiteUrl": "http://api-swagger.it-incubator"
+                    name: "valid name",
+                    description: "Updating description",
+                    websiteUrl: "http://api-swagger.it-incubator"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
@@ -124,8 +139,9 @@ describe('Test of the Homework', () => {
             await request(app).put(`/blogs/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "name": " Updating NAME   ",
-                    "websiteUrl": "https://api-swagger.it-incubator.ru/"
+                    name: " Updating NAME   ",
+                    description: "Updating description",
+                    websiteUrl: "https://api-swagger.it-incubator.ru/"
                 })
                 .expect(HTTP_Status.NOT_FOUND_404)
         })
@@ -133,22 +149,23 @@ describe('Test of the Homework', () => {
             await request(app).put(`/blogs/${blog1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "name": " Updating NAME   ",
-                    "websiteUrl": "https://api-swagger.it-incubator.ru/"
+                    name: " Updating NAME   ",
+                    description: "Updating description",
+                    websiteUrl: "https://api-swagger.it-incubator.ru/"
                 })
                 .expect(HTTP_Status.NO_CONTENT_204)
             const result = await request(app)
                 .get(`/blogs/${blog1.id}`)
                 .expect(HTTP_Status.OK_200)
             blog2 = result.body
-            console.log(blog2)
-            console.log(blog1)
+
             expect(blog2).toEqual(
                 {
-                    "id": expect.any(String),
-                    "name": "Updating NAME",
-                    "websiteUrl": "https://api-swagger.it-incubator.ru/",
-                    "createdAt": expect.any(String)
+                    id: expect.any(String),
+                    name: "Updating NAME",
+                    description: "Updating description",
+                    websiteUrl: "https://api-swagger.it-incubator.ru/",
+                    createdAt: expect.any(String)
                 })
             expect(blog2).not.toEqual(blog1)
         })
@@ -168,11 +185,11 @@ describe('Test of the Homework', () => {
             await request(app)
                 .get('/blogs')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 0,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 0,
-                    "items": []
+                    pagesCount: 0,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 0,
+                    items: []
                 })
         })
     })
@@ -188,11 +205,11 @@ describe('Test of the Homework', () => {
             await request(app)
                 .get('/posts')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 0,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 0,
-                    "items": []
+                    pagesCount: 0,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 0,
+                    items: []
                 })
         });
         it('GET By Id should return 404', async function () {
@@ -206,8 +223,9 @@ describe('Test of the Homework', () => {
                 .post('/blogs')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "name": "blogName",
-                    "websiteUrl": " https://localhost:5000/blogs  "
+                    name: "blogName",
+                    description: "description",
+                    websiteUrl: " https://localhost1.uuu/blogs  "
                 })
                 .expect(HTTP_Status.CREATED_201)
             blog1 = result.body
@@ -216,51 +234,51 @@ describe('Test of the Homework', () => {
                 .post('/posts')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "",
-                    "content": "valid",
-                    "blogId": `${blog1.id}`,
-                    "shortDescription": "K8cqY3aPKo3mWOJyQgGnlX5sP3aW3RlaRSQx"
+                    title: "",
+                    content: "valid",
+                    blogId: `${blog1.id}`,
+                    shortDescription: "K8cqY3aPKo3mWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/posts')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "valid",
-                    "content": "",
-                    "blogId": `${blog1.id}`,
-                    "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                    title: "valid",
+                    content: "",
+                    blogId: `${blog1.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/posts')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "valid",
-                    "content": "valid",
-                    "blogId": `1`,
-                    "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                    title: "valid",
+                    content: "valid",
+                    blogId: `1`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/posts')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "valid",
-                    "content": "valid",
-                    "blogId": `${blog1.id}`,
-                    "shortDescription": ""
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog1.id}`,
+                    shortDescription: ""
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
 
             await request(app)
                 .get('/posts')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 0,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 0,
-                    "items": []
+                    pagesCount: 0,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 0,
+                    items: []
                 })
         })
         it('POST should create post with correct data', async () => {
@@ -268,33 +286,33 @@ describe('Test of the Homework', () => {
                 .post('/posts')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "valid",
-                    "content": "valid",
-                    "blogId": `${blog1.id}`,
-                    "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog1.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
                 .expect(HTTP_Status.CREATED_201)
             post1 = result.body
 
             expect(post1).toEqual(
                 {
-                    "id": expect.any(String),
-                    "title": "valid",
-                    "content": "valid",
-                    "blogId": `${blog1.id}`,
-                    "blogName": `${blog1.name}`,
-                    "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
-                    "createdAt": expect.any(String)
+                    id: expect.any(String),
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog1.id}`,
+                    blogName: `${blog1.name}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
+                    createdAt: expect.any(String)
                 }
             )
             await request(app)
                 .get('/posts')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 1,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 1,
-                    "items": [post1]
+                    pagesCount: 1,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 1,
+                    items: [post1]
                 })
         })
         it('PUT shouldn`t update blog with incorrect "name"', async () => {
@@ -303,50 +321,50 @@ describe('Test of the Homework', () => {
                 .put(`/posts/${post1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "",
-                    "content": "valid",
-                    "blogId": `${blog1.id}`,
-                    "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                    title: "",
+                    content: "valid",
+                    blogId: `${blog1.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .put(`/posts/${post1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "valid",
-                    "content": "",
-                    "blogId": `/posts/${blog1.id}`,
-                    "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                    title: "valid",
+                    content: "",
+                    blogId: `/posts/${blog1.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .put(`/posts/${post1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "valid",
-                    "content": "valid",
-                    "blogId": `/posts/1`,
-                    "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                    title: "valid",
+                    content: "valid",
+                    blogId: `/posts/1`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .put(`/posts/${post1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "valid",
-                    "content": "valid",
-                    "blogId": `/posts/${blog1.id}`,
-                    "shortDescription": ""
+                    title: "valid",
+                    content: "valid",
+                    blogId: `/posts/${blog1.id}`,
+                    shortDescription: ""
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .put(`/posts/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "valid",
-                    "content": "valid",
-                    "blogId": `/posts/${blog1.id}`,
-                    "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                    title: "valid",
+                    content: "valid",
+                    blogId: `/posts/${blog1.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
@@ -354,10 +372,10 @@ describe('Test of the Homework', () => {
             await request(app).put(`/posts/${post1.id}`)
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "Update POST",
-                    "shortDescription": "Update shortDescription",
-                    "content": "Update content",
-                    "blogId": `${blog1.id}`
+                    title: "Update POST",
+                    shortDescription: "Update shortDescription",
+                    content: "Update content",
+                    blogId: `${blog1.id}`
                 })
                 .expect(HTTP_Status.NO_CONTENT_204)
             const result = await request(app)
@@ -366,13 +384,13 @@ describe('Test of the Homework', () => {
             post2 = result.body
             expect(post2).toEqual(
                 {
-                    "id": expect.any(String),
-                    "title": "Update POST",
-                    "content": "Update content",
-                    "blogId": `${blog1.id}`,
-                    "blogName": `${blog1.name}`,
-                    "shortDescription": "Update shortDescription",
-                    "createdAt": expect.any(String)
+                    id: expect.any(String),
+                    title: "Update POST",
+                    content: "Update content",
+                    blogId: `${blog1.id}`,
+                    blogName: `${blog1.name}`,
+                    shortDescription: "Update shortDescription",
+                    createdAt: expect.any(String)
                 })
             expect(post2).not.toEqual(post1)
         })
@@ -392,11 +410,11 @@ describe('Test of the Homework', () => {
             await request(app)
                 .get('/posts')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 0,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 0,
-                    "items": []
+                    pagesCount: 0,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 0,
+                    items: []
                 })
         })
         it('DELETE blog should delete all posts of this blog', async () => {
@@ -404,10 +422,10 @@ describe('Test of the Homework', () => {
                 .post('/posts')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "valid1",
-                    "content": "valid1",
-                    "blogId": `${blog1.id}`,
-                    "shortDescription": "1 K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                    title: "valid1",
+                    content: "valid1",
+                    blogId: `${blog1.id}`,
+                    shortDescription: "1 K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
                 .expect(HTTP_Status.CREATED_201)
             post1 = result1.body
@@ -416,10 +434,10 @@ describe('Test of the Homework', () => {
                 .post('/posts')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "valid2",
-                    "content": "valid2",
-                    "blogId": `${blog1.id}`,
-                    "shortDescription": "2 K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                    title: "valid2",
+                    content: "valid2",
+                    blogId: `${blog1.id}`,
+                    shortDescription: "2 K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
                 .expect(HTTP_Status.CREATED_201)
             post2 = result2.body
@@ -451,11 +469,11 @@ describe('Test of the Homework', () => {
             await request(app)
                 .get('/users')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 0,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 0,
-                    "items": []
+                    pagesCount: 0,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 0,
+                    items: []
                 })
         });
         it('POST shouldn`t create user with incorrect data', async () => {
@@ -463,38 +481,38 @@ describe('Test of the Homework', () => {
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "",
-                    "password": "password",
-                    "email": "string2@sdf.ee"
+                    login: "",
+                    password: "password",
+                    email: "string2@sdf.ee"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "login",
-                    "password": "",
-                    "email": "string2@sdf.ee"
+                    login: "login",
+                    password: "",
+                    email: "string2@sdf.ee"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "login",
-                    "password": "password",
-                    "email": "string12345.ee"
+                    login: "login",
+                    password: "password",
+                    email: "string12345.ee"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
 
             await request(app)
                 .get('/users')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 0,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 0,
-                    "items": []
+                    pagesCount: 0,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 0,
+                    items: []
                 })
         })
         it('POST should create user with correct data', async () => {
@@ -502,29 +520,29 @@ describe('Test of the Homework', () => {
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "login",
-                    "password": "password",
-                    "email": "string2@sdf.ee"
+                    login: "login",
+                    password: "password",
+                    email: "string2@sdf.ee"
                 })
                 .expect(HTTP_Status.CREATED_201)
             user1 = result.body
 
             expect(user1).toEqual(
                 {
-                    "id": expect.any(String),
-                    "login": "login",
-                    "email": "string2@sdf.ee",
-                    "createdAt": expect.any(String)
+                    id: expect.any(String),
+                    login: "login",
+                    email: "string2@sdf.ee",
+                    createdAt: expect.any(String)
                 }
             )
             await request(app)
                 .get('/users')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 1,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 1,
-                    "items": [user1]
+                    pagesCount: 1,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 1,
+                    items: [user1]
                 })
         })
         it('POST shouldn`t create user with existed login', async () => {
@@ -532,27 +550,27 @@ describe('Test of the Homework', () => {
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "login",
-                    "password": "password",
-                    "email": "1string2@sdf.ee"
+                    login: "login",
+                    password: "password",
+                    email: "1string2@sdf.ee"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "Login",
-                    "password": "password",
-                    "email": "2string2@sdf.ee"
+                    login: "Login",
+                    password: "password",
+                    email: "2string2@sdf.ee"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
                         await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "LOGIN",
-                    "password": "password",
-                    "email": "3string2@sdf.ee"
+                    login: "LOGIN",
+                    password: "password",
+                    email: "3string2@sdf.ee"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
 
@@ -562,36 +580,36 @@ describe('Test of the Homework', () => {
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "1login",
-                    "password": "password",
-                    "email": "string2@sdf.ee"
+                    login: "1login",
+                    password: "password",
+                    email: "string2@sdf.ee"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "2login",
-                    "password": "password",
-                    "email": "STRING2@sdf.ee"
+                    login: "2login",
+                    password: "password",
+                    email: "STRING2@sdf.ee"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
                         await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "3login",
-                    "password": "password",
-                    "email": "String2@sdf.ee"
+                    login: "3login",
+                    password: "password",
+                    email: "String2@sdf.ee"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "3login",
-                    "password": "password",
-                    "email": "string2@sdf.EE"
+                    login: "3login",
+                    password: "password",
+                    email: "string2@sdf.EE"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
@@ -607,11 +625,11 @@ describe('Test of the Homework', () => {
             await request(app)
                 .get('/users')
                 .expect(HTTP_Status.OK_200, {
-                    "pagesCount": 0,
-                    "page": 1,
-                    "pageSize": 10,
-                    "totalCount": 0,
-                    "items": []
+                    pagesCount: 0,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 0,
+                    items: []
                 })
         })
     })
@@ -627,9 +645,9 @@ describe('Test of the Homework', () => {
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "login",
-                    "password": "password",
-                    "email": "string2@sdf.ee"
+                    login: "login",
+                    password: "password",
+                    email: "string2@sdf.ee"
                 })
                 .expect(HTTP_Status.CREATED_201)
             user = result.body
@@ -637,45 +655,65 @@ describe('Test of the Homework', () => {
                 .post('/auth/login')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "login",
-                    "password": "password3",
+                    loginOrEmail: "login",
+                    password: "password3",
                 })
                 .expect(HTTP_Status.UNAUTHORIZED_401)
             await request(app)
                 .post('/auth/login')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "",
-                    "password": "password",
+                    loginOrEmail: "",
+                    password: "password",
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/auth/login')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "login",
-                    "password": "",
+                    loginOrEmail: "login",
+                    password: "",
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/auth/login')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "login1",
-                    "password": "password",
+                    loginOrEmail: "login1",
+                    password: "password",
+                })
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+            await request(app)
+                .post('/auth/login')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    loginOrEmail: "string2@sdf.eee",
+                    password: "password",
                 })
                 .expect(HTTP_Status.UNAUTHORIZED_401)
         })
-        it('POST should authenticate user with correct data', async () => {
+        it('POST should authenticate user with correct login', async () => {
             const result = await request(app)
                 .post('/auth/login')
                 .send({
-                    "login": "login",
-                    "password": "password"
+                    loginOrEmail: "login",
+                    password: "password"
                 })
                 .expect(HTTP_Status.OK_200)
             token = result.body
-            expect(token).toEqual({"accessToken": expect.any(String)})
+            expect(token).toEqual({accessToken: expect.any(String)})
+            expect(token).toEqual(await jwtService.createJWT(user.id))
+        })
+        it('POST should authenticate user with correct email', async () => {
+            const result = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "string2@sdf.ee",
+                    password: "password"
+                })
+                .expect(HTTP_Status.OK_200)
+            token = result.body
+            expect(token).toEqual({accessToken: expect.any(String)})
             expect(token).toEqual(await jwtService.createJWT(user.id))
         })
         it('GET shouldn`t get data about user by bad token', async () => {
@@ -716,8 +754,9 @@ await request(app)
                 .post('/blogs')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "name": "blogName",
-                    "websiteUrl": " https://localhost:5000/blogs  "
+                    name: "blogName",
+                    description: "description",
+                    websiteUrl: " https://localhost1.uuu/blogs  "
                 })
                 .expect(HTTP_Status.CREATED_201)
             blog = resultBlog.body
@@ -726,10 +765,10 @@ await request(app)
                 .post('/posts')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "title": "valid",
-                    "content": "valid",
-                    "blogId": `${blog.id}`,
-                    "shortDescription": "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
                 })
                 .expect(HTTP_Status.CREATED_201)
             post = resultPost.body
@@ -738,9 +777,9 @@ await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    "login": "login",
-                    "password": "password",
-                    "email": "string2@sdf.ee"
+                    login: "login",
+                    password: "password",
+                    email: "string2@sdf.ee"
                 })
                 .expect(HTTP_Status.CREATED_201)
             user = resultUser.body
@@ -748,8 +787,8 @@ await request(app)
             const resultToken = await request(app)
                 .post('/auth/login')
                 .send({
-                    "login": "login",
-                    "password": "password"
+                    loginOrEmail: "login",
+                    password: "password"
                 })
                 .expect(HTTP_Status.OK_200)
             token = resultToken.body
@@ -877,7 +916,7 @@ await request(app)
             const resultToken = await request(app)
                 .post('/auth/login')
                 .send({
-                    login: 'login2',
+                    loginOrEmail: 'login2',
                     password: 'password2'
                 })
                 .expect(HTTP_Status.OK_200)

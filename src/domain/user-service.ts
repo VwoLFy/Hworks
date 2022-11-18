@@ -26,8 +26,13 @@ export const usersService = {
     async deleteUser(id: string): Promise<boolean> {
         return await usersRepository.deleteUser(id)
     },
-    async checkCredentials(login: string, password: string): Promise<string | null> {
-        const foundUser = await usersRepository.findUserByLogin(login)
+    async checkCredentials(loginOrEmail: string, password: string): Promise<string | null> {
+        let foundUser
+        if (loginOrEmail.includes('@')) {
+            foundUser = await usersRepository.findUserByEmail(loginOrEmail)
+        } else {
+            foundUser = await usersRepository.findUserByLogin(loginOrEmail)
+        }
         if (!foundUser || ! await bcrypt.compare(password, foundUser.password)) return null
         return foundUser._id.toString()
     },

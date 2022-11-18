@@ -60,12 +60,12 @@ blogsRouter.post('/:id/posts', createPostsByBlogIdValidation, async (req: Reques
     }
 })
 blogsRouter.post('/', createBlogValidation, async (req: RequestWithBody<TypeBlogInputModel>, res: Response<TypeBlogViewModel>) => {
-    const createdBlogId = await blogsService.createBlog(req.body.name, req.body.websiteUrl);
+    const createdBlogId = await blogsService.createBlog(req.body.name, req.body.description, req.body.websiteUrl);
     const createdBlog = await blogsQueryRepo.findBlogById(createdBlogId);
     if (createdBlog) res.status(HTTP_Status.CREATED_201).json(createdBlog)
 })
 blogsRouter.put('/:id', updateBlogValidation, async (req: RequestWithParamAndBody<TypeBlogUpdateModel>, res: Response) => {
-    const isUpdatedBlog = await blogsService.updateBlog(req.params.id, req.body.name, req.body.websiteUrl);
+    const isUpdatedBlog = await blogsService.updateBlog(req.params.id, req.body.name, req.body.description, req.body.websiteUrl);
     if (!isUpdatedBlog) {
         res.sendStatus(HTTP_Status.NOT_FOUND_404)
     } else {

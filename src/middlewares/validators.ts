@@ -8,8 +8,10 @@ import {SortDirection} from "../enums";
 // blog
 const blogNameValidation = body('name', "'name' must be a string in range from 1 to 15 symbols")
     .isString().trim().isLength({min: 1, max: 15});
+const blogDescriptionValidation = body('description', "'description' must be a string in range from 1 to 500 symbols")
+    .isString().trim().isLength({min: 1, max: 500});
 const blogWebsiteUrlValidation = body('websiteUrl', "'websiteUrl' must be a string in range from 1 to 100 symbols")
-    .isString().trim().matches("^https://([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$").isLength({min: 1, max: 100});
+    .isString().trim().matches("^https://([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$").isLength({min: 1, max: 100});
 const blogQueryValidation = [
     query('pageNumber').toInt().default("1").customSanitizer(value => {
         return Number(value) < 1 ? "1" : value
@@ -85,8 +87,8 @@ const userEmailValidation = body("email", "'email' must be a email")
     .isString().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 
 //auth
-const authLogin = body("login", "'login' must be a string")
-    .isString().trim().isLength({min: 3, max: 10})
+const authLoginOrEmail = body("loginOrEmail", "'loginOrEmail' must be a string")
+    .isString().trim().isLength({min: 3})
 const authPassword = body("password", "'password' must be a string")
     .isString().trim().isLength({min: 6, max: 20})
 
@@ -125,12 +127,14 @@ export const createPostsByBlogIdValidation = [
 export const createBlogValidation = [
     checkAuthorizationMiddleware,
     blogNameValidation,
+    blogDescriptionValidation,
     blogWebsiteUrlValidation,
     inputValidationMiddleware
 ]
 export const updateBlogValidation = [
     checkAuthorizationMiddleware,
     blogNameValidation,
+    blogDescriptionValidation,
     blogWebsiteUrlValidation,
     inputValidationMiddleware,
     checkIdValidForMongodb
@@ -181,7 +185,7 @@ export const deleteUserValidation = [
 
 // list for auth
 export const postAuthValidation = [
-    authLogin,
+    authLoginOrEmail,
     authPassword,
     inputValidationMiddleware
 ]

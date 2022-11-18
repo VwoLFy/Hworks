@@ -14,10 +14,10 @@ export const blogsRepository = {
         const result = await blogCollection.insertOne(newBlog);
         return result.insertedId.toString()
     },
-    async updateBlog(id: string, name: string, websiteUrl: string): Promise<boolean> {
+    async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
         const result = await blogCollection.updateOne(
             {_id: new ObjectId(id)},
-            {$set: {name, websiteUrl: websiteUrl}}
+            {$set: {name, description, websiteUrl}}
         );
         return result.matchedCount !== 0;
     },
