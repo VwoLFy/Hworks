@@ -4,6 +4,7 @@ import {TypeNewPost} from "../domain/posts-service";
 import {TypeNewUser} from "../domain/user-service";
 import {settings} from "../settings";
 import {TypeNewComment} from "../domain/comments-service";
+import {TypeEmailConfirmation} from "../domain/auth-service";
 
 const mongoUri = process.env.NODE_ENV === "test" ? settings.MONGO_URI_LOC : settings.MONGO_URI;
 export const client = new MongoClient(mongoUri)
@@ -12,11 +13,13 @@ type TypeBlogDB = TypeNewBlog
 type TypePostDB = TypeNewPost
 type TypeUserDB = TypeNewUser
 type TypeCommentDB = TypeNewComment
+type TypeEmailConfirmationDB = TypeEmailConfirmation
 
 const db = client.db("Homework");
 export const blogCollection = db.collection<TypeBlogDB>("blogs");
 export const postCollection = db.collection<TypePostDB>("posts");
 export const userCollection = db.collection<TypeUserDB>("users");
+export const emailConfirmationCollection = db.collection<TypeEmailConfirmationDB>("emailConfirmation");
 export const commentCollection = db.collection<TypeCommentDB>("comments");
 
 export async function runDb() {

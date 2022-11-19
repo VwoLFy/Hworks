@@ -6,6 +6,7 @@ export type TypeNewUser = {
     password: string
     email: string
     createdAt: string
+    isConfirmed: boolean
 }
 
 export const usersService = {
@@ -19,22 +20,13 @@ export const usersService = {
             login,
             password: passwordHash,
             email,
-            createdAt: (new Date()).toISOString()
+            createdAt: (new Date()).toISOString(),
+            isConfirmed: true
         }
         return await usersRepository.createUser(newUser)
 },
     async deleteUser(id: string): Promise<boolean> {
         return await usersRepository.deleteUser(id)
-    },
-    async checkCredentials(loginOrEmail: string, password: string): Promise<string | null> {
-        let foundUser
-        if (loginOrEmail.includes('@')) {
-            foundUser = await usersRepository.findUserByEmail(loginOrEmail)
-        } else {
-            foundUser = await usersRepository.findUserByLogin(loginOrEmail)
-        }
-        if (!foundUser || ! await bcrypt.compare(password, foundUser.password)) return null
-        return foundUser._id.toString()
     },
     async deleteAll() {
         await usersRepository.deleteAll()

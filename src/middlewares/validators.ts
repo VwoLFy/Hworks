@@ -4,6 +4,8 @@ import {checkAuthorizationMiddleware} from "./check-authorization-middleware";
 import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
 import {inputValidationMiddleware} from "./input-validation-middleware";
 import {SortDirection} from "../enums";
+import {emailConfirmationUserRepository} from "../repositories/emailConfirmationUser-repository";
+import {usersRepository} from "../repositories/users-repository";
 
 // blog
 const blogNameValidation = body('name', "'name' must be a string in range from 1 to 15 symbols")
@@ -37,7 +39,7 @@ const postShortDescriptionValidation = body('shortDescription', "'shortDescripti
     .isString().trim().isLength({min: 1, max: 100});
 const postContentValidation = body('content', "'content' must be a string  in range from 1 to 1000 symbols")
     .isString().trim().isLength({min: 1, max: 1000});
-const blogIdIsExist: CustomValidator = async value => {
+const blogIdIsExist: CustomValidator = async (value) => {
     const foundBlog = await blogsQueryRepo.findBlogById(value)
     if (!foundBlog) throw new Error();
     return true;
@@ -91,6 +93,17 @@ const authLoginOrEmail = body("loginOrEmail", "'loginOrEmail' must be a string")
     .isString().trim().isLength({min: 3})
 const authPassword = body("password", "'password' must be a string")
     .isString().trim().isLength({min: 6, max: 20})
+const codeValid: CustomValidator = async (value) => {
+    const emailConfirmation = await emailConfirmationUserRepository.findEmailConfirmationByCode(value)
+    if (!emailConfirmation) throw new Error()
+    const isConfirmed = await usersRepository.findConfirmById(emailConfirmation.userId)
+    if (isConfirmed) throw new Error()
+    if (emailConfirmation.expirationDate < new Date()) throw new Error()
+    if (emailConfirmation.confirmationCode !== value) throw new Error()
+    return true
+}
+const authCodeValidation = body("code", "'code' confirmation code is incorrect, expired or already been applied").isString()
+    //.custom(codeValid)
 
 //comments
 const commentContentValidation = body('content', "'content' must be a string  in range from 20 to 300 symbols")
@@ -184,9 +197,23 @@ export const deleteUserValidation = [
 ]
 
 // list for auth
-export const postAuthValidation = [
+export const loginAuthValidation = [
     authLoginOrEmail,
     authPassword,
+    inputValidationMiddleware
+]
+export const registrationAuthValidation = [
+    userLoginValidation,
+    userPasswordValidation,
+    userEmailValidation,
+    inputValidationMiddleware
+]
+export const emailConfirmationAuthValidation = [
+    authCodeValidation,
+    inputValidationMiddleware
+]
+export const emailResendingAuthValidation = [
+    userEmailValidation,
     inputValidationMiddleware
 ]
 export const getAuthValidation = [

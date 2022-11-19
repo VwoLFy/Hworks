@@ -2,12 +2,13 @@ import {TypeNewUser} from "../domain/user-service";
 import {userCollection} from "./db";
 import {ObjectId} from "mongodb";
 
-type TypeUserFromDB = {
-    _id: ObjectId
+type TypeUser = {
+    id: string
     login: string
     password: string
     email: string
     createdAt: string
+    isConfirmed: boolean
 };
 
 export const usersRepository = {
@@ -19,16 +20,31 @@ export const usersRepository = {
         const result = await userCollection.deleteOne({_id: new ObjectId(id)})
         return result.deletedCount !== 0;
     },
-    async findUserByLogin(login: string): Promise<TypeUserFromDB | null> {
-        return await userCollection.findOne({login: login})
-    },
-    async findUserByEmail(email: string): Promise<TypeUserFromDB | null> {
-        return await userCollection.findOne({email: email})
+    async findUserByLoginOrEmail(loginOrEmail: string): Promise<TypeUser | null> {
+        const result = await userCollection.findOne({
+            $or: [
+                {login: loginOrEmail},
+                {email: loginOrEmail}
+            ]
+        })
+        if (!result) return null
+        return {
+            id: result._id.toString(),
+            login: result.login,
+            password: result.password,
+            email: result.email,
+            createdAt: result.createdAt,
+            isConfirmed: result.isConfirmed
+        }
     },
     async findUserLoginById(id: string): Promise<string | null> {
         const result = await userCollection.findOne({_id: new ObjectId(id)})
         if (!result) return null
         return result.login
+    },
+    async findConfirmById(id: string): Promise<boolean> {
+        const user = await userCollection.findOne({_id: new ObjectId(id)})
+        return user ? user.isConfirmed : false
     },
     async isFreeLoginAndEmail(login: string, email: string): Promise<boolean> {
         return !(
@@ -38,6 +54,13 @@ export const usersRepository = {
                     {email: {$regex: email, $options: 'i'}}
                 ]
             }))
+    },
+    async updateConfirmation(id: string) {
+        const result = await userCollection.updateOne(
+            {_id: new ObjectId(id)},
+            {$set: {isConfirmed: true}}
+        )
+        return result.modifiedCount === 1
     },
     async deleteAll() {
         await userCollection.deleteMany({})
