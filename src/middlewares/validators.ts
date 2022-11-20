@@ -94,10 +94,17 @@ const authLoginOrEmail = body("loginOrEmail", "'loginOrEmail' must be a string")
 const authPassword = body("password", "'password' must be a string")
     .isString().trim().isLength({min: 6, max: 20})
 const codeValid: CustomValidator = async (value) => {
+    console.log("confirmationCode receive --- " + value)
     const emailConfirmation = await emailConfirmationUserRepository.findEmailConfirmationByCode(value)
-    if (!emailConfirmation) throw new Error()
+    if (!emailConfirmation) {
+        console.log("emailConfirmation not found --- " + emailConfirmation)
+        throw new Error()
+    }
     const isConfirmed = await usersRepository.findConfirmById(emailConfirmation.userId)
-    if (isConfirmed) throw new Error()
+    if (isConfirmed) {
+        console.log("isConfirmed --- " + isConfirmed)
+        throw new Error()
+    }
     if (emailConfirmation.expirationDate < new Date()) {
         console.log("expirationDate " + emailConfirmation.expirationDate)
         console.log("Date " + new Date())
@@ -105,7 +112,6 @@ const codeValid: CustomValidator = async (value) => {
     }
     if (emailConfirmation.confirmationCode !== value) {
         console.log("confirmationCode in DB --- " + emailConfirmation.confirmationCode)
-        console.log("confirmationCode receive --- " + value)
         throw new Error()
     }
     return true
