@@ -14,10 +14,10 @@ export const emailConfirmationUserRepository = {
         await emailConfirmationCollection.insertOne(emailConfirmation)
     },
     async deleteEmailConfirmation(userId: string) {
-        await emailConfirmationCollection.deleteOne({userId})
+        await emailConfirmationCollection.deleteOne({userId: userId})
     },
     async findEmailConfirmationByCode(confirmationCode: string) {
-        const result = await emailConfirmationCollection.findOne({confirmationCode})
+        const result = await emailConfirmationCollection.findOne({confirmationCode: confirmationCode})
         if (!result) return null
         return {
             id: result._id.toString(),
@@ -28,7 +28,7 @@ export const emailConfirmationUserRepository = {
         }
     },
     async findEmailConfirmationByUserId(userId: string) {
-        return await emailConfirmationCollection.findOne({userId})
+        return await emailConfirmationCollection.findOne({userId: userId})
     },
     async deleteAll() {
         await emailConfirmationCollection.deleteMany({})

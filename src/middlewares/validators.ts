@@ -97,21 +97,21 @@ const codeValid: CustomValidator = async (value) => {
     console.log("confirmationCode receive --- " + value)
     const emailConfirmation = await emailConfirmationUserRepository.findEmailConfirmationByCode(value)
     if (!emailConfirmation) {
-        console.log("emailConfirmation not found --- " + emailConfirmation)
+        console.log("Error!!! emailConfirmation not found --- " + emailConfirmation)
         throw new Error()
     }
     const isConfirmed = await usersRepository.findConfirmById(emailConfirmation.userId)
     if (isConfirmed) {
-        console.log("isConfirmed --- " + isConfirmed)
+        console.log("Error!!! isConfirmed --- " + isConfirmed)
         throw new Error()
     }
     if (emailConfirmation.expirationDate < new Date()) {
-        console.log("expirationDate " + emailConfirmation.expirationDate)
-        console.log("Date " + new Date())
+        console.log("Error!!! expirationDate " + emailConfirmation.expirationDate)
+        console.log("Error!!! Date " + new Date())
         throw new Error()
     }
     if (emailConfirmation.confirmationCode !== value) {
-        console.log("confirmationCode in DB --- " + emailConfirmation.confirmationCode)
+        console.log("Error!!! confirmationCode in DB --- " + emailConfirmation.confirmationCode)
         throw new Error()
     }
     return true
