@@ -18,6 +18,7 @@ export const emailConfirmationUserRepository = {
     },
     async findEmailConfirmationByCode(confirmationCode: string) {
         const result = await emailConfirmationCollection.findOne({confirmationCode: confirmationCode})
+        console.log("result in findEmailConfirmationByCode ============ " + result?.confirmationCode)
         if (!result) return null
         return {
             id: result._id.toString(),
