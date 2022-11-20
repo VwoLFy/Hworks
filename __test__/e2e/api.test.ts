@@ -739,6 +739,7 @@ await request(app)
                 .auth(token.accessToken, {type: "bearer"})
                 .expect(HTTP_Status.OK_200)
         })
+
     })
     describe('comments from post or /comments', () => {
         beforeAll(async () => {
@@ -973,4 +974,95 @@ await request(app)
                 .expect(HTTP_Status.NOT_FOUND_404)
         });
     })
+    /*describe('registration', () => {
+        beforeAll(async () => {
+            await request(app)
+                .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
+        })
+        it('POST should create user and send email', async () => {
+            await request(app)
+                .post('/auth/registration')
+                .send({
+                    login: "NewUser",
+                    password: "password",
+                    email: "v-wolfy@yandex.ru"
+                })
+                .expect(HTTP_Status.NO_CONTENT_204)
+        })
+        it('POST shouldn`t create user with valid login or email', async () => {
+            await request(app)
+                .post('/auth/registration')
+                .send({
+                    login: "NewUser",
+                    password: "password",
+                    email: "v-wolfy1@yandex.ru"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration')
+                .send({
+                    login: "NewUser2",
+                    password: "password",
+                    email: "v-wolfy@yandex.ru"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration')
+                .send({
+                    login: "NewUser2",
+                    password: "",
+                    email: "v-wolfy2@yandex.ru"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        })
+        it('POST should resend email', async () => {
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({
+                    email: "v-wolfy@yandex.ru"
+                })
+                .expect(HTTP_Status.NO_CONTENT_204)
+        })
+        it('POST shouldn`t resend email', async () => {
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({
+                    email: "v-wolfy1@yandex.ru"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        })
+        it('POST should confirm registration', async () => {
+            await request(app)
+                .post('/auth/registration-confirmation')
+                .send({
+                    code: "64b69e60-a13e-4284-ba0e-8fe968d49704"
+                })
+                .expect(HTTP_Status.NO_CONTENT_204)
+        })
+        it('POST shouldn`t confirm registration if already confirm', async () => {
+            await request(app)
+                .post('/auth/registration-confirmation')
+                .send({
+                    code: "64b69e60-a13e-4284-ba0e-8fe968d49704"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        })
+        it('POST shouldn`t confirm registration if valid code', async () => {
+            await request(app)
+                .post('/auth/registration-confirmation')
+                .send({
+                    code: "6"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        })
+        it('POST shouldn`t resend email if registration already confirmed', async () => {
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({
+                    email: "v-wolfy@yandex.ru"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        })
+
+    })*/
 })

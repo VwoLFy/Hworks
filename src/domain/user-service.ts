@@ -1,5 +1,6 @@
 import {usersRepository} from "../repositories/users-repository";
 import bcrypt from "bcrypt"
+import {emailConfirmationUserRepository} from "../repositories/emailConfirmationUser-repository";
 
 export type TypeNewUser = {
     login: string
@@ -30,5 +31,6 @@ export const usersService = {
     },
     async deleteAll() {
         await usersRepository.deleteAll()
+        await emailConfirmationUserRepository.deleteAll()
     }
 }

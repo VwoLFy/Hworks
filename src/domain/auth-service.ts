@@ -41,7 +41,7 @@ export const authService = {
 
         const emailConfirmation: TypeEmailConfirmation = {
             expirationDate: add(new Date(), {minutes: 3}),
-            confirmationCode: uuidv4(),
+            confirmationCode: uuidv4(), //"64b69e60-a13e-4284-ba0e-8fe968d49704"
             timeEmailResending: new Date(),
             userId: newUserId
         }
