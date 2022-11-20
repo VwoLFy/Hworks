@@ -74,7 +74,7 @@ export const authService = {
         const emailConfirmation = await emailConfirmationUserRepository.findEmailConfirmationByUserId(foundUser.id)
         if (!emailConfirmation || emailConfirmation.timeEmailResending > new Date()) return false
         emailConfirmation.expirationDate = add(new Date(), {minutes: 3})
-        emailConfirmation.confirmationCode = uuidv4()
+        //emailConfirmation.confirmationCode = uuidv4()
         emailConfirmation.timeEmailResending = add(new Date(), {minutes: 1})
         try {
             await emailsAdapter.sendEmailConfirmationMessage(email, emailConfirmation.confirmationCode)

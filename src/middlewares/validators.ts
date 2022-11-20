@@ -98,8 +98,16 @@ const codeValid: CustomValidator = async (value) => {
     if (!emailConfirmation) throw new Error()
     const isConfirmed = await usersRepository.findConfirmById(emailConfirmation.userId)
     if (isConfirmed) throw new Error()
-    if (emailConfirmation.expirationDate < new Date()) throw new Error()
-    if (emailConfirmation.confirmationCode !== value) throw new Error()
+    if (emailConfirmation.expirationDate < new Date()) {
+        console.log("expirationDate " + emailConfirmation.expirationDate)
+        console.log("Date " + new Date())
+        throw new Error()
+    }
+    if (emailConfirmation.confirmationCode !== value) {
+        console.log("confirmationCode in DB --- " + emailConfirmation.confirmationCode)
+        console.log("confirmationCode receive --- " + value)
+        throw new Error()
+    }
     return true
 }
 const authCodeValidation = body("code", "'code' confirmation code is incorrect, expired or already been applied").isString()

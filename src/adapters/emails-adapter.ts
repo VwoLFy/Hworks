@@ -10,7 +10,7 @@ export const emailsAdapter = {
                 pass: settings.EMAIL_PASS, // password - отдельный Пароль приложения создан
             },
         });
-
+        console.log("code when send --- " + code)
         // send mail with defined transport object
         await transporter.sendMail({
             from: '"CodevwolF" <codevwolf@gmail.com>', // sender address
