@@ -94,26 +94,12 @@ const authLoginOrEmail = body("loginOrEmail", "'loginOrEmail' must be a string")
 const authPassword = body("password", "'password' must be a string")
     .isString().trim().isLength({min: 6, max: 20})
 const codeValid: CustomValidator = async (value) => {
-    console.log("confirmationCode receive --- " + value)
     const emailConfirmation = await emailConfirmationUserRepository.findEmailConfirmationByCode(value)
-    if (!emailConfirmation) {
-        console.log("Error!!! emailConfirmation not found --- " + emailConfirmation)
-        throw new Error()
-    }
+    if (!emailConfirmation) throw new Error()
     const isConfirmed = await usersRepository.findConfirmById(emailConfirmation.userId)
-    if (isConfirmed) {
-        console.log("Error!!! isConfirmed --- " + isConfirmed)
-        throw new Error()
-    }
-    if (emailConfirmation.expirationDate < new Date()) {
-        console.log("Error!!! expirationDate " + emailConfirmation.expirationDate)
-        console.log("Error!!! Date " + new Date())
-        throw new Error()
-    }
-    if (emailConfirmation.confirmationCode !== value) {
-        console.log("Error!!! confirmationCode in DB --- " + emailConfirmation.confirmationCode)
-        throw new Error()
-    }
+    if (isConfirmed) throw new Error()
+    if (emailConfirmation.expirationDate < new Date()) throw new Error()
+    if (emailConfirmation.confirmationCode !== value) throw new Error()
     return true
 }
 const authCodeValidation = body("code", "'code' confirmation code is incorrect, expired or already been applied").isString()

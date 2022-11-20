@@ -44,7 +44,6 @@ export const usersRepository = {
     },
     async findConfirmById(id: string): Promise<boolean> {
         const user = await userCollection.findOne({_id: new ObjectId(id)})
-        console.log("found user in DB --- " + user?._id)
 
         return user ? user.isConfirmed : true
     },
