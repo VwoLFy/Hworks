@@ -3,11 +3,11 @@ import {RequestWithBody, RequestWithParam, RequestWithQuery} from "../types/type
 import {TypeUserViewModelPage} from "../models/UserViewModelPage";
 import {TypeUserQueryModel} from "../models/UserQueryModel";
 import {usersQueryRepo} from "../repositories/users-queryRepo";
-import {createUserValidation, deleteUserValidation, getUsersValidation} from "../middlewares/validators";
+import {createUserValidation, deleteUserValidation, getUsersValidation} from "../middlewares/user-auth-validators";
 import {TypeUserInputModel} from "../models/UserInputModel";
 import {TypeUserViewModel} from "../models/UserViewModel";
 import {usersService} from "../domain/user-service";
-import {HTTP_Status} from "../enums";
+import {HTTP_Status} from "../types/enums";
 
 export const usersRouter = Router({})
 

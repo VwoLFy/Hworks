@@ -5,7 +5,7 @@ import {ObjectId} from "mongodb";
 type TypeUser = {
     id: string
     login: string
-    password: string
+    passwordHash: string
     email: string
     createdAt: string
     isConfirmed: boolean
@@ -31,7 +31,7 @@ export const usersRepository = {
         return {
             id: result._id.toString(),
             login: result.login,
-            password: result.password,
+            passwordHash: result.passwordHash,
             email: result.email,
             createdAt: result.createdAt,
             isConfirmed: result.isConfirmed

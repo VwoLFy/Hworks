@@ -14,18 +14,17 @@ import {TypeBlogInputModel} from "../models/BlogInputModel";
 import {TypeBlogPostInputModel} from "../models/BlogPostInputModel";
 import {TypeBlogQueryModel} from "../models/BlogQueryModel";
 import {TypeBlogUpdateModel} from "../models/BlogUpdateModel";
-import {
-    createBlogValidation,
-    createPostsByBlogIdValidation,
-    getBlogValidation,
-    getBlogsValidation,
-    getPostsByBlogIdValidation, updateBlogValidation, deleteBlogValidation
-} from "../middlewares/validators";
 import {TypeBlogViewModelPage} from "../models/BlogViewModelPage";
 import {TypeBlogViewModel} from "../models/BlogViewModel";
 import {TypePostViewModel} from "../models/PostViewModel";
 import {TypePostViewModelPage} from "../models/PostViewModelPage";
-import {HTTP_Status} from "../enums";
+import {HTTP_Status} from "../types/enums";
+import {
+    createBlogValidation,
+    createPostsByBlogIdValidation,
+    deleteBlogValidation, getBlogsValidation, getBlogValidation, getPostsByBlogIdValidation,
+    updateBlogValidation
+} from "../middlewares/blog-validators";
 export const blogsRouter = Router({});
 
 blogsRouter.get('/', getBlogsValidation, async (req: RequestWithQuery<TypeBlogQueryModel>, res: Response<TypeBlogViewModelPage>) => {

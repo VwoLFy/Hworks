@@ -3,13 +3,13 @@ import {RequestWithParam, RequestWithParamAndBody} from "../types/types";
 import {TypeCommentViewModel} from "../models/CommentViewModel";
 import {commentsQueryRepo} from "../repositories/comments-queryRepo";
 import {TypeCommentInputModel} from "../models/CommentInputModel";
+import {commentsService} from "../domain/comments-service";
+import {HTTP_Status} from "../types/enums";
 import {
     deleteCommentByIdValidation,
     getCommentByIdValidation,
     updateCommentByIdValidation
-} from "../middlewares/validators";
-import {commentsService} from "../domain/comments-service";
-import {HTTP_Status} from "../enums";
+} from "../middlewares/comment-validators";
 
 export const commentsRouter = Router({})
 

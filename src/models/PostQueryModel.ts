@@ -1,4 +1,4 @@
-import {SortDirection} from "../enums";
+import {SortDirection} from "../types/enums";
 
 export type TypePostQueryModel = {
     pageNumber: string

@@ -2,13 +2,6 @@ import {Response, Router} from "express";
 import {postsService} from "../domain/posts-service";
 import {postsQueryRepo} from "../repositories/posts-queryRepo";
 import {
-    createCommentValidation,
-    createPostValidation, deletePostValidation, getCommentByPostIdValidation,
-    getPostsValidation,
-    getPostValidation,
-    updatePostValidation
-} from "../middlewares/validators";
-import {
     RequestWithBody,
     RequestWithParam,
     RequestWithParamAndBody,
@@ -25,7 +18,14 @@ import {TypeCommentViewModel} from "../models/CommentViewModel";
 import {commentsService} from "../domain/comments-service";
 import {commentsQueryRepo} from "../repositories/comments-queryRepo";
 import {TypeCommentViewModelPage} from "../models/CommentViewModelPage";
-import {HTTP_Status} from "../enums";
+import {HTTP_Status} from "../types/enums";
+import {
+    createPostValidation,
+    deletePostValidation, getPostsValidation,
+    getPostValidation,
+    updatePostValidation
+} from "../middlewares/post-validators";
+import {createCommentValidation, getCommentByPostIdValidation} from "../middlewares/comment-validators";
 export const postsRouter = Router({});
 
 postsRouter.get("/", getPostsValidation, async (req: RequestWithQuery<TypePostQueryModel>, res: Response<TypePostViewModelPage>) => {

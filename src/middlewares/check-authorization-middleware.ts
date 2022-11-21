@@ -1,7 +1,7 @@
 import {NextFunction, Request, Response} from "express";
 import {atob} from "buffer";
 import {jwtService} from "../application/jwt-service";
-import {HTTP_Status} from "../enums";
+import {HTTP_Status} from "../types/enums";
 
 export const checkAuthorizationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const authorization = req.headers.authorization;

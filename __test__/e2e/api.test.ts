@@ -8,7 +8,7 @@ import {TypeLoginSuccessViewModel} from "../../src/models/LoginSuccessViewModel"
 import {TypeCommentViewModel} from "../../src/models/CommentViewModel";
 import {TypeErrorResult} from "../../src/middlewares/input-validation-middleware";
 import {app} from "../../src/app_config";
-import {HTTP_Status} from "../../src/enums";
+import {HTTP_Status} from "../../src/types/enums";
 
 const checkError = (apiErrorResult: TypeErrorResult, field: string) => {
     expect(apiErrorResult).toEqual({
@@ -985,7 +985,7 @@ await request(app)
                 .send({
                     login: "NewUser",
                     password: "password",
-                    email: "v-wolfy@yandex.ru"
+                    email: settings.TEST_EMAIL
                 })
                 .expect(HTTP_Status.NO_CONTENT_204)
         })
@@ -995,7 +995,7 @@ await request(app)
                 .send({
                     login: "NewUser",
                     password: "password",
-                    email: "v-wolfy1@yandex.ru"
+                    email: "test1@test.it"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
@@ -1003,7 +1003,7 @@ await request(app)
                 .send({
                     login: "NewUser2",
                     password: "password",
-                    email: "v-wolfy@yandex.ru"
+                    email: settings.TEST_EMAIL
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
@@ -1011,7 +1011,7 @@ await request(app)
                 .send({
                     login: "NewUser2",
                     password: "",
-                    email: "v-wolfy2@yandex.ru"
+                    email: "test2@test.it"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
@@ -1019,7 +1019,7 @@ await request(app)
             await request(app)
                 .post('/auth/registration-email-resending')
                 .send({
-                    email: "v-wolfy@yandex.ru"
+                    email: settings.TEST_EMAIL
                 })
                 .expect(HTTP_Status.NO_CONTENT_204)
         })
@@ -1027,7 +1027,7 @@ await request(app)
             await request(app)
                 .post('/auth/registration-email-resending')
                 .send({
-                    email: "v-wolfy1@yandex.ru"
+                    email: "test1@test.it"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
@@ -1059,7 +1059,7 @@ await request(app)
             await request(app)
                 .post('/auth/registration-email-resending')
                 .send({
-                    email: "v-wolfy@yandex.ru"
+                    email: settings.TEST_EMAIL
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })

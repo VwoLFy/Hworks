@@ -4,7 +4,7 @@ import {emailConfirmationUserRepository} from "../repositories/emailConfirmation
 
 export type TypeNewUser = {
     login: string
-    password: string
+    passwordHash: string
     email: string
     createdAt: string
     isConfirmed: boolean
@@ -19,7 +19,7 @@ export const usersService = {
 
         const newUser: TypeNewUser = {
             login,
-            password: passwordHash,
+            passwordHash,
             email,
             createdAt: (new Date()).toISOString(),
             isConfirmed: true

@@ -6,12 +6,12 @@ import {
     getAuthValidation,
     loginAuthValidation,
     registrationAuthValidation
-} from "../middlewares/validators";
+} from "../middlewares/user-auth-validators";
 import {TypeLoginSuccessViewModel} from "../models/LoginSuccessViewModel";
 import {jwtService} from "../application/jwt-service";
 import {TypeMeViewModel} from "../models/MeViewModel";
 import {usersQueryRepo} from "../repositories/users-queryRepo";
-import {HTTP_Status} from "../enums";
+import {HTTP_Status} from "../types/enums";
 import {TypeUserInputModel} from "../models/UserInputModel";
 import {authService} from "../domain/auth-service";
 import {TypeRegistrationConfirmationCodeModel} from "../models/RegistrationConfirmationCodeModel";

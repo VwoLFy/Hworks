@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import {validationResult} from "express-validator";
-import {HTTP_Status} from "../enums";
+import {HTTP_Status} from "../types/enums";
 
 type TypeError = {
     message: string
