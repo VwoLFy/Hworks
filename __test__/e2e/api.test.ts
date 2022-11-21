@@ -974,7 +974,8 @@ await request(app)
                 .expect(HTTP_Status.NOT_FOUND_404)
         });
     })
-    /*describe('registration', () => {
+/*
+    describe('registration', () => {
         beforeAll(async () => {
             await request(app)
                 .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
@@ -1023,6 +1024,14 @@ await request(app)
                 })
                 .expect(HTTP_Status.NO_CONTENT_204)
         })
+        it('POST shouldn`t resend email because time to resend isn`t come', async () => {
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({
+                    email: settings.TEST_EMAIL
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        })
         it('POST shouldn`t resend email', async () => {
             await request(app)
                 .post('/auth/registration-email-resending')
@@ -1031,11 +1040,19 @@ await request(app)
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
+        it('POST shouldn`t confirm registration because code is old', async () => {
+            await request(app)
+                .post('/auth/registration-confirmation')
+                .send({
+                    code: "test"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        })
         it('POST should confirm registration', async () => {
             await request(app)
                 .post('/auth/registration-confirmation')
                 .send({
-                    code: "64b69e60-a13e-4284-ba0e-8fe968d49704"
+                    code: "testres"
                 })
                 .expect(HTTP_Status.NO_CONTENT_204)
         })
@@ -1043,7 +1060,7 @@ await request(app)
             await request(app)
                 .post('/auth/registration-confirmation')
                 .send({
-                    code: "64b69e60-a13e-4284-ba0e-8fe968d49704"
+                    code: "test"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
@@ -1063,6 +1080,23 @@ await request(app)
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
-
-    })*/
+        it('get 1 user', async () => {
+            const users = await request(app)
+                .get('/users')
+                .expect(200)
+            expect(users.body).toEqual({
+                pagesCount: 1,
+                page: 1,
+                pageSize: 10,
+                totalCount: 1,
+                items: [{
+                    id: expect.any(String),
+                    login: "NewUser",
+                    email: settings.TEST_EMAIL,
+                    createdAt: expect.any(String),
+                }]
+            })
+        })
+    })
+*/
 })
