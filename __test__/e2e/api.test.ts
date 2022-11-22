@@ -1048,6 +1048,15 @@ await request(app)
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         })
+        it('shouldn`t authenticate not confirmed user ', async function () {
+            await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "NewUser",
+                    password: "password",
+                })
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+        });
         it('POST should confirm registration', async () => {
             await request(app)
                 .post('/auth/registration-confirmation')
@@ -1056,6 +1065,15 @@ await request(app)
                 })
                 .expect(HTTP_Status.NO_CONTENT_204)
         })
+        it('should authenticate confirmed user ', async function () {
+            await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "NewUser",
+                    password: "password",
+                })
+                .expect(HTTP_Status.OK_200)
+        });
         it('POST shouldn`t confirm registration if already confirm', async () => {
             await request(app)
                 .post('/auth/registration-confirmation')
