@@ -3,7 +3,6 @@ import {checkIdValidForMongodb} from "./check-id-valid-for-mongodb";
 import {checkAuthorizationMiddleware} from "./check-authorization-middleware";
 import {inputValidationMiddleware} from "./input-validation-middleware";
 import {SortDirection} from "../types/enums";
-import {emailConfirmationUserRepository} from "../repositories/emailConfirmationUser-repository";
 import {usersRepository} from "../repositories/users-repository";
 
 //user
@@ -47,11 +46,10 @@ const authEmailRegValidation = body("email", "'email' must be a email or already
     .isString().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$").custom(freeLoginOrEmail);
 
 const codeValid: CustomValidator = async (value) => {
-    const emailConfirmation = await emailConfirmationUserRepository.findEmailConfirmationByCode(value)
+    const emailConfirmation = await usersRepository.findEmailConfirmationByCode(value)
     if (!emailConfirmation) throw new Error()
-    const isConfirmed = await usersRepository.findConfirmById(emailConfirmation.userId)
-    if (isConfirmed) throw new Error()
-    if (emailConfirmation.expirationDate < new Date()) throw new Error()
+    if (emailConfirmation.isConfirmed) throw new Error()
+    if (emailConfirmation.expirationDate! < new Date()) throw new Error()
     if (emailConfirmation.confirmationCode !== value) throw new Error()
     return true
 }
@@ -59,7 +57,7 @@ const authCodeValidation = body("code", "'code' confirmation code is incorrect, 
     .custom(codeValid)
 const emailValid: CustomValidator = async (value) => {
     const foundUser = await usersRepository.findUserByLoginOrEmail(value)
-    if (!foundUser || foundUser.isConfirmed) throw new Error()
+    if (!foundUser || foundUser.emailConfirmation.isConfirmed) throw new Error()
     return true
 }
 const authEmailResendValidation = body("email", "'email' has incorrect values or is already confirmed")

@@ -1,17 +1,27 @@
-import {TypeNewUser} from "../domain/user-service";
 import {userCollection} from "./db";
 import {ObjectId} from "mongodb";
+import {TypeEmailConfirmation, TypeNewUser, TypeUserAccountType} from "../domain/auth-service";
 
 type TypeUser = {
     id: string
-    login: string
-    passwordHash: string
-    email: string
-    createdAt: string
-    isConfirmed: boolean
-};
+    accountData: TypeUserAccountType
+    emailConfirmation: TypeEmailConfirmation
+}
 
 export const usersRepository = {
+    async createUserAdm(newUser: TypeUserAccountType): Promise<string> {
+        const user: Omit<TypeUser, 'id'> = {
+            accountData: newUser,
+            emailConfirmation: {
+                isConfirmed: true,
+                expirationDate: null,
+                confirmationCode: '',
+                timeEmailResending: null,
+            }
+        }
+        const result = await userCollection.insertOne(user)
+        return result.insertedId.toString()
+    },
     async createUser(newUser: TypeNewUser): Promise<string> {
         const result = await userCollection.insertOne(newUser)
         return result.insertedId.toString()
@@ -23,45 +33,55 @@ export const usersRepository = {
     async findUserByLoginOrEmail(loginOrEmail: string): Promise<TypeUser | null> {
         const result = await userCollection.findOne({
             $or: [
-                {login: loginOrEmail},
-                {email: loginOrEmail}
+                {'accountData.login': loginOrEmail},
+                {'accountData.email': loginOrEmail}
             ]
         })
+        console.log(result)
+
         if (!result) return null
         return {
             id: result._id.toString(),
-            login: result.login,
-            passwordHash: result.passwordHash,
-            email: result.email,
-            createdAt: result.createdAt,
-            isConfirmed: result.isConfirmed
+            accountData: result.accountData,
+            emailConfirmation: result.emailConfirmation
         }
     },
     async findUserLoginById(id: string): Promise<string | null> {
         const result = await userCollection.findOne({_id: new ObjectId(id)})
         if (!result) return null
-        return result.login
-    },
-    async findConfirmById(id: string): Promise<boolean> {
-        const user = await userCollection.findOne({_id: new ObjectId(id)})
-
-        return user ? user.isConfirmed : true
+        return result.accountData.login
     },
     async isFreeLoginAndEmail(login: string, email: string): Promise<boolean> {
         return !(
             await userCollection.findOne({
                 $or: [
-                    {login: {$regex: login, $options: 'i'}},
-                    {email: {$regex: email, $options: 'i'}}
+                    {'accountData.login': {$regex: login, $options: 'i'}},
+                    {'accountData.email': {$regex: email, $options: 'i'}}
                 ]
             }))
     },
-    async updateConfirmation(id: string) {
+    async updateConfirmation(confirmationCode: string): Promise<boolean> {
         const result = await userCollection.updateOne(
-            {_id: new ObjectId(id)},
-            {$set: {isConfirmed: true}}
+            {'emailConfirmation.confirmationCode': confirmationCode},
+            {$set: {'emailConfirmation.isConfirmed': true}}
         )
         return result.modifiedCount === 1
+    },
+    async findEmailConfirmationByCode(confirmationCode: string): Promise<TypeEmailConfirmation | null> {
+        const result = await userCollection.findOne({'emailConfirmation.confirmationCode': confirmationCode})
+        if (!result) return null
+        return result.emailConfirmation
+    },
+    async updateEmailConfirmation(user: TypeUser) {
+        await userCollection.updateOne(
+            {_id: new ObjectId(user.id)},
+            {$set: {
+                    'emailConfirmation.confirmationCode': user.emailConfirmation.confirmationCode,
+                    'emailConfirmation.timeEmailResending': user.emailConfirmation.timeEmailResending,
+                    'emailConfirmation.expirationDate': user.emailConfirmation.expirationDate
+                }
+            }
+        )
     },
     async deleteAll() {
         await userCollection.deleteMany({})

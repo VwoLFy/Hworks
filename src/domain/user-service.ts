@@ -1,13 +1,11 @@
 import {usersRepository} from "../repositories/users-repository";
 import bcrypt from "bcrypt"
-import {emailConfirmationUserRepository} from "../repositories/emailConfirmationUser-repository";
 
-export type TypeNewUser = {
+type TypeNewUser = {
     login: string
     passwordHash: string
     email: string
     createdAt: string
-    isConfirmed: boolean
 }
 
 export const usersService = {
@@ -22,15 +20,13 @@ export const usersService = {
             passwordHash,
             email,
             createdAt: (new Date()).toISOString(),
-            isConfirmed: true
         }
-        return await usersRepository.createUser(newUser)
+        return await usersRepository.createUserAdm(newUser)
 },
     async deleteUser(id: string): Promise<boolean> {
         return await usersRepository.deleteUser(id)
     },
     async deleteAll() {
         await usersRepository.deleteAll()
-        await emailConfirmationUserRepository.deleteAll()
     }
 }

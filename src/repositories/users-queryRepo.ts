@@ -1,5 +1,6 @@
 import {userCollection} from "./db";
 import {ObjectId} from "mongodb";
+import {TypeEmailConfirmation, TypeUserAccountType} from "../domain/auth-service";
 
 type TypeUserOutputModel = {
     id: string
@@ -16,9 +17,8 @@ type TypeUserOutputPage = {
 }
 type TypeUserFromDB = {
     _id: ObjectId
-    login: string
-    email: string
-    createdAt: string
+    accountData: TypeUserAccountType
+    emailConfirmation: TypeEmailConfirmation
 }
 
 enum SortDirection {
@@ -33,14 +33,14 @@ export const usersQueryRepo = {
         if (searchLoginTerm && searchEmailTerm) {
             filterFind = {
                 $or: [
-                    {login: {$regex: searchLoginTerm, $options: 'i'}},
-                    {email: {$regex: searchEmailTerm, $options: 'i'}}
+                    {'accountData.login': {$regex: searchLoginTerm, $options: 'i'}},
+                    {'accountData.email': {$regex: searchEmailTerm, $options: 'i'}}
                 ]
             }
         } else if (searchLoginTerm) {
-            filterFind = {login: {$regex: searchLoginTerm, $options: 'i'}}
+            filterFind = {'accountData.login': {$regex: searchLoginTerm, $options: 'i'}}
         } else if (searchEmailTerm) {
-            filterFind = {email: {$regex: searchEmailTerm, $options: 'i'}}
+            filterFind = {'accountData.email': {$regex: searchEmailTerm, $options: 'i'}}
         }
 
         sortBy = sortBy === 'id' ? '_id' : sortBy
@@ -75,10 +75,9 @@ export const usersQueryRepo = {
     userWithReplaceId(object: TypeUserFromDB): TypeUserOutputModel {
         return {
             id: object._id.toString(),
-            login: object.login,
-            email: object.email,
-            createdAt: object.createdAt
+            login: object.accountData.login,
+            email: object.accountData.email,
+            createdAt: object.accountData.createdAt
         }
     }
-
 }
