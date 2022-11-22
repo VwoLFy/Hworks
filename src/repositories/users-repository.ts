@@ -37,7 +37,6 @@ export const usersRepository = {
                 {'accountData.email': loginOrEmail}
             ]
         })
-        console.log(result)
 
         if (!result) return null
         return {
