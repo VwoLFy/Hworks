@@ -23,14 +23,14 @@ authRouter.post('/login', loginAuthValidation, async (req: RequestWithBody<TypeL
     const userId = await authService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (!userId) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
     const {accessToken, refreshToken} = await jwtService.createJWT(userId)
-    res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: false})
+    res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
     return res.status(HTTP_Status.OK_200).json({accessToken})
 })
 authRouter.post('/refresh-token', async (req: Request, res: Response<TypeLoginSuccessViewModel>) => {
     const tokens = await jwtService.refreshTokens(req.cookies.refreshToken)
     if (!tokens) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
     const {accessToken, refreshToken} = tokens
-    res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: false})
+    res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
     return res.status(HTTP_Status.OK_200).json({accessToken})
 })
 authRouter.post('/logout', async (req: Request, res: Response) => {
