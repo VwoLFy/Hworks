@@ -6,12 +6,15 @@
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon --inspect dist/index.js",
+    "dev with env": "SET SOME=test1 && nodemon --inspect dist/index.js",
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "test-c": "jest --runInBand --coverage"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
+    "cookie-parser": "^1.4.6",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
@@ -23,6 +26,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
+    "@types/cookie-parser": "^1.4.3",
     "@types/express": "^4.17.14",
     "@types/jest": "^29.2.2",
     "@types/jsonwebtoken": "^8.5.9",
