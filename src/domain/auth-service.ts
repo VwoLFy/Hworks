@@ -88,4 +88,10 @@ export const authService = {
         const passwordSalt = await bcrypt.genSalt(10)
         return await bcrypt.hash(password, passwordSalt)
     },
+    async addOldRefreshTokenToBL(userId: string, refreshToken: string) {
+        await usersRepository.addOldRefreshTokenToBL(userId, refreshToken)
+    },
+    async isValidRefreshToken(userId: string, refreshToken: string): Promise<boolean> {
+        return await usersRepository.isValidRefreshToken(userId, refreshToken)
+    }
 }

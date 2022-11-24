@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import {settings} from "../settings";
+import {authService} from "../domain/auth-service";
 
 type TypeUserId = { userId: string }
 type TypeTokens = {
@@ -23,6 +24,9 @@ export const jwtService = {
     async refreshTokens(refreshToken: string): Promise<TypeTokens | null> {
         try {
             const result = jwt.verify(refreshToken, settings.JWT_SECRET_FOR_REFRESHTOKEN) as TypeUserId
+            const isValidRefreshToken = await authService.isValidRefreshToken(result.userId, refreshToken)
+            if (!isValidRefreshToken) return null
+            await authService.addOldRefreshTokenToBL(result.userId, refreshToken)
             return await this.createJWT(result.userId)
         } catch (e) {
             return null
@@ -30,7 +34,10 @@ export const jwtService = {
     },
     async checkRefreshTokens(refreshToken: string): Promise<boolean> {
         try {
-            jwt.verify(refreshToken, settings.JWT_SECRET_FOR_REFRESHTOKEN)
+            const result = jwt.verify(refreshToken, settings.JWT_SECRET_FOR_REFRESHTOKEN) as TypeUserId
+            const isValidRefreshToken = await authService.isValidRefreshToken(result.userId, refreshToken)
+            if (!isValidRefreshToken) return false
+            await authService.addOldRefreshTokenToBL(result.userId, refreshToken)
             return true
         } catch (e) {
             return false

@@ -704,8 +704,9 @@ describe('Test of the Homework', () => {
                 })
                 .expect(HTTP_Status.OK_200)
             token = result.body
+            const {accessToken} = await jwtService.createJWT(user.id)
             expect(token).toEqual({accessToken: expect.any(String)})
-            expect(token).toEqual(await jwtService.createJWT(user.id))
+            expect(token).toEqual({accessToken})
         })
         it('POST should authenticate user with correct email', async () => {
             const result = await request(app)
@@ -716,8 +717,9 @@ describe('Test of the Homework', () => {
                 })
                 .expect(HTTP_Status.OK_200)
             token = result.body
+            const {accessToken} = await jwtService.createJWT(user.id)
             expect(token).toEqual({accessToken: expect.any(String)})
-            expect(token).toEqual(await jwtService.createJWT(user.id))
+            expect(token).toEqual({accessToken})
         })
         it('GET shouldn`t get data about user by bad token', async () => {
             await request(app)

@@ -6,6 +6,7 @@ type TypeUser = {
     id: string
     accountData: TypeUserAccountType
     emailConfirmation: TypeEmailConfirmation
+    oldRefreshTokensBL: Array<string>
 }
 
 export const usersRepository = {
@@ -17,7 +18,8 @@ export const usersRepository = {
                 expirationDate: null,
                 confirmationCode: '',
                 timeEmailResending: null,
-            }
+            },
+            oldRefreshTokensBL: []
         }
         const result = await userCollection.insertOne(user)
         return result.insertedId.toString()
@@ -30,7 +32,7 @@ export const usersRepository = {
         const result = await userCollection.deleteOne({_id: new ObjectId(id)})
         return result.deletedCount !== 0;
     },
-    async findUserByLoginOrEmail(loginOrEmail: string): Promise<TypeUser | null> {
+    async findUserByLoginOrEmail(loginOrEmail: string): Promise<Omit<TypeUser, 'oldRefreshTokensBL'> | null> {
         const result = await userCollection.findOne({
             $or: [
                 {'accountData.login': loginOrEmail},
@@ -71,7 +73,7 @@ export const usersRepository = {
         if (!result) return null
         return result.emailConfirmation
     },
-    async updateEmailConfirmation(user: TypeUser) {
+    async updateEmailConfirmation(user: Omit<TypeUser, 'oldRefreshTokensBL'>) {
         await userCollection.updateOne(
             {_id: new ObjectId(user.id)},
             {$set: {
@@ -84,5 +86,11 @@ export const usersRepository = {
     },
     async deleteAll() {
         await userCollection.deleteMany({})
+    },
+    async addOldRefreshTokenToBL(userId: string, refreshToken: string) {
+        await userCollection.updateOne({_id: new ObjectId(userId)},{$push: {oldRefreshTokensBL: refreshToken}})
+    },
+    async isValidRefreshToken(userId: string, refreshToken: string): Promise<boolean> {
+        return !(await userCollection.findOne({_id: new ObjectId(userId), oldRefreshTokensBL: refreshToken}))
     }
 }
