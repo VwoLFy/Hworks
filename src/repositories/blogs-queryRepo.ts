@@ -1,5 +1,6 @@
 import {blogCollection} from "./db";
 import {ObjectId} from "mongodb";
+import {TypeBlogDB} from "../types/types";
 
 type TypeBlogOutputModel = {
     id: string
@@ -14,13 +15,6 @@ type TypeBlogOutputPage = {
     pageSize: number
     totalCount: number
     items: TypeBlogOutputModel[]
-};
-type TypeBlogFromDB = {
-    _id: ObjectId
-    name: string
-    description: string
-    websiteUrl: string
-    createdAt: string
 };
 
 enum SortDirection {
@@ -63,7 +57,7 @@ export const blogsQueryRepo = {
             return this.blogWithReplaceId(foundBlog)
         }
     },
-    blogWithReplaceId(object: TypeBlogFromDB): TypeBlogOutputModel {
+    blogWithReplaceId(object: TypeBlogDB): TypeBlogOutputModel {
         return {
             id: object._id.toString(),
             name: object.name,

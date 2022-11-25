@@ -3,22 +3,11 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from 'uuid'
 import add from "date-fns/add";
 import {emailManager} from "../managers/email-manager";
+import {TypeEmailConfirmation, TypeUserAccountType} from "../types/types";
 
 export type TypeNewUser = {
     accountData: TypeUserAccountType
     emailConfirmation: TypeEmailConfirmation
-}
-export type TypeUserAccountType = {
-    login: string
-    passwordHash: string
-    email: string
-    createdAt: string
-}
-export type TypeEmailConfirmation = {
-    isConfirmed: boolean
-    confirmationCode: string
-    expirationDate: Date | null
-    timeEmailResending: Date | null
 }
 type TypeUser = TypeNewUser & { id: string }
 
@@ -67,7 +56,6 @@ export const authService = {
     async registrationResendEmail(email: string): Promise<boolean> {
         const foundUser: TypeUser | null = await usersRepository.findUserByLoginOrEmail(email)
         if (!foundUser) return false
-
         if (!foundUser.emailConfirmation || foundUser.emailConfirmation.timeEmailResending! > new Date()) return false
 
         foundUser.emailConfirmation.expirationDate = add(new Date(), {hours: 1})

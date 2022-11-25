@@ -1,17 +1,18 @@
 import {userCollection} from "./db";
 import {ObjectId} from "mongodb";
-import {TypeEmailConfirmation, TypeNewUser, TypeUserAccountType} from "../domain/auth-service";
+import {TypeNewUser} from "../domain/auth-service";
+import {TypeEmailConfirmation, TypeUserAccountType, TypeUserDB} from "../types/types";
 
-type TypeUser = {
+type TypeUserOutput = {
     id: string
     accountData: TypeUserAccountType
     emailConfirmation: TypeEmailConfirmation
-    oldRefreshTokensBL: Array<string>
 }
 
 export const usersRepository = {
     async createUserAdm(newUser: TypeUserAccountType): Promise<string> {
-        const user: Omit<TypeUser, 'id'> = {
+        const user: TypeUserDB = {
+            _id: new ObjectId(),
             accountData: newUser,
             emailConfirmation: {
                 isConfirmed: true,
@@ -25,14 +26,18 @@ export const usersRepository = {
         return result.insertedId.toString()
     },
     async createUser(newUser: TypeNewUser): Promise<string> {
-        const result = await userCollection.insertOne(newUser)
+        const result = await userCollection.insertOne({
+            ...newUser,
+            _id: new ObjectId(),
+            oldRefreshTokensBL: []
+        })
         return result.insertedId.toString()
     },
     async deleteUser(id: string): Promise<boolean> {
         const result = await userCollection.deleteOne({_id: new ObjectId(id)})
         return result.deletedCount !== 0;
     },
-    async findUserByLoginOrEmail(loginOrEmail: string): Promise<Omit<TypeUser, 'oldRefreshTokensBL'> | null> {
+    async findUserByLoginOrEmail(loginOrEmail: string): Promise<TypeUserOutput | null> {
         const result = await userCollection.findOne({
             $or: [
                 {'accountData.login': loginOrEmail},
@@ -73,7 +78,7 @@ export const usersRepository = {
         if (!result) return null
         return result.emailConfirmation
     },
-    async updateEmailConfirmation(user: Omit<TypeUser, 'oldRefreshTokensBL'>) {
+    async updateEmailConfirmation(user: TypeUserOutput) {
         await userCollection.updateOne(
             {_id: new ObjectId(user.id)},
             {$set: {

@@ -11,7 +11,7 @@ export const blogsRepository = {
         return foundBlog.name
     },
     async createBlog(newBlog: TypeNewBlog): Promise<string> {
-        const result = await blogCollection.insertOne(newBlog);
+        const result = await blogCollection.insertOne({...newBlog, _id: new ObjectId()});
         return result.insertedId.toString()
     },
     async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {

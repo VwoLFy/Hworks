@@ -3,7 +3,7 @@ import {RequestWithBody} from "../types/types";
 import {TypeLoginInputModel} from "../models/LoginInputModel";
 import {
     emailConfirmationAuthValidation, emailResendingAuthValidation,
-    getAuthValidation,
+    getUserInfoAuthValidation,
     loginAuthValidation,
     registrationAuthValidation
 } from "../middlewares/user-auth-validators";
@@ -54,7 +54,7 @@ authRouter.post('/registration-email-resending', emailResendingAuthValidation, a
     if (!isResendEmail) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })
-authRouter.get('/me', getAuthValidation, async (req: Request, res: Response<TypeMeViewModel>) => {
+authRouter.get('/me', getUserInfoAuthValidation, async (req: Request, res: Response<TypeMeViewModel>) => {
     const userId = req.userId
     const userData = await usersQueryRepo.findUserById(userId)
     if (!userData) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)

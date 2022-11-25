@@ -97,6 +97,6 @@ export const emailResendingAuthValidation = [
     authEmailResendValidation,
     inputValidationMiddleware
 ]
-export const getAuthValidation = [
+export const getUserInfoAuthValidation = [
     checkAuthorizationMiddleware
 ]

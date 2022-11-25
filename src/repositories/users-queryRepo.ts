@@ -1,6 +1,6 @@
 import {userCollection} from "./db";
 import {ObjectId} from "mongodb";
-import {TypeEmailConfirmation, TypeUserAccountType} from "../domain/auth-service";
+import {TypeUserDB} from "../types/types";
 
 type TypeUserOutputModel = {
     id: string
@@ -14,11 +14,6 @@ type TypeUserOutputPage = {
     pageSize: number
     totalCount: number
     items: TypeUserOutputModel[]
-}
-type TypeUserFromDB = {
-    _id: ObjectId
-    accountData: TypeUserAccountType
-    emailConfirmation: TypeEmailConfirmation
 }
 
 enum SortDirection {
@@ -72,7 +67,7 @@ export const usersQueryRepo = {
             return this.userWithReplaceId(foundUser)
         }
     },
-    userWithReplaceId(object: TypeUserFromDB): TypeUserOutputModel {
+    userWithReplaceId(object: TypeUserDB): TypeUserOutputModel {
         return {
             id: object._id.toString(),
             login: object.accountData.login,
