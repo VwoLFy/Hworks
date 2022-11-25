@@ -1,14 +1,15 @@
 import {commentCollection} from "./db";
 import {TypeNewComment} from "../domain/comments-service";
 import {ObjectId} from "mongodb";
+import {TypeCommentDB} from "../types/types";
 
 export const commentsRepository = {
     async createComment (newComment: TypeNewComment): Promise<string> {
-        const result = await commentCollection.insertOne(newComment)
+        const result = await commentCollection.insertOne({...newComment, _id: new ObjectId()})
         return result.insertedId.toString()
     },
     async findUserIdByCommentId(id: string): Promise<string | null> {
-        const foundComment = await commentCollection.findOne({_id: new ObjectId(id)})
+        const foundComment: TypeCommentDB | null = await commentCollection.findOne({_id: new ObjectId(id)})
         return foundComment ? foundComment.userId : null
     },
     async updateComment(id: string, content: string): Promise<number | null> {

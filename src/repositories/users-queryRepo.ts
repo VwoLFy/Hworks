@@ -1,6 +1,7 @@
 import {userCollection} from "./db";
 import {ObjectId} from "mongodb";
 import {TypeUserDB} from "../types/types";
+import {SortDirection} from "../types/enums";
 
 type TypeUserOutputModel = {
     id: string
@@ -14,11 +15,6 @@ type TypeUserOutputPage = {
     pageSize: number
     totalCount: number
     items: TypeUserOutputModel[]
-}
-
-enum SortDirection {
-    asc = 1,
-    desc = -1
 }
 
 export const usersQueryRepo = {

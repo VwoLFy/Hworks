@@ -1,14 +1,9 @@
 import {MongoClient} from "mongodb"
-import {TypeNewPost} from "../domain/posts-service";
 import {settings} from "../settings";
-import {TypeNewComment} from "../domain/comments-service";
-import {TypeBlogDB, TypeUserDB} from "../types/types";
+import {TypeBlogDB, TypeCommentDB, TypePostDB, TypeUserDB} from "../types/types";
 
 const mongoUri = process.env.NODE_ENV === "test" ? settings.MONGO_URI_LOC : settings.MONGO_URI;
 export const client = new MongoClient(mongoUri)
-
-type TypePostDB = TypeNewPost
-type TypeCommentDB = TypeNewComment
 
 const db = client.db("Homework");
 export const blogCollection = db.collection<TypeBlogDB>("blogs");

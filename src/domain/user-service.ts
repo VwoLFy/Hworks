@@ -4,7 +4,7 @@ import {TypeUserAccountType} from "../types/types";
 
 export const usersService = {
     async createUser(login: string, password: string, email: string): Promise<string | null> {
-        const isFreeLoginAndEmail = await usersRepository.isFreeLoginAndEmail(login, email)
+        const isFreeLoginAndEmail: boolean = await usersRepository.isFreeLoginAndEmail(login, email)
         if (!isFreeLoginAndEmail) return null
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await bcrypt.hash(password, passwordSalt)

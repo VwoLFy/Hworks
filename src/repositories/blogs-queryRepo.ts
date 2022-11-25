@@ -1,6 +1,7 @@
 import {blogCollection} from "./db";
 import {ObjectId} from "mongodb";
 import {TypeBlogDB} from "../types/types";
+import {SortDirection} from "../types/enums";
 
 type TypeBlogOutputModel = {
     id: string
@@ -17,19 +18,13 @@ type TypeBlogOutputPage = {
     items: TypeBlogOutputModel[]
 };
 
-enum SortDirection {
-    asc = 1,
-    desc = -1
-}
-
 export const blogsQueryRepo = {
     async findBlogs(searchNameTerm: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypeBlogOutputPage> {
-        const filterFind: { name?: { $regex: string, $options: 'i' } } = {};
-        if (searchNameTerm) filterFind.name = {$regex: searchNameTerm, $options: 'i'}
+        let filterFind = {};
+        if (searchNameTerm) filterFind = {name: {$regex: searchNameTerm, $options: 'i'}}
 
-        const optionsSort: { [key: string]: SortDirection } = {};
         sortBy = sortBy === 'id' ? '_id' : sortBy
-        optionsSort[sortBy] = sortDirection
+        const optionsSort = {[sortBy]: sortDirection}
 
         const totalCount = await blogCollection.count(filterFind)
         const pagesCount = Math.ceil(totalCount / pageSize)
@@ -50,7 +45,7 @@ export const blogsQueryRepo = {
         }
     },
     async findBlogById(id: string): Promise<TypeBlogOutputModel | null> {
-        const foundBlog = await blogCollection.findOne({_id: new ObjectId(id)})
+        const foundBlog: TypeBlogDB | null = await blogCollection.findOne({_id: new ObjectId(id)})
         if (!foundBlog) {
             return null
         } else {

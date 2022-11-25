@@ -1,5 +1,7 @@
 import {ObjectId} from "mongodb";
 import {postCollection} from "./db";
+import {SortDirection} from "../types/enums";
+import {TypePostDB} from "../types/types";
 
 type TypePostOutputModel = {
     id: string
@@ -17,20 +19,6 @@ type TypePostOutputPage = {
     totalCount: number
     items: TypePostOutputModel[]
 };
-type TypePostFromDB = {
-    _id: ObjectId
-    title: string
-    shortDescription: string
-    content: string
-    blogId: string
-    blogName: string
-    createdAt: string
-}
-
-enum SortDirection {
-    asc = 1,
-    desc = -1
-}
 
 export const postsQueryRepo = {
     async findPosts(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypePostOutputPage> {
@@ -57,7 +45,7 @@ export const postsQueryRepo = {
         }
     },
     async findPostById(id: string): Promise<TypePostOutputModel | null> {
-        const foundPost = await postCollection.findOne({_id: new ObjectId(id)})
+        const foundPost: TypePostDB | null = await postCollection.findOne({_id: new ObjectId(id)})
         if (!foundPost) {
             return null
         } else {
@@ -66,6 +54,7 @@ export const postsQueryRepo = {
     },
     async findPostsByBlogId(blogId: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypePostOutputPage | null> {
         const optionsSort: { [key: string]: SortDirection } = {};
+        sortBy = sortBy === 'id' ? '_id' : sortBy
         optionsSort[sortBy] = sortDirection
 
         const totalCount = await postCollection.count({blogId})
@@ -88,7 +77,7 @@ export const postsQueryRepo = {
             items
         }
     },
-    postWithReplaceId (object: TypePostFromDB ): TypePostOutputModel {
+    postWithReplaceId (object: TypePostDB ): TypePostOutputModel {
         return {
             id: object._id.toString(),
             title: object.title,
