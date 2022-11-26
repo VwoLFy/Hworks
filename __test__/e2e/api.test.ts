@@ -3,7 +3,6 @@ import {TypeBlogViewModel} from "../../src/models/BlogViewModel";
 import {TypePostViewModel} from "../../src/models/PostViewModel";
 import {TypeUserViewModel} from "../../src/models/UserViewModel";
 import {client} from "../../src/repositories/db";
-import {jwtService} from "../../src/application/jwt-service";
 import {TypeLoginSuccessViewModel} from "../../src/models/LoginSuccessViewModel";
 import {TypeCommentViewModel} from "../../src/models/CommentViewModel";
 import {TypeErrorResult} from "../../src/middlewares/input-validation-middleware";
@@ -20,6 +19,14 @@ const checkError = (apiErrorResult: TypeErrorResult, field: string) => {
         ]
     })
 }
+const delay = async (delay: number = 1000) => {
+    await new Promise((resolve) => {
+        setTimeout(() => {
+            resolve('');
+        }, delay);
+    });
+}
+
 describe('Test of the Homework', () => {
     afterAll(async () => {
         await client.close()
@@ -567,7 +574,7 @@ describe('Test of the Homework', () => {
                     email: "2string2@sdf.ee"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
-                        await request(app)
+            await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
@@ -597,7 +604,7 @@ describe('Test of the Homework', () => {
                     email: "STRING2@sdf.ee"
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
-                        await request(app)
+            await request(app)
                 .post('/users')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
@@ -642,7 +649,8 @@ describe('Test of the Homework', () => {
                 .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
         let user: TypeUserViewModel
-        let token: TypeLoginSuccessViewModel
+        let validAccessToken: TypeLoginSuccessViewModel, oldAccessToken: TypeLoginSuccessViewModel
+        let refreshTokenKey: string, validRefreshToken: string, oldRefreshToken: string
         it('POST shouldn`t authenticate user with incorrect data', async () => {
             const result = await request(app)
                 .post('/users')
@@ -695,7 +703,7 @@ describe('Test of the Homework', () => {
                 })
                 .expect(HTTP_Status.UNAUTHORIZED_401)
         })
-        it('POST should authenticate user with correct login', async () => {
+        it('POST should authenticate user with correct login; content: AccessToken, RefreshToken in cookie (http only, secure)', async () => {
             const result = await request(app)
                 .post('/auth/login')
                 .send({
@@ -703,30 +711,26 @@ describe('Test of the Homework', () => {
                     password: "password"
                 })
                 .expect(HTTP_Status.OK_200)
-            token = result.body
-            const {accessToken} = await jwtService.createJWT(user.id)
-            expect(token).toEqual({accessToken: expect.any(String)})
-            expect(token).toEqual({accessToken})
-        })
-        it('POST should authenticate user with correct email', async () => {
-            const result = await request(app)
-                .post('/auth/login')
-                .send({
-                    loginOrEmail: "string2@sdf.ee",
-                    password: "password"
-                })
-                .expect(HTTP_Status.OK_200)
-            token = result.body
-            const {accessToken} = await jwtService.createJWT(user.id)
-            expect(token).toEqual({accessToken: expect.any(String)})
-            expect(token).toEqual({accessToken})
+
+            await delay()
+            validAccessToken = result.body
+            expect(validAccessToken).toEqual({accessToken: expect.any(String)})
+
+            expect(result.headers['set-cookie']).toBeTruthy()
+            if (!result.headers['set-cookie']) return
+
+            [refreshTokenKey, validRefreshToken] = result.headers['set-cookie'][0].split(';')[0].split('=');
+            expect(refreshTokenKey).toBe('refreshToken')
+            expect(result.headers['set-cookie'][0].includes('HttpOnly')).toBe(true)
+            expect(result.headers['set-cookie'][0].includes('Secure')).toBe(true)
+
         })
         it('GET shouldn`t get data about user by bad token', async () => {
             await request(app)
                 .get('/auth/me')
-                .auth(token.accessToken + 'd', {type: "bearer"})
+                .auth(validAccessToken.accessToken + 'd', {type: "bearer"})
                 .expect(HTTP_Status.UNAUTHORIZED_401)
-await request(app)
+            await request(app)
                 .get('/auth/me')
                 .auth('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2MzcxMzkzNTQ5OTYxNWM1MTAwZGM5YjQiLCJpYXQiOjE2NjgzNjU0MDUsImV4cCI6MTY3NTAxODIwNX0.Mb02J2SwIzjfXVX0RIihvR1ioj-rcP0fVt3TQcY-BlY', {type: "bearer"})
                 .expect(HTTP_Status.UNAUTHORIZED_401)
@@ -738,9 +742,144 @@ await request(app)
         it('GET should get data about user by token', async () => {
             await request(app)
                 .get('/auth/me')
-                .auth(token.accessToken, {type: "bearer"})
+                .auth(validAccessToken.accessToken, {type: "bearer"})
                 .expect(HTTP_Status.OK_200)
         })
+        it('GET shouldn`t get data about user when the AccessToken has expired', async () => {
+            await delay(10000);
+
+            await request(app)
+                .get('/auth/me')
+                .auth(validAccessToken.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+        }, 15000)
+        it('POST should return an error when the "refresh" token has expired or there is no one in the cookie', async () => {
+            await request(app)
+                .post('/auth/refresh-token')
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+            await request(app)
+                .post('/auth/refresh-token')
+                .set("Cookie", ``)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+            await request(app)
+                .post('/auth/refresh-token')
+                .set("Cookie", `refreshToken=${validRefreshToken}1`)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+
+            await delay(10000)
+            await request(app)
+                .post('/auth/refresh-token')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+        }, 15000);
+        it('POST should authenticate user with correct email', async () => {
+            const result = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "string2@sdf.ee",
+                    password: "password"
+                })
+                .expect(HTTP_Status.OK_200)
+
+            await delay()
+            oldAccessToken = validAccessToken
+            validAccessToken = result.body
+            expect(validAccessToken).toEqual({accessToken: expect.any(String)})
+            expect(validAccessToken).not.toEqual(oldAccessToken)
+
+            expect(result.headers['set-cookie']).toBeTruthy()
+            if (!result.headers['set-cookie']) return
+
+            oldRefreshToken = validRefreshToken;
+            [refreshTokenKey, validRefreshToken] = result.headers['set-cookie'][0].split(';')[0].split('=');
+            expect(refreshTokenKey).toBe('refreshToken')
+            expect(oldRefreshToken).not.toEqual(validRefreshToken)
+
+        })
+        it('POST should return new tokens; content: AccessToken, RefreshToken in cookie (http only, secure)', async () => {
+            const result = await request(app)
+                .post('/auth/refresh-token')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.OK_200)
+            //.expect('set-cookie', `refreshToken=${refreshToken}; Path=/; HttpOnly; Secure`)
+
+            await delay()
+            oldAccessToken = validAccessToken
+            validAccessToken = result.body
+            expect(validAccessToken).toEqual({accessToken: expect.any(String)})
+            expect(validAccessToken).not.toEqual(oldAccessToken)
+
+            expect(result.headers['set-cookie']).toBeTruthy()
+            if (!result.headers['set-cookie']) return
+
+            oldRefreshToken = validRefreshToken;
+            [refreshTokenKey, validRefreshToken] = result.headers['set-cookie'][0].split(';')[0].split('=');
+            expect(refreshTokenKey).toBe('refreshToken')
+            expect(oldRefreshToken).not.toEqual(validRefreshToken)
+            expect(result.headers['set-cookie'][0].includes('HttpOnly')).toBe(true)
+            expect(result.headers['set-cookie'][0].includes('Secure')).toBe(true)
+
+        });
+        it('POST shouldn`t return new tokens when "refresh" token in BL', async () => {
+            await request(app)
+                .post('/auth/refresh-token')
+                .set("Cookie", `refreshToken=${oldRefreshToken}`)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+        });
+        it('POST should return new tokens 2', async () => {
+            const result = await request(app)
+                .post('/auth/refresh-token')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.OK_200)
+
+            await delay()
+            oldAccessToken = validAccessToken
+            validAccessToken = result.body
+            expect(validAccessToken).toEqual({accessToken: expect.any(String)})
+            expect(validAccessToken).not.toEqual(oldAccessToken)
+
+            expect(result.headers['set-cookie']).toBeTruthy()
+            if (!result.headers['set-cookie']) return
+
+            oldRefreshToken = validRefreshToken;
+            [refreshTokenKey, validRefreshToken] = result.headers['set-cookie'][0].split(';')[0].split('=');
+            expect(refreshTokenKey).toBe('refreshToken')
+            expect(oldRefreshToken).not.toEqual(validRefreshToken)
+
+        });
+        it('POST shouldn`t logout user when "refresh" token in BL', async () => {
+            await request(app)
+                .post('/auth/logout')
+                .set("Cookie", `refreshToken=${oldRefreshToken}`)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+        });
+        it('POST should logout user', async () => {
+            const result = await request(app)
+                .post('/auth/logout')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await delay()
+            oldAccessToken = validAccessToken
+            validAccessToken = result.body
+            expect(validAccessToken).toEqual({})
+            expect(validAccessToken).not.toEqual(oldAccessToken)
+
+            expect(result.headers['set-cookie']).toBeTruthy()
+            if (!result.headers['set-cookie']) return
+
+            oldRefreshToken = validRefreshToken;
+            [refreshTokenKey, validRefreshToken] = result.headers['set-cookie'][0].split(';')[0].split('=');
+            expect(refreshTokenKey).toBe('refreshToken')
+            expect(validRefreshToken).toBe('')
+
+        });
+        it('POST shouldn`t logout user', async () => {
+            await request(app)
+                .post('/auth/logout')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+        });
 
     })
     describe('comments from post or /comments', () => {
