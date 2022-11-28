@@ -50,3 +50,13 @@ export type TypeCommentDB = {
     createdAt: string
     postId: string
 }
+export type TypeDeviceDB = {
+    _id: ObjectId
+    userId: string
+    issueDate: Date
+    expiresDate: Date
+    ip: string
+    title: string
+    lastActiveDate: string
+    deviceId: string
+}

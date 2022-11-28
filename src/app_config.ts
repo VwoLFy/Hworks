@@ -10,6 +10,7 @@ import {commentsRouter} from "./routes/comments-router";
 import {commentsService} from "./domain/comments-service";
 import {HTTP_Status} from "./types/enums";
 import cookieParser from "cookie-parser";
+import {securityRouter} from "./routes/security-router";
 
 export const app = express();
 const bodyMiddle = express.json();
@@ -21,6 +22,7 @@ app.use('/posts', postsRouter)
 app.use('/users', usersRouter)
 app.use('/auth', authRouter)
 app.use('/comments', commentsRouter)
+app.use('/security', securityRouter)
 
 app.delete('/testing/all-data', async (req: Request, res: Response) => {
     await blogsService.deleteAll();
