@@ -1,4 +1,5 @@
-import {deviceCollection} from "./db";
+import {sessionCollection} from "./db";
+import {TypeSessionDB} from "../types/types";
 
 type TypeDeviceOutputModel = {
     ip: string
@@ -9,6 +10,14 @@ type TypeDeviceOutputModel = {
 
 export const securityQueryRepo = {
     async findUserDevices(userId: string): Promise<TypeDeviceOutputModel[]> {
-    return deviceCollection.find({userId}, {projection: {ip: 1, title: 1, lastActiveDate: 1, deviceId: 1, _id: 0}}).toArray()
+        return (await sessionCollection.find({userId}).toArray()).map(s => this.getOutputModel(s))
+    },
+    getOutputModel(session: TypeSessionDB): TypeDeviceOutputModel {
+        return {
+            ip: session.ip,
+            title: session.title,
+            lastActiveDate: String(session.iat),
+            deviceId: session.deviceId
+        }
     }
 }

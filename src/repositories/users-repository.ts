@@ -19,8 +19,7 @@ export const usersRepository = {
                 expirationDate: null,
                 confirmationCode: '',
                 timeEmailResending: null,
-            },
-            oldRefreshTokensBL: []
+            }
         }
         const result = await userCollection.insertOne(user)
         return result.insertedId.toString()
@@ -28,8 +27,7 @@ export const usersRepository = {
     async createUser(newUser: TypeNewUser): Promise<string> {
         const result = await userCollection.insertOne({
             ...newUser,
-            _id: new ObjectId(),
-            oldRefreshTokensBL: []
+            _id: new ObjectId()
         })
         return result.insertedId.toString()
     },
@@ -91,11 +89,5 @@ export const usersRepository = {
     },
     async deleteAll() {
         await userCollection.deleteMany({})
-    },
-    async addOldRefreshTokenToBL(userId: string, refreshToken: string) {
-        await userCollection.updateOne({_id: new ObjectId(userId)},{$push: {oldRefreshTokensBL: refreshToken}})
-    },
-    async isValidRefreshToken(userId: string, refreshToken: string): Promise<boolean> {
-        return !(await userCollection.findOne({_id: new ObjectId(userId), oldRefreshTokensBL: refreshToken}))
     }
 }

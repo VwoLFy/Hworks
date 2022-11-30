@@ -15,6 +15,7 @@ import {securityRouter} from "./routes/security-router";
 export const app = express();
 const bodyMiddle = express.json();
 
+app.set('trust proxy', true)
 app.use(cookieParser())
 app.use(bodyMiddle);
 app.use('/blogs', blogsRouter)

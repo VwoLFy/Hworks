@@ -12,7 +12,6 @@ export type TypeUserDB = {
     _id: ObjectId
     accountData: TypeUserAccountType
     emailConfirmation: TypeEmailConfirmation
-    oldRefreshTokensBL: Array<string>
 }
 export type TypeUserAccountType = {
     login: string
@@ -50,13 +49,12 @@ export type TypeCommentDB = {
     createdAt: string
     postId: string
 }
-export type TypeDeviceDB = {
+export type TypeSessionDB = {
     _id: ObjectId
     userId: string
-    issueDate: Date
-    expiresDate: Date
+    exp: number
     ip: string
     title: string
-    lastActiveDate: string
+    iat: number
     deviceId: string
 }
