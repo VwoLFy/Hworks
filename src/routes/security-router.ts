@@ -23,6 +23,10 @@ securityRouter.delete('/security/devices', async (req: Request, res: Response) =
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })
 securityRouter.delete('/security/devices/:id', async (req: RequestWithParam, res: Response) => {
+    if (!req.params.id) {
+        res.sendStatus(HTTP_Status.NOT_FOUND_404)
+        return
+    }
     const sessionData = await jwtService.getSessionDataByRefreshToken(req.cookies.refreshToken)
     if (!sessionData) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
     const result = await securityService.deleteSessionByDeviceId(sessionData.userId, req.params.id)
