@@ -28,10 +28,8 @@ authRouter.post('/login', loginAuthValidation, async (req: RequestWithBody<TypeL
     if (!userId) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
 
     const {accessToken, refreshToken} = await jwtService.createJWT(userId, null)
-    const sessionData = await jwtService.getSessionDataByRefreshToken(refreshToken)
-    if (!title || !sessionData) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
-
-    await securityService.saveSession({...sessionData, ip, title})
+    const refreshTokenData = await jwtService.getRefreshTokenData(refreshToken)
+    await securityService.saveSession({...refreshTokenData, ip, title})
 
     res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
     return res.status(HTTP_Status.OK_200).json({accessToken})
@@ -40,7 +38,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response<TypeLoginSu
     const ip = req.ip
     const title = req.headers["user-agent"] || 'unknown'
 
-    const tokens = await jwtService.refreshTokens(req.cookies.refreshToken, ip, title)
+    const tokens = await jwtService.updateTokens(req.cookies.refreshToken, ip, title)
     if (!tokens) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
     const {accessToken, refreshToken} = tokens
 
@@ -51,7 +49,8 @@ authRouter.post('/logout', async (req: Request, res: Response) => {
     const ip = req.ip
     const title = req.headers["user-agent"] || 'unknown'
 
-    const result = await jwtService.checkRefreshTokens(req.cookies.refreshToken, ip, title)
+    //const result = await jwtService.checkRefreshTokens(req.cookies.refreshToken, ip, title)
+    const result = await jwtService.deleteRefreshToken(req.cookies.refreshToken, ip, title)
     if (!result) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
     res.clearCookie('refreshToken')
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)

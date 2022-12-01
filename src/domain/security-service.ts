@@ -17,7 +17,7 @@ export const securityService = {
         const foundUserId = await securityRepository.findUserIdByDeviceId(deviceId)
         if (!foundUserId) return 404
         if (foundUserId.userId !== userId) return 403
-        return await securityRepository.deleteSessionByDeviceId(deviceId)
+        return await securityRepository.deleteSessionByDeviceId(userId, deviceId)
     },
     async saveSession(sessionData: TypeSessionData): Promise<void> {
         await securityRepository.saveSession(sessionData)
@@ -27,5 +27,11 @@ export const securityService = {
     },
     async isValidSession(sessionData: TypeSessionData): Promise<boolean> {
         return await securityRepository.isValidSession(sessionData)
+    },
+    async deleteAll() {
+        await securityRepository.deleteAll()
+    },
+    async newDeviceId(): Promise<string> {
+        return String((await securityRepository.sessionCount()) + 1);
     }
 }

@@ -11,12 +11,12 @@ export const securityRouter = Router({})
 securityRouter.get('/security/devices', async (req: Request, res: Response<TypeDeviceViewModel[]>) => {
     const userId = await jwtService.getUserIdByRefreshToken(req.cookies.refreshToken)
     if (!userId) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
-    const foundDevices = await securityQueryRepo.findUserDevices(userId)
-    if (!foundDevices) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
-    return res.status(HTTP_Status.OK_200).json(foundDevices)
+    const foundActiveDevices = await securityQueryRepo.findUserSessions(userId)
+    if (!foundActiveDevices) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
+    return res.status(HTTP_Status.OK_200).json(foundActiveDevices)
 })
 securityRouter.delete('/security/devices', async (req: Request, res: Response) => {
-    const sessionData = await jwtService.getSessionDataByRefreshToken(req.cookies.refreshToken)
+    const sessionData = await jwtService.checkAndGetRefreshTokenData(req.cookies.refreshToken)
     if (!sessionData) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
     const isDeletedSessions = await securityService.deleteSessions(sessionData.userId, sessionData.deviceId)
     if (!isDeletedSessions) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
@@ -27,9 +27,11 @@ securityRouter.delete('/security/devices/:id', async (req: RequestWithParam, res
         res.sendStatus(HTTP_Status.NOT_FOUND_404)
         return
     }
-    const sessionData = await jwtService.getSessionDataByRefreshToken(req.cookies.refreshToken)
+
+    const sessionData = await jwtService.checkAndGetRefreshTokenData(req.cookies.refreshToken)
     if (!sessionData) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
+
     const result = await securityService.deleteSessionByDeviceId(sessionData.userId, req.params.id)
-    if (!result) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
-    return res.sendStatus(result as HTTP_Status)
+    res.sendStatus(result as HTTP_Status)
+    return
 })

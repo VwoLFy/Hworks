@@ -9,7 +9,7 @@ type TypeDeviceOutputModel = {
 }
 
 export const securityQueryRepo = {
-    async findUserDevices(userId: string): Promise<TypeDeviceOutputModel[]> {
+    async findUserSessions(userId: string): Promise<TypeDeviceOutputModel[]> {
         return (await sessionCollection.find({userId}).toArray()).map(s => this.getOutputModel(s))
     },
     getOutputModel(session: TypeSessionDB): TypeDeviceOutputModel {

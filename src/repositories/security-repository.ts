@@ -8,16 +8,16 @@ export const securityRepository = {
         const result = await sessionCollection.deleteMany(deleteFilter)
         return !!result.deletedCount
     },
-    async findUserIdByDeviceId(deviceId: string): Promise<{ userId: string } | null> {
+    async findUserIdByDeviceId(deviceId: string): Promise<{userId: string} | null> {
         return await sessionCollection.findOne({deviceId}, {
             projection: {
                 userId: 1,
                 _id: 0
             }
-        }) as { userId: string } | null
+        }) as {userId: string} | null
     },
-    async deleteSessionByDeviceId(deviceId: string): Promise<number> {
-        const result = await sessionCollection.deleteOne({deviceId})
+    async deleteSessionByDeviceId(userId: string, deviceId: string): Promise<number> {
+        const result = await sessionCollection.deleteOne({userId, deviceId})
         return result.deletedCount ? 204 : 404
     },
     async saveSession(sessionData: TypeSessionData): Promise<void> {
@@ -45,5 +45,11 @@ export const securityRepository = {
             userId: sessionData.userId
         }
         return !!(await sessionCollection.findOne(filter))
+    },
+    async deleteAll() {
+        await sessionCollection.deleteMany({})
+    },
+    async sessionCount(): Promise<number> {
+        return await sessionCollection.count({})
     }
 }

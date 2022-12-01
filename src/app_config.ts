@@ -11,6 +11,7 @@ import {commentsService} from "./domain/comments-service";
 import {HTTP_Status} from "./types/enums";
 import cookieParser from "cookie-parser";
 import {securityRouter} from "./routes/security-router";
+import {securityService} from "./domain/security-service";
 
 export const app = express();
 const bodyMiddle = express.json();
@@ -30,5 +31,6 @@ app.delete('/testing/all-data', async (req: Request, res: Response) => {
     await postsService.deleteAll();
     await usersService.deleteAll();
     await commentsService.deleteAll();
+    await securityService.deleteAll();
     res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })
