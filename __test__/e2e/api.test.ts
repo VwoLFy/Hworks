@@ -1220,7 +1220,6 @@ describe('Test of the Homework', () => {
                     lastActiveDate: expect.any(String),
                     deviceId: expect.any(String),
                 }])
-            console.log(devices)
         })
         it('DELETE should return error if Id param not found', async () => {
             await request(app)
@@ -1244,6 +1243,35 @@ describe('Test of the Homework', () => {
             await request(app)
                 .delete(`/security/devices`)
                 .expect(HTTP_Status.UNAUTHORIZED_401)
+
+        })
+        it('DELETE should return error if access denied', async () => {
+            await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    login: "login2",
+                    password: "password2",
+                    email: "string222@sdf.ee"
+                })
+                .expect(HTTP_Status.CREATED_201)
+
+            const result = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login2",
+                    password: "password2"
+                })
+                .expect(HTTP_Status.OK_200)
+
+            await delay();
+
+            const refreshToken2 = result.headers['set-cookie'][0].split(';')[0].split('=')[1];
+
+            await request(app)
+                .delete(`/security/devices/${devices[1].deviceId}`)
+                .set("Cookie", `refreshToken=${refreshToken2}`)
+                .expect(HTTP_Status.FORBIDDEN_403)
 
         })
     })
