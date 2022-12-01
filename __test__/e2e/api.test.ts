@@ -8,6 +8,7 @@ import {TypeCommentViewModel} from "../../src/models/CommentViewModel";
 import {TypeErrorResult} from "../../src/middlewares/input-validation-middleware";
 import {app} from "../../src/app_config";
 import {HTTP_Status} from "../../src/types/enums";
+import {TypeDeviceViewModel} from "../../src/models/DeviceViewModel";
 
 const checkError = (apiErrorResult: TypeErrorResult, field: string) => {
     expect(apiErrorResult).toEqual({
@@ -1115,147 +1116,279 @@ describe('Test of the Homework', () => {
                 .expect(HTTP_Status.NOT_FOUND_404)
         });
     })
-/*
-    describe('registration', () => {
+    describe('/security', () => {
         beforeAll(async () => {
             await request(app)
                 .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
-        it('POST should create user and send email', async () => {
-            await request(app)
-                .post('/auth/registration')
+        let user: TypeUserViewModel
+        let validAccessToken: TypeLoginSuccessViewModel
+        let refreshTokenKey: string, validRefreshToken: string
+        let devices: TypeDeviceViewModel[]
+        it('POST should authenticate user with correct data', async () => {
+            const resultUser = await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    login: "NewUser",
+                    login: "login",
                     password: "password",
-                    email: settings.TEST_EMAIL
+                    email: "string2@sdf.ee"
                 })
-                .expect(HTTP_Status.NO_CONTENT_204)
-        })
-        it('POST shouldn`t create user with valid login or email', async () => {
-            await request(app)
-                .post('/auth/registration')
-                .send({
-                    login: "NewUser",
-                    password: "password",
-                    email: "test1@test.it"
-                })
-                .expect(HTTP_Status.BAD_REQUEST_400)
-            await request(app)
-                .post('/auth/registration')
-                .send({
-                    login: "NewUser2",
-                    password: "password",
-                    email: settings.TEST_EMAIL
-                })
-                .expect(HTTP_Status.BAD_REQUEST_400)
-            await request(app)
-                .post('/auth/registration')
-                .send({
-                    login: "NewUser2",
-                    password: "",
-                    email: "test2@test.it"
-                })
-                .expect(HTTP_Status.BAD_REQUEST_400)
-        })
-        it('POST should resend email', async () => {
-            await request(app)
-                .post('/auth/registration-email-resending')
-                .send({
-                    email: settings.TEST_EMAIL
-                })
-                .expect(HTTP_Status.NO_CONTENT_204)
-        })
-        it('POST shouldn`t resend email because time to resend isn`t come', async () => {
-            await request(app)
-                .post('/auth/registration-email-resending')
-                .send({
-                    email: settings.TEST_EMAIL
-                })
-                .expect(HTTP_Status.BAD_REQUEST_400)
-        })
-        it('POST shouldn`t resend email', async () => {
-            await request(app)
-                .post('/auth/registration-email-resending')
-                .send({
-                    email: "test1@test.it"
-                })
-                .expect(HTTP_Status.BAD_REQUEST_400)
-        })
-        it('POST shouldn`t confirm registration because code is old', async () => {
-            await request(app)
-                .post('/auth/registration-confirmation')
-                .send({
-                    code: "test"
-                })
-                .expect(HTTP_Status.BAD_REQUEST_400)
-        })
-        it('shouldn`t authenticate not confirmed user ', async function () {
-            await request(app)
+                .expect(HTTP_Status.CREATED_201)
+
+            user = resultUser.body
+
+            const result = await request(app)
                 .post('/auth/login')
                 .send({
-                    loginOrEmail: "NewUser",
-                    password: "password",
-                })
-                .expect(HTTP_Status.UNAUTHORIZED_401)
-        });
-        it('POST should confirm registration', async () => {
-            await request(app)
-                .post('/auth/registration-confirmation')
-                .send({
-                    code: "testres"
-                })
-                .expect(HTTP_Status.NO_CONTENT_204)
-        })
-        it('should authenticate confirmed user ', async function () {
-            await request(app)
-                .post('/auth/login')
-                .send({
-                    loginOrEmail: "NewUser",
-                    password: "password",
+                    loginOrEmail: "login",
+                    password: "password"
                 })
                 .expect(HTTP_Status.OK_200)
-        });
-        it('POST shouldn`t confirm registration if already confirm', async () => {
-            await request(app)
-                .post('/auth/registration-confirmation')
-                .send({
-                    code: "test"
-                })
-                .expect(HTTP_Status.BAD_REQUEST_400)
+
+            await delay()
+            validAccessToken = result.body
+            expect(validAccessToken).toEqual({accessToken: expect.any(String)})
+
+            expect(result.headers['set-cookie']).toBeTruthy()
+            if (!result.headers['set-cookie']) return
+
+            [refreshTokenKey, validRefreshToken] = result.headers['set-cookie'][0].split(';')[0].split('=');
+            expect(refreshTokenKey).toBe('refreshToken')
+            expect(result.headers['set-cookie'][0].includes('HttpOnly')).toBe(true)
+            expect(result.headers['set-cookie'][0].includes('Secure')).toBe(true)
+
         })
-        it('POST shouldn`t confirm registration if valid code', async () => {
+        it('GET should get data about user by token', async () => {
             await request(app)
-                .post('/auth/registration-confirmation')
-                .send({
-                    code: "6"
-                })
-                .expect(HTTP_Status.BAD_REQUEST_400)
+                .get('/auth/me')
+                .auth(validAccessToken.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
         })
-        it('POST shouldn`t resend email if registration already confirmed', async () => {
+        it('POST should authenticate user +2 times', async () => {
             await request(app)
-                .post('/auth/registration-email-resending')
+                .post('/auth/login')
                 .send({
-                    email: settings.TEST_EMAIL
+                    loginOrEmail: "login",
+                    password: "password"
                 })
-                .expect(HTTP_Status.BAD_REQUEST_400)
+                .expect(HTTP_Status.OK_200)
+            const result = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login",
+                    password: "password"
+                })
+                .expect(HTTP_Status.OK_200)
+
+            await delay()
+            validAccessToken = result.body
+            expect(validAccessToken).toEqual({accessToken: expect.any(String)})
+
+            expect(result.headers['set-cookie']).toBeTruthy()
+            if (!result.headers['set-cookie']) return
+
+            [refreshTokenKey, validRefreshToken] = result.headers['set-cookie'][0].split(';')[0].split('=');
+            expect(refreshTokenKey).toBe('refreshToken')
+            expect(result.headers['set-cookie'][0].includes('HttpOnly')).toBe(true)
+            expect(result.headers['set-cookie'][0].includes('Secure')).toBe(true)
+
         })
-        it('get 1 user', async () => {
-            const users = await request(app)
-                .get('/users')
-                .expect(200)
-            expect(users.body).toEqual({
-                pagesCount: 1,
-                page: 1,
-                pageSize: 10,
-                totalCount: 1,
-                items: [{
-                    id: expect.any(String),
-                    login: "NewUser",
-                    email: settings.TEST_EMAIL,
-                    createdAt: expect.any(String),
-                }]
-            })
+        it('GET should get device list', async () => {
+            const result = await request(app)
+                .get('/security/devices')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.OK_200)
+
+            devices = result.body
+            expect(devices).toEqual([
+                {
+                    ip: expect.any(String),
+                    title: expect.any(String),
+                    lastActiveDate: expect.any(String),
+                    deviceId: expect.any(String),
+                },
+                {
+                    ip: expect.any(String),
+                    title: expect.any(String),
+                    lastActiveDate: expect.any(String),
+                    deviceId: expect.any(String),
+                },
+                {
+                    ip: expect.any(String),
+                    title: expect.any(String),
+                    lastActiveDate: expect.any(String),
+                    deviceId: expect.any(String),
+                }])
+
+        })
+        it('DELETE should return error if Id param not found', async () => {
+            await request(app)
+                .delete('/security/devices/someId')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.NOT_FOUND_404)
+        })
+        it('DELETE should return error if auth credentials is incorrect', async () => {
+            await request(app)
+                .delete(`/security/devices/${devices[0].deviceId}`)
+                .set("Cookie", `refreshToken=${validRefreshToken}+1`)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+            await request(app)
+                .delete(`/security/devices/${devices[0].deviceId}`)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+
+            await request(app)
+                .delete(`/security/devices`)
+                .set("Cookie", `refreshToken=${validRefreshToken}+1`)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+            await request(app)
+                .delete(`/security/devices`)
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+
         })
     })
-*/
+
+    /*
+        describe('registration', () => {
+            beforeAll(async () => {
+                await request(app)
+                    .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
+            })
+            it('POST should create user and send email', async () => {
+                await request(app)
+                    .post('/auth/registration')
+                    .send({
+                        login: "NewUser",
+                        password: "password",
+                        email: settings.TEST_EMAIL
+                    })
+                    .expect(HTTP_Status.NO_CONTENT_204)
+            })
+            it('POST shouldn`t create user with valid login or email', async () => {
+                await request(app)
+                    .post('/auth/registration')
+                    .send({
+                        login: "NewUser",
+                        password: "password",
+                        email: "test1@test.it"
+                    })
+                    .expect(HTTP_Status.BAD_REQUEST_400)
+                await request(app)
+                    .post('/auth/registration')
+                    .send({
+                        login: "NewUser2",
+                        password: "password",
+                        email: settings.TEST_EMAIL
+                    })
+                    .expect(HTTP_Status.BAD_REQUEST_400)
+                await request(app)
+                    .post('/auth/registration')
+                    .send({
+                        login: "NewUser2",
+                        password: "",
+                        email: "test2@test.it"
+                    })
+                    .expect(HTTP_Status.BAD_REQUEST_400)
+            })
+            it('POST should resend email', async () => {
+                await request(app)
+                    .post('/auth/registration-email-resending')
+                    .send({
+                        email: settings.TEST_EMAIL
+                    })
+                    .expect(HTTP_Status.NO_CONTENT_204)
+            })
+            it('POST shouldn`t resend email because time to resend isn`t come', async () => {
+                await request(app)
+                    .post('/auth/registration-email-resending')
+                    .send({
+                        email: settings.TEST_EMAIL
+                    })
+                    .expect(HTTP_Status.BAD_REQUEST_400)
+            })
+            it('POST shouldn`t resend email', async () => {
+                await request(app)
+                    .post('/auth/registration-email-resending')
+                    .send({
+                        email: "test1@test.it"
+                    })
+                    .expect(HTTP_Status.BAD_REQUEST_400)
+            })
+            it('POST shouldn`t confirm registration because code is old', async () => {
+                await request(app)
+                    .post('/auth/registration-confirmation')
+                    .send({
+                        code: "test"
+                    })
+                    .expect(HTTP_Status.BAD_REQUEST_400)
+            })
+            it('shouldn`t authenticate not confirmed user ', async function () {
+                await request(app)
+                    .post('/auth/login')
+                    .send({
+                        loginOrEmail: "NewUser",
+                        password: "password",
+                    })
+                    .expect(HTTP_Status.UNAUTHORIZED_401)
+            });
+            it('POST should confirm registration', async () => {
+                await request(app)
+                    .post('/auth/registration-confirmation')
+                    .send({
+                        code: "testres"
+                    })
+                    .expect(HTTP_Status.NO_CONTENT_204)
+            })
+            it('should authenticate confirmed user ', async function () {
+                await request(app)
+                    .post('/auth/login')
+                    .send({
+                        loginOrEmail: "NewUser",
+                        password: "password",
+                    })
+                    .expect(HTTP_Status.OK_200)
+            });
+            it('POST shouldn`t confirm registration if already confirm', async () => {
+                await request(app)
+                    .post('/auth/registration-confirmation')
+                    .send({
+                        code: "test"
+                    })
+                    .expect(HTTP_Status.BAD_REQUEST_400)
+            })
+            it('POST shouldn`t confirm registration if valid code', async () => {
+                await request(app)
+                    .post('/auth/registration-confirmation')
+                    .send({
+                        code: "6"
+                    })
+                    .expect(HTTP_Status.BAD_REQUEST_400)
+            })
+            it('POST shouldn`t resend email if registration already confirmed', async () => {
+                await request(app)
+                    .post('/auth/registration-email-resending')
+                    .send({
+                        email: settings.TEST_EMAIL
+                    })
+                    .expect(HTTP_Status.BAD_REQUEST_400)
+            })
+            it('get 1 user', async () => {
+                const users = await request(app)
+                    .get('/users')
+                    .expect(200)
+                expect(users.body).toEqual({
+                    pagesCount: 1,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 1,
+                    items: [{
+                        id: expect.any(String),
+                        login: "NewUser",
+                        email: settings.TEST_EMAIL,
+                        createdAt: expect.any(String),
+                    }]
+                })
+            })
+        })
+    */
 })
