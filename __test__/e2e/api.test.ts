@@ -1220,7 +1220,7 @@ describe('Test of the Homework', () => {
                     lastActiveDate: expect.any(String),
                     deviceId: expect.any(String),
                 }])
-
+            console.log(devices)
         })
         it('DELETE should return error if Id param not found', async () => {
             await request(app)

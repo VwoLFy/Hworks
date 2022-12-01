@@ -16,7 +16,7 @@ export const securityQueryRepo = {
         return {
             ip: session.ip,
             title: session.title,
-            lastActiveDate: String(session.iat),
+            lastActiveDate: new Date(session.iat*1000).toISOString(),
             deviceId: session.deviceId
         }
     }
