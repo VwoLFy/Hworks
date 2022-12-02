@@ -23,7 +23,6 @@ export type TypeEmailConfirmation = {
     isConfirmed: boolean
     confirmationCode: string
     expirationDate: Date | null
-    timeEmailResending: Date | null
 }
 export type TypeBlogDB = {
     _id: ObjectId

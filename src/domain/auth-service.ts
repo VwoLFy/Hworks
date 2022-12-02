@@ -32,8 +32,7 @@ export const authService = {
             emailConfirmation: {
                 isConfirmed: false,
                 expirationDate: add(new Date(), {hours: 1}),
-                confirmationCode: uuidv4(),
-                timeEmailResending: null,
+                confirmationCode: uuidv4()
             }
         }
         const newUserId = await usersRepository.createUser(newUser)
@@ -56,11 +55,10 @@ export const authService = {
     async registrationResendEmail(email: string): Promise<boolean> {
         const foundUser: TypeUser | null = await usersRepository.findUserByLoginOrEmail(email)
         if (!foundUser) return false
-        if (!foundUser.emailConfirmation || foundUser.emailConfirmation.timeEmailResending! > new Date()) return false
+        if (!foundUser.emailConfirmation) return false
 
         foundUser.emailConfirmation.expirationDate = add(new Date(), {hours: 1})
         foundUser.emailConfirmation.confirmationCode = uuidv4()
-        foundUser.emailConfirmation.timeEmailResending = add(new Date(), {minutes: 1})
         await usersRepository.updateEmailConfirmation(foundUser)
 
         try {

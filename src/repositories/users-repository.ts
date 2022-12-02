@@ -17,8 +17,7 @@ export const usersRepository = {
             emailConfirmation: {
                 isConfirmed: true,
                 expirationDate: null,
-                confirmationCode: '',
-                timeEmailResending: null,
+                confirmationCode: ''
             }
         }
         const result = await userCollection.insertOne(user)
@@ -81,7 +80,6 @@ export const usersRepository = {
             {_id: new ObjectId(user.id)},
             {$set: {
                     'emailConfirmation.confirmationCode': user.emailConfirmation.confirmationCode,
-                    'emailConfirmation.timeEmailResending': user.emailConfirmation.timeEmailResending,
                     'emailConfirmation.expirationDate': user.emailConfirmation.expirationDate
                 }
             }
