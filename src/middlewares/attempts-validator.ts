@@ -3,21 +3,14 @@ import {HTTP_Status} from "../types/enums";
 import {attemptsRepository} from "../repositories/attempts-repository";
 
 export const attemptsValidator = async (req: Request, res: Response, next: NextFunction) => {
-    const attemptsList: Array<number> = await attemptsRepository.findAttemptsListByIp(req.ip) //accessAllowed
-    if (attemptsList.length === 5) {
-        const currentTime = Number(new Date())
-        const newAttemptsList = attemptsList.filter(att => currentTime - att <= 10000)
-        if (newAttemptsList.length === 5) {
-            res.sendStatus(HTTP_Status.TOO_MANY_REQUESTS_429)
-            return
-        }
-        await attemptsRepository.updateAttemptsList(req.ip, newAttemptsList)
-    }
-    if (attemptsList.length === 0) {
-        await attemptsRepository.createAttemptsList(req.ip)
-    } else {
-        await attemptsRepository.addAttemptToList(req.ip)
+    //set attempt to DB - ip, url, data
+    // read attempts from BD by ip, url, data(< datenow - 10s)
+    // if attempts > limit throw error
+    await attemptsRepository.addAttemptToList(req.ip, req.url)
+    const countAttempts = await attemptsRepository.findAttempts(req.ip, req.url)
+    if (countAttempts > 5) {
+        res.sendStatus(HTTP_Status.TOO_MANY_REQUESTS_429)
+        return
     }
     next()
-    return
 }

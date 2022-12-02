@@ -61,5 +61,6 @@ export type TypeSessionDB = {
 export type TypeAttemptsDataDB = {
     _id: ObjectId
     ip: string
-    timesAttempt: Array<number>
+    url: string
+    date: Date
 }
