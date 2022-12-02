@@ -1,6 +1,6 @@
 import {MongoClient} from "mongodb"
 import {settings} from "../settings";
-import {TypeBlogDB, TypeCommentDB, TypeSessionDB, TypePostDB, TypeUserDB} from "../types/types";
+import {TypeBlogDB, TypeCommentDB, TypeSessionDB, TypePostDB, TypeUserDB, TypeAttemptsDataDB} from "../types/types";
 
 const mongoUri = process.env.NODE_ENV === "test" ? settings.MONGO_URI_LOC : settings.MONGO_URI;
 export const client = new MongoClient(mongoUri)
@@ -11,6 +11,7 @@ export const postCollection = db.collection<TypePostDB>("posts");
 export const userCollection = db.collection<TypeUserDB>("users");
 export const commentCollection = db.collection<TypeCommentDB>("comments");
 export const sessionCollection = db.collection<TypeSessionDB>("sessions");
+export const attemptsDataCollection = db.collection<TypeAttemptsDataDB>("attemptsData");
 
 export async function runDb() {
     try {

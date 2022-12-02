@@ -58,3 +58,8 @@ export type TypeSessionDB = {
     iat: number
     deviceId: string
 }
+export type TypeAttemptsDataDB = {
+    _id: ObjectId
+    ip: string
+    timesAttempt: Array<number>
+}
