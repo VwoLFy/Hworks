@@ -20,5 +20,8 @@ export const attemptsRepository = {
                 ip,
                 timesAttempt: [Number(new Date())]
             })
-    }
+    },
+    async deleteAll() {
+        await attemptsDataCollection.deleteMany({})
+}
 }
