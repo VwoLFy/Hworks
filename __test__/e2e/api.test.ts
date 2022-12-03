@@ -691,14 +691,6 @@ describe('Test of the Homework', () => {
                 .post('/auth/login')
                 .auth('admin', 'qwerty', {type: 'basic'})
                 .send({
-                    loginOrEmail: "login1",
-                    password: "password",
-                })
-                .expect(HTTP_Status.UNAUTHORIZED_401)
-            await request(app)
-                .post('/auth/login')
-                .auth('admin', 'qwerty', {type: 'basic'})
-                .send({
                     loginOrEmail: "string2@sdf.eee",
                     password: "password",
                 })

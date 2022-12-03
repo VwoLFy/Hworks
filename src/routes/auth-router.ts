@@ -35,16 +35,13 @@ authRouter.post('/refresh-token', refreshTokenValidationMiddleware, async (req: 
     const ip = req.ip
     const title = req.headers["user-agent"] || 'unknown'
 
-    const tokens = await jwtService.updateTokens(req.refreshTokenData, ip, title)
-    if (!tokens) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
-    const {accessToken, refreshToken} = tokens
+    const {accessToken, refreshToken} = await jwtService.updateTokens(req.refreshTokenData, ip, title)
 
     res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
     return res.status(HTTP_Status.OK_200).json({accessToken})
 })
 authRouter.post('/logout', refreshTokenValidationMiddleware, async (req: Request, res: Response) => {
-    const result = await jwtService.deleteRefreshToken(req.refreshTokenData)
-    if (!result) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
+    await jwtService.deleteRefreshToken(req.refreshTokenData)
     res.clearCookie('refreshToken')
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })

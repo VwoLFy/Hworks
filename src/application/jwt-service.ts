@@ -21,16 +21,15 @@ export const jwtService = {
         const refreshToken = jwt.sign({userId, deviceId}, settings.JWT_SECRET_FOR_REFRESHTOKEN, {expiresIn: '20s'})
         return {accessToken, refreshToken}
     },
-    async updateTokens(usedRefreshTokenData: TypeRefreshTokenData, ip: string, title: string): Promise<TypeTokens | null> {
+    async updateTokens(usedRefreshTokenData: TypeRefreshTokenData, ip: string, title: string): Promise<TypeTokens> {
         const tokens = await this.createJWT(usedRefreshTokenData.userId, usedRefreshTokenData.deviceId)
         const newRefreshTokenData = await this.getRefreshTokenData(tokens.refreshToken)
 
         await securityService.updateSessionData({...newRefreshTokenData, ip, title})
         return tokens
     },
-    async deleteRefreshToken(refreshTokenData: TypeRefreshTokenData): Promise<boolean> {
+    async deleteRefreshToken(refreshTokenData: TypeRefreshTokenData) {
         await securityService.deleteSessionByDeviceId(refreshTokenData.userId, refreshTokenData.deviceId)
-        return true
     },
     async checkAndGetRefreshTokenData(refreshToken: string): Promise<TypeRefreshTokenData | null> {
         try {
