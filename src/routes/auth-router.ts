@@ -16,7 +16,6 @@ import {TypeUserInputModel} from "../models/UserInputModel";
 import {authService} from "../domain/auth-service";
 import {TypeRegistrationConfirmationCodeModel} from "../models/RegistrationConfirmationCodeModel";
 import {TypeRegistrationEmailResending} from "../models/RegistrationEmailResending";
-import {securityService} from "../domain/security-service";
 
 export const authRouter = Router({})
 
@@ -27,10 +26,7 @@ authRouter.post('/login', loginAuthValidation, async (req: RequestWithBody<TypeL
     const userId = await authService.checkCredentials(req.body.loginOrEmail, req.body.password)
     if (!userId) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
 
-    const {accessToken, refreshToken} = await jwtService.createJWT(userId, null)
-    const refreshTokenData = await jwtService.getRefreshTokenData(refreshToken)
-    await securityService.saveSession({...refreshTokenData, ip, title})
-
+    const {accessToken, refreshToken} = await authService.loginUser(userId, ip, title)
     res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
     return res.status(HTTP_Status.OK_200).json({accessToken})
 })
@@ -46,11 +42,7 @@ authRouter.post('/refresh-token', async (req: Request, res: Response<TypeLoginSu
     return res.status(HTTP_Status.OK_200).json({accessToken})
 })
 authRouter.post('/logout', async (req: Request, res: Response) => {
-    const ip = req.ip
-    const title = req.headers["user-agent"] || 'unknown'
-
-    //const result = await jwtService.checkRefreshTokens(req.cookies.refreshToken, ip, title)
-    const result = await jwtService.deleteRefreshToken(req.cookies.refreshToken, ip, title)
+    const result = await jwtService.deleteRefreshToken(req.cookies.refreshToken)
     if (!result) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
     res.clearCookie('refreshToken')
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)

@@ -9,15 +9,17 @@ import {RequestWithParam} from "../types/types";
 export const securityRouter = Router({})
 
 securityRouter.get('/devices', async (req: Request, res: Response<TypeDeviceViewModel[]>) => {
-    const userId = await jwtService.getUserIdByRefreshToken(req.cookies.refreshToken)
-    if (!userId) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
-    const foundActiveDevices = await securityQueryRepo.findUserSessions(userId)
+    const sessionData = await jwtService.checkAndGetRefreshTokenData(req.cookies.refreshToken)
+    if (!sessionData) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
+
+    const foundActiveDevices = await securityQueryRepo.findUserSessions(sessionData.userId)
     if (!foundActiveDevices) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
     return res.status(HTTP_Status.OK_200).json(foundActiveDevices)
 })
 securityRouter.delete('/devices', async (req: Request, res: Response) => {
     const sessionData = await jwtService.checkAndGetRefreshTokenData(req.cookies.refreshToken)
     if (!sessionData) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
+
     const isDeletedSessions = await securityService.deleteSessions(sessionData.userId, sessionData.deviceId)
     if (!isDeletedSessions) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)

@@ -1,6 +1,7 @@
 import {sessionCollection} from "./db";
 import {TypeSessionData} from "../domain/security-service";
 import {ObjectId} from "mongodb";
+import {TypeShortSessionData} from "../types/types";
 
 export const securityRepository = {
     async deleteSessions(userId: string, deviceId: string): Promise<boolean> {
@@ -38,11 +39,11 @@ export const securityRepository = {
         }
         await sessionCollection.updateOne(filter, update)
     },
-    async isValidSession(sessionData: TypeSessionData): Promise<boolean> {
+    async isValidSession(shortSessionData: TypeShortSessionData): Promise<boolean> {
         const filter = {
-            iat: sessionData.iat,
-            deviceId: sessionData.deviceId,
-            userId: sessionData.userId
+            iat: shortSessionData.iat,
+            deviceId: shortSessionData.deviceId,
+            userId: shortSessionData.userId
         }
         return !!(await sessionCollection.findOne(filter))
     },

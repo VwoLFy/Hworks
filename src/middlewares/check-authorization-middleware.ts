@@ -19,8 +19,8 @@ export const checkAuthorizationMiddleware = async (req: Request, res: Response, 
             return res.sendStatus(HTTP_Status.UNAUTHORIZED_401);
         }
     } else if (authorization.startsWith("Bearer")) {
-        const token = authorization.split(" ")[1]
-        const userId = await jwtService.getUserIdByToken(token)
+        const accessToken = authorization.split(" ")[1]
+        const userId = await jwtService.getUserIdByAccessToken(accessToken)
         if (!userId) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
         req.userId = userId
         next()

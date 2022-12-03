@@ -3,7 +3,7 @@ import {settings} from "../settings";
 import {securityService} from "../domain/security-service";
 
 type TypeAccessTokenData = { userId: string }
-type TypeRefreshTokenData = {
+export type TypeRefreshTokenData = {
     userId: string
     deviceId: string
     iat: number
@@ -24,8 +24,6 @@ export const jwtService = {
     async updateTokens(refreshToken: string, ip: string, title: string): Promise<TypeTokens | null> {
         const usedRefreshTokenData = await this.checkAndGetRefreshTokenData(refreshToken)
         if (!usedRefreshTokenData) return null
-        const isActiveRefreshToken = await securityService.isValidSession({...usedRefreshTokenData, ip, title})
-        if (!isActiveRefreshToken) return null
 
         const tokens = await this.createJWT(usedRefreshTokenData.userId, usedRefreshTokenData.deviceId)
         const newRefreshTokenData = await this.getRefreshTokenData(tokens.refreshToken)
@@ -33,18 +31,18 @@ export const jwtService = {
         await securityService.updateSessionData({...newRefreshTokenData, ip, title})
         return tokens
     },
-    async deleteRefreshToken(refreshToken: string, ip: string, title: string): Promise<boolean> {
+    async deleteRefreshToken(refreshToken: string): Promise<boolean> {
         const refreshTokenData = await this.checkAndGetRefreshTokenData(refreshToken)
         if (!refreshTokenData) return false
-        const isActiveRefreshToken = await securityService.isValidSession({...refreshTokenData, ip, title})
-        if (!isActiveRefreshToken) return false
 
         await securityService.deleteSessionByDeviceId(refreshTokenData.userId, refreshTokenData.deviceId)
         return true
     },
     async checkAndGetRefreshTokenData(refreshToken: string): Promise<TypeRefreshTokenData | null> {
         try {
-            return jwt.verify(refreshToken, settings.JWT_SECRET_FOR_REFRESHTOKEN) as TypeRefreshTokenData
+            const refreshTokenData =  jwt.verify(refreshToken, settings.JWT_SECRET_FOR_REFRESHTOKEN) as TypeRefreshTokenData
+            const isActiveRefreshToken = await securityService.isValidSession({...refreshTokenData})
+            return isActiveRefreshToken ? refreshTokenData : null
         } catch (e) {
             return null
         }
@@ -52,17 +50,9 @@ export const jwtService = {
     async getRefreshTokenData(refreshToken: string): Promise<TypeRefreshTokenData> {
         return jwt.decode(refreshToken) as TypeRefreshTokenData
     },
-    async getUserIdByToken(token: string): Promise<string | null> {
+    async getUserIdByAccessToken(accessToken: string): Promise<string | null> {
         try {
-            const result = jwt.verify(token, settings.JWT_SECRET) as TypeAccessTokenData
-            return result.userId
-        } catch (e) {
-            return null
-        }
-    },
-    async getUserIdByRefreshToken(refreshToken: string): Promise<string | null> {
-        try {
-            const result = jwt.verify(refreshToken, settings.JWT_SECRET_FOR_REFRESHTOKEN) as TypeRefreshTokenData
+            const result = jwt.verify(accessToken, settings.JWT_SECRET) as TypeAccessTokenData
             return result.userId
         } catch (e) {
             return null

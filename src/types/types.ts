@@ -1,6 +1,7 @@
 import {Request} from "express";
 import {TypeURIParamsModel} from "../models/URIParamsModel";
 import {ObjectId} from "mongodb";
+import {TypeRefreshTokenData} from "../application/jwt-service";
 
 export type RequestWithParam= Request<TypeURIParamsModel>
 export type RequestWithBody<B> = Request<{}, {}, B>
@@ -57,6 +58,7 @@ export type TypeSessionDB = {
     iat: number
     deviceId: string
 }
+export type TypeShortSessionData = TypeRefreshTokenData
 export type TypeAttemptsDataDB = {
     _id: ObjectId
     ip: string

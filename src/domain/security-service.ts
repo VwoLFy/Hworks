@@ -1,4 +1,5 @@
 import {securityRepository} from "../repositories/security-repository";
+import {TypeShortSessionData} from "../types/types";
 
 export type TypeSessionData = {
     userId: string
@@ -25,8 +26,8 @@ export const securityService = {
     async updateSessionData(sessionData: TypeSessionData) {
         await securityRepository.updateSessionData(sessionData)
     },
-    async isValidSession(sessionData: TypeSessionData): Promise<boolean> {
-        return await securityRepository.isValidSession(sessionData)
+    async isValidSession(shortSessionData: TypeShortSessionData): Promise<boolean> {
+        return await securityRepository.isValidSession(shortSessionData)
     },
     async deleteAll() {
         await securityRepository.deleteAll()

@@ -4,6 +4,8 @@ import {v4 as uuidv4} from 'uuid'
 import add from "date-fns/add";
 import {emailManager} from "../managers/email-manager";
 import {TypeEmailConfirmation, TypeUserAccountType} from "../types/types";
+import {jwtService} from "../application/jwt-service";
+import {securityService} from "./security-service";
 
 export type TypeNewUser = {
     accountData: TypeUserAccountType
@@ -74,4 +76,10 @@ export const authService = {
         const passwordSalt = await bcrypt.genSalt(10)
         return await bcrypt.hash(password, passwordSalt)
     },
+    async loginUser(userId: string, ip: string, title: string) {
+        const tokens = await jwtService.createJWT(userId, null)
+        const refreshTokenData = await jwtService.getRefreshTokenData(tokens.refreshToken)
+        await securityService.saveSession({...refreshTokenData, ip, title})
+        return tokens
+    }
 }

@@ -4,7 +4,7 @@ import {checkAuthorizationMiddleware} from "./check-authorization-middleware";
 import {inputValidationMiddleware} from "./input-validation-middleware";
 import {SortDirection} from "../types/enums";
 import {usersRepository} from "../repositories/users-repository";
-import {attemptsValidator} from "./attempts-validator";
+import {attemptsValidationMiddleware} from "./attempts-validation-middleware";
 
 //user
 const userQueryValidation = [
@@ -80,25 +80,25 @@ export const deleteUserValidation = [
 
 // list for auth
 export const loginAuthValidation = [
-    attemptsValidator,
+    attemptsValidationMiddleware,
     authLoginOrEmailValidation,
     authPasswordValidation,
     inputValidationMiddleware
 ]
 export const registrationAuthValidation = [
-    attemptsValidator,
+    attemptsValidationMiddleware,
     authLoginRegValidation,
     authPasswordValidation,
     authEmailRegValidation,
     inputValidationMiddleware
 ]
 export const emailConfirmationAuthValidation = [
-    attemptsValidator,
+    attemptsValidationMiddleware,
     authCodeValidation,
     inputValidationMiddleware
 ]
 export const emailResendingAuthValidation = [
-    attemptsValidator,
+    attemptsValidationMiddleware,
     authEmailResendValidation,
     inputValidationMiddleware
 ]
