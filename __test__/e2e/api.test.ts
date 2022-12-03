@@ -1115,7 +1115,7 @@ describe('Test of the Homework', () => {
         })
         let user: TypeUserViewModel
         let validAccessToken: TypeLoginSuccessViewModel
-        let refreshTokenKey: string, validRefreshToken: string
+        let refreshTokenKey: string, validRefreshToken: string, oldRefreshToken: string, validRefreshToken0: string
         let devices: TypeDeviceViewModel[]
         it('POST should authenticate user with correct data', async () => {
             const resultUser = await request(app)
@@ -1145,7 +1145,7 @@ describe('Test of the Homework', () => {
             expect(result.headers['set-cookie']).toBeTruthy()
             if (!result.headers['set-cookie']) return
 
-            [refreshTokenKey, validRefreshToken] = result.headers['set-cookie'][0].split(';')[0].split('=');
+            [refreshTokenKey, validRefreshToken0] = result.headers['set-cookie'][0].split(';')[0].split('=');
             expect(refreshTokenKey).toBe('refreshToken')
             expect(result.headers['set-cookie'][0].includes('HttpOnly')).toBe(true)
             expect(result.headers['set-cookie'][0].includes('Secure')).toBe(true)
@@ -1266,6 +1266,351 @@ describe('Test of the Homework', () => {
                 .expect(HTTP_Status.FORBIDDEN_403)
 
         })
+        it('POST should not change deviceId after refresh-token, LastActiveDate should be changed', async function () {
+            const result = await request(app)
+                .post('/auth/refresh-token')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.OK_200)
+
+            await delay()
+            expect(result.body).toEqual({accessToken: expect.any(String)})
+            expect(result.body).not.toEqual(validAccessToken)
+
+            expect(result.headers['set-cookie']).toBeTruthy()
+            if (!result.headers['set-cookie']) return
+
+            oldRefreshToken = validRefreshToken;
+            [refreshTokenKey, validRefreshToken] = result.headers['set-cookie'][0].split(';')[0].split('=');
+            expect(refreshTokenKey).toBe('refreshToken')
+            expect(oldRefreshToken).not.toEqual(validRefreshToken)
+            expect(result.headers['set-cookie'][0].includes('HttpOnly')).toBe(true)
+            expect(result.headers['set-cookie'][0].includes('Secure')).toBe(true)
+
+            const resultDeviceList = await request(app)
+                .get('/security/devices')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.OK_200)
+
+            const newDeviceList: TypeDeviceViewModel[] = resultDeviceList.body
+            expect(newDeviceList).toEqual([
+                {
+                    ip: expect.any(String),
+                    title: expect.any(String),
+                    lastActiveDate: expect.any(String),
+                    deviceId: expect.any(String),
+                },
+                {
+                    ip: expect.any(String),
+                    title: expect.any(String),
+                    lastActiveDate: expect.any(String),
+                    deviceId: expect.any(String),
+                },
+                {
+                    ip: expect.any(String),
+                    title: expect.any(String),
+                    lastActiveDate: expect.any(String),
+                    deviceId: expect.any(String),
+                }])
+            expect(devices.map(d => d.deviceId)).toEqual(newDeviceList.map(d => d.deviceId))
+            expect(devices.map(d => d.lastActiveDate)).not.toEqual(newDeviceList.map(d => d.lastActiveDate))
+        });
+        it('DELETE should delete device', async () => {
+            await request(app)
+                .delete(`/security/devices/${devices[1].deviceId}`)
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            const resultDeviceList = await request(app)
+                .get('/security/devices')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.OK_200)
+
+            const newDeviceList: TypeDeviceViewModel[] = resultDeviceList.body
+            expect(newDeviceList).toEqual([
+                {
+                    ip: expect.any(String),
+                    title: expect.any(String),
+                    lastActiveDate: expect.any(String),
+                    deviceId: expect.any(String),
+                },
+                {
+                    ip: expect.any(String),
+                    title: expect.any(String),
+                    lastActiveDate: expect.any(String),
+                    deviceId: expect.any(String),
+                }])
+            expect(devices).not.toEqual(newDeviceList)
+            devices = newDeviceList
+        })
+        it('DELETE should delete devices', async () => {
+            await request(app)
+                .delete(`/security/devices`)
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await delay()
+            const resultDeviceList = await request(app)
+                .get('/security/devices')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.OK_200)
+
+            const newDeviceList: TypeDeviceViewModel[] = resultDeviceList.body
+            expect(newDeviceList).toEqual([
+                {
+                    ip: expect.any(String),
+                    title: expect.any(String),
+                    lastActiveDate: expect.any(String),
+                    deviceId: expect.any(String),
+                }])
+            expect(devices).not.toEqual(newDeviceList)
+            devices = newDeviceList
+        })
+        it('POST should logout device', async () => {
+            await request(app)
+                .post('/auth/logout')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            const result = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login",
+                    password: "password"
+                })
+                .expect(HTTP_Status.OK_200)
+
+            await delay()
+
+            expect(result.headers['set-cookie']).toBeTruthy()
+            if (!result.headers['set-cookie']) return
+
+            [refreshTokenKey, validRefreshToken] = result.headers['set-cookie'][0].split(';')[0].split('=');
+
+            const resultDeviceList = await request(app)
+                .get('/security/devices')
+                .set("Cookie", `refreshToken=${validRefreshToken}`)
+                .expect(HTTP_Status.OK_200)
+
+            const newDeviceList: TypeDeviceViewModel[] = resultDeviceList.body
+            expect(newDeviceList).toEqual([
+                {
+                    ip: expect.any(String),
+                    title: expect.any(String),
+                    lastActiveDate: expect.any(String),
+                    deviceId: expect.any(String),
+                }])
+            expect(devices).not.toEqual(newDeviceList)
+        })
+        it('POST/registration should return status code 429 if more than 5 requests in 10 seconds, and 204 after waiting', async () => {
+            await request(app)
+                .post('/auth/registration')
+                .send({
+                    login: "NewUser",
+                    password: "password",
+                    email: ""
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration')
+                .send({
+                    login: "NewUser",
+                    password: "password",
+                    email: ""
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration')
+                .send({
+                    login: "NewUser",
+                    password: "password",
+                    email: ""
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration')
+                .send({
+                    login: "NewUser",
+                    password: "password",
+                    email: ""
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration')
+                .send({
+                    login: "NewUser",
+                    password: "password",
+                    email: ""
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration')
+                .send({
+                    login: "NewUser",
+                    password: "password",
+                    email: ""
+                })
+                .expect(HTTP_Status.TOO_MANY_REQUESTS_429)
+
+            await delay(10001)
+
+            await request(app)
+                .post('/auth/registration')
+                .send({
+                    login: "NewUser",
+                    password: "password",
+                    email: ""
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        }, 35000)
+        it('POST/login should return status code 429 if more than 5 requests in 10 seconds, and 401 after waiting ', async function () {
+            await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login0",
+                    password: "password0"
+                })
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+            await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login0",
+                    password: "password0"
+                })
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+            await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login0",
+                    password: "password0"
+                })
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+            await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login0",
+                    password: "password0"
+                })
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+            await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login0",
+                    password: "password0"
+                })
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+            await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login0",
+                    password: "password0"
+                })
+                .expect(HTTP_Status.TOO_MANY_REQUESTS_429)
+
+            await delay(10000)
+
+            await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login0",
+                    password: "password0"
+                })
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+
+        }, 15000);
+        it('POST/resending should return status code 429 if more than 5 requests in 10 seconds, and 400 after waiting', async () => {
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({
+                    email: "stringx@sdf.eee"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({
+                    email: "stringx@sdf.eee"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({
+                    email: "stringx@sdf.eee"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({
+                    email: "stringx@sdf.eee"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({
+                    email: "stringx@sdf.eee"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({
+                    email: "stringx@sdf.eee"
+                })
+                .expect(HTTP_Status.TOO_MANY_REQUESTS_429)
+
+            await delay(10000)
+
+            await request(app)
+                .post('/auth/registration-email-resending')
+                .send({
+                    email: "stringx@sdf.eee"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        }, 15000)
+        it('POST/confirmation should return status code 429 if more than 5 requests in 10 seconds, and 400 after waiting', async () => {
+            await request(app)
+                .post('/auth/registration-confirmation')
+                .send({
+                    code: "6"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+           await request(app)
+                .post('/auth/registration-confirmation')
+                .send({
+                    code: "6"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+           await request(app)
+                .post('/auth/registration-confirmation')
+                .send({
+                    code: "6"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+           await request(app)
+                .post('/auth/registration-confirmation')
+                .send({
+                    code: "6"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+           await request(app)
+                .post('/auth/registration-confirmation')
+                .send({
+                    code: "6"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+           await request(app)
+                .post('/auth/registration-confirmation')
+                .send({
+                    code: "6"
+                })
+                .expect(HTTP_Status.TOO_MANY_REQUESTS_429)
+
+            await delay(10000)
+
+            await request(app)
+                .post('/auth/registration-confirmation')
+                .send({
+                    code: "6"
+                })
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        }, 15000)
     })
 
     /*

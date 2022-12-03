@@ -9,13 +9,13 @@ export const securityRepository = {
         const result = await sessionCollection.deleteMany(deleteFilter)
         return !!result.deletedCount
     },
-    async findUserIdByDeviceId(deviceId: string): Promise<{userId: string} | null> {
+    async findUserIdByDeviceId(deviceId: string): Promise<{ userId: string } | null> {
         return await sessionCollection.findOne({deviceId}, {
             projection: {
                 userId: 1,
                 _id: 0
             }
-        }) as {userId: string} | null
+        }) as { userId: string } | null
     },
     async deleteSessionByDeviceId(userId: string, deviceId: string): Promise<number> {
         const result = await sessionCollection.deleteOne({userId, deviceId})
@@ -50,7 +50,11 @@ export const securityRepository = {
     async deleteAll() {
         await sessionCollection.deleteMany({})
     },
-    async sessionCount(): Promise<number> {
-        return await sessionCollection.count({})
+    async maxValueActiveDeviceId(): Promise<number> {
+        return (await sessionCollection.find()
+                .sort({'deviceId': -1})
+                .limit(1)
+                .toArray()
+        ).reduce((acc, it) => acc > +it.deviceId ? acc : +it.deviceId, 0)
     }
 }

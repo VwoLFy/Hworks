@@ -33,6 +33,6 @@ export const securityService = {
         await securityRepository.deleteAll()
     },
     async newDeviceId(): Promise<string> {
-        return String((await securityRepository.sessionCount()) + 1);
+        return String((await securityRepository.maxValueActiveDeviceId()) + 1);
     }
 }

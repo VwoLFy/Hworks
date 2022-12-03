@@ -19,11 +19,6 @@ securityRouter.delete('/devices', refreshTokenValidationMiddleware, async (req: 
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })
 securityRouter.delete('/devices/:id', refreshTokenValidationMiddleware, async (req: RequestWithParam, res: Response) => {
-    if (!req.params.id) {
-        res.sendStatus(HTTP_Status.NOT_FOUND_404)
-        return
-    }
-
     const result = await securityService.deleteSessionByDeviceId(req.refreshTokenData.userId, req.params.id)
     res.sendStatus(result as HTTP_Status)
     return
