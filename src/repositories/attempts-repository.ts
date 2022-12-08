@@ -1,15 +1,15 @@
-import {attemptsDataCollection} from "./db";
 import {ObjectId} from "mongodb";
 import add from "date-fns/add";
+import {AttemptsDataModel} from "../types/mongoose-schemas-models";
 
 export const attemptsRepository = {
 
     async findAttempts(ip: string, url: string): Promise<number> {
         const fromDate = add(new Date(), {seconds: -10})
-        return await attemptsDataCollection.count({ip, url, date: {$gte: fromDate}})
+        return await AttemptsDataModel.count({ip, url, date: {$gte: fromDate}})
     },
     async addAttemptToList(ip: string, url: string) {
-        await attemptsDataCollection.insertOne(
+        await AttemptsDataModel.insertMany(
             {
                 _id: new ObjectId(),
                 ip,
@@ -19,6 +19,6 @@ export const attemptsRepository = {
         )
     },
     async deleteAll() {
-        await attemptsDataCollection.deleteMany({})
+        await AttemptsDataModel.deleteMany({})
     }
 }

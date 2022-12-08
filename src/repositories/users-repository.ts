@@ -16,7 +16,7 @@ export const usersRepository = {
             accountData: newUser,
             emailConfirmation: {
                 isConfirmed: true,
-                expirationDate: null,
+                expirationDate: new Date(newUser.createdAt),
                 confirmationCode: ''
             }
         }
