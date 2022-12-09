@@ -1,7 +1,6 @@
-import {blogCollection} from "./db";
-import {ObjectId} from "mongodb";
 import {TypeBlogDB} from "../types/types";
 import {SortDirection} from "../types/enums";
+import {BlogModel} from "../types/mongoose-schemas-models";
 
 type TypeBlogOutputModel = {
     id: string
@@ -26,15 +25,15 @@ export const blogsQueryRepo = {
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const optionsSort = {[sortBy]: sortDirection}
 
-        const totalCount = await blogCollection.count(filterFind)
+        const totalCount = await BlogModel.countDocuments(filterFind)
         const pagesCount = Math.ceil(totalCount / pageSize)
         const page = pageNumber;
 
-        const items = (await blogCollection.find(filterFind)
+        const items = (await BlogModel.find(filterFind)
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .sort(optionsSort)
-            .toArray())
+            .lean())
             .map(foundBlog => this.blogWithReplaceId(foundBlog))
         return {
             pagesCount,
@@ -45,7 +44,7 @@ export const blogsQueryRepo = {
         }
     },
     async findBlogById(id: string): Promise<TypeBlogOutputModel | null> {
-        const foundBlog: TypeBlogDB | null = await blogCollection.findOne({_id: new ObjectId(id)})
+        const foundBlog: TypeBlogDB | null = await BlogModel.findById({_id: id})
         if (!foundBlog) {
             return null
         } else {

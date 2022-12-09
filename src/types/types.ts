@@ -11,7 +11,6 @@ export type RequestWithParamAndQuery<Q> = Request<TypeURIParamsModel, {}, {}, Q>
 //export type RequestWithParamAndBodyAndQuery<P, B, Q> = Request<P, {}, B, Q>
 
 export type TypeUserDB = {
-    _id: ObjectId
     accountData: TypeUserAccountType
     emailConfirmation: TypeEmailConfirmation
 }

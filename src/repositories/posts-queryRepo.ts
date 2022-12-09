@@ -1,7 +1,6 @@
-import {ObjectId} from "mongodb";
-import {postCollection} from "./db";
 import {SortDirection} from "../types/enums";
 import {TypePostDB} from "../types/types";
+import {PostModel} from "../types/mongoose-schemas-models";
 
 type TypePostOutputModel = {
     id: string
@@ -26,15 +25,15 @@ export const postsQueryRepo = {
         sortBy = sortBy === 'id' ? '_id' : sortBy
         optionsSort[sortBy] = sortDirection
 
-        const totalCount = await postCollection.count({})
+        const totalCount = await PostModel.countDocuments({})
         const pagesCount = Math.ceil(totalCount / pageSize)
         const page = pageNumber;
 
-        const items = (await postCollection.find({})
+        const items = (await PostModel.find({})
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .sort(optionsSort)
-            .toArray())
+            .lean())
             .map(foundBlog => this.postWithReplaceId(foundBlog))
         return {
             pagesCount,
@@ -45,7 +44,7 @@ export const postsQueryRepo = {
         }
     },
     async findPostById(id: string): Promise<TypePostOutputModel | null> {
-        const foundPost: TypePostDB | null = await postCollection.findOne({_id: new ObjectId(id)})
+        const foundPost: TypePostDB | null = await PostModel.findById({_id: id})
         if (!foundPost) {
             return null
         } else {
@@ -57,17 +56,17 @@ export const postsQueryRepo = {
         sortBy = sortBy === 'id' ? '_id' : sortBy
         optionsSort[sortBy] = sortDirection
 
-        const totalCount = await postCollection.count({blogId})
+        const totalCount = await PostModel.countDocuments({blogId})
         if (totalCount == 0) return null
 
         const pagesCount = Math.ceil(totalCount / pageSize)
         const page = pageNumber;
 
-        const items = (await postCollection.find({blogId})
+        const items = (await PostModel.find({blogId})
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .sort(optionsSort)
-            .toArray())
+            .lean())
             .map(foundBlog => this.postWithReplaceId(foundBlog))
         return {
             pagesCount,

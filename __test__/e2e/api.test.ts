@@ -2,13 +2,14 @@ import request from "supertest"
 import {TypeBlogViewModel} from "../../src/models/BlogViewModel";
 import {TypePostViewModel} from "../../src/models/PostViewModel";
 import {TypeUserViewModel} from "../../src/models/UserViewModel";
-import {client} from "../../src/repositories/db";
 import {TypeLoginSuccessViewModel} from "../../src/models/LoginSuccessViewModel";
 import {TypeCommentViewModel} from "../../src/models/CommentViewModel";
 import {TypeErrorResult} from "../../src/middlewares/input-validation-middleware";
 import {app} from "../../src/app_config";
 import {HTTP_Status} from "../../src/types/enums";
 import {TypeDeviceViewModel} from "../../src/models/DeviceViewModel";
+import mongoose from "mongoose";
+import {runDb} from "../../src/repositories/db";
 
 const checkError = (apiErrorResult: TypeErrorResult, field: string) => {
     expect(apiErrorResult).toEqual({
@@ -29,8 +30,11 @@ const delay = async (delay: number = 1000) => {
 }
 
 describe('Test of the Homework', () => {
+    beforeAll(async () => {
+        await runDb()
+    })
     afterAll(async () => {
-        await client.close()
+        await mongoose.disconnect()
     })
 
     describe('/blogs', () => {

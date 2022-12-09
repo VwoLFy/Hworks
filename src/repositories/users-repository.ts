@@ -1,7 +1,6 @@
-import {userCollection} from "./db";
-import {ObjectId} from "mongodb";
 import {TypeNewUser} from "../domain/auth-service";
 import {TypeEmailConfirmation, TypeUserAccountType, TypeUserDB} from "../types/types";
+import {UserModel} from "../types/mongoose-schemas-models";
 
 type TypeUserOutput = {
     id: string
@@ -10,32 +9,8 @@ type TypeUserOutput = {
 }
 
 export const usersRepository = {
-    async createUserAdm(newUser: TypeUserAccountType): Promise<string> {
-        const user: TypeUserDB = {
-            _id: new ObjectId(),
-            accountData: newUser,
-            emailConfirmation: {
-                isConfirmed: true,
-                expirationDate: new Date(newUser.createdAt),
-                confirmationCode: ''
-            }
-        }
-        const result = await userCollection.insertOne(user)
-        return result.insertedId.toString()
-    },
-    async createUser(newUser: TypeNewUser): Promise<string> {
-        const result = await userCollection.insertOne({
-            ...newUser,
-            _id: new ObjectId()
-        })
-        return result.insertedId.toString()
-    },
-    async deleteUser(id: string): Promise<boolean> {
-        const result = await userCollection.deleteOne({_id: new ObjectId(id)})
-        return result.deletedCount !== 0;
-    },
     async findUserByLoginOrEmail(loginOrEmail: string): Promise<TypeUserOutput | null> {
-        const result = await userCollection.findOne({
+        const result= await UserModel.findOne({
             $or: [
                 {'accountData.login': loginOrEmail},
                 {'accountData.email': loginOrEmail}
@@ -50,34 +25,50 @@ export const usersRepository = {
         }
     },
     async findUserLoginById(id: string): Promise<string | null> {
-        const result = await userCollection.findOne({_id: new ObjectId(id)})
+        const result = await UserModel.findOne({_id: id})
         if (!result) return null
         return result.accountData.login
     },
+    async findEmailConfirmationByCode(confirmationCode: string): Promise<TypeEmailConfirmation | null> {
+        const result = await UserModel.findOne({'emailConfirmation.confirmationCode': confirmationCode})
+        if (!result) return null
+        return result.emailConfirmation
+    },
     async isFreeLoginAndEmail(login: string, email: string): Promise<boolean> {
         return !(
-            await userCollection.findOne({
+            await UserModel.findOne({
                 $or: [
                     {'accountData.login': {$regex: login, $options: 'i'}},
                     {'accountData.email': {$regex: email, $options: 'i'}}
                 ]
             }))
     },
+    async createUserAdm(newUser: TypeUserAccountType): Promise<string> {
+        const user: TypeUserDB = {
+            accountData: newUser,
+            emailConfirmation: {
+                isConfirmed: true,
+                expirationDate: new Date(newUser.createdAt),
+                confirmationCode: ''
+            }
+        }
+        const result = await UserModel.create(user)
+        return result.id
+    },
+    async createUser(newUser: TypeNewUser): Promise<string> {
+        const result = await UserModel.create(newUser)
+        return result.id
+    },
     async updateConfirmation(confirmationCode: string): Promise<boolean> {
-        const result = await userCollection.updateOne(
+        const result = await UserModel.updateOne(
             {'emailConfirmation.confirmationCode': confirmationCode},
             {$set: {'emailConfirmation.isConfirmed': true}}
         )
         return result.modifiedCount === 1
     },
-    async findEmailConfirmationByCode(confirmationCode: string): Promise<TypeEmailConfirmation | null> {
-        const result = await userCollection.findOne({'emailConfirmation.confirmationCode': confirmationCode})
-        if (!result) return null
-        return result.emailConfirmation
-    },
     async updateEmailConfirmation(user: TypeUserOutput) {
-        await userCollection.updateOne(
-            {_id: new ObjectId(user.id)},
+        await UserModel.updateOne(
+            {_id: user.id},
             {$set: {
                     'emailConfirmation.confirmationCode': user.emailConfirmation.confirmationCode,
                     'emailConfirmation.expirationDate': user.emailConfirmation.expirationDate
@@ -85,7 +76,11 @@ export const usersRepository = {
             }
         )
     },
+    async deleteUser(id: string): Promise<boolean> {
+        const result = await UserModel.deleteOne({_id: id})
+        return result.deletedCount !== 0;
+    },
     async deleteAll() {
-        await userCollection.deleteMany({})
+        await UserModel.deleteMany({})
     }
 }

@@ -1,4 +1,3 @@
-import {ObjectId} from "mongodb";
 import add from "date-fns/add";
 import {AttemptsDataModel} from "../types/mongoose-schemas-models";
 
@@ -6,12 +5,12 @@ export const attemptsRepository = {
 
     async findAttempts(ip: string, url: string): Promise<number> {
         const fromDate = add(new Date(), {seconds: -10})
-        return await AttemptsDataModel.count({ip, url, date: {$gte: fromDate}})
+        return AttemptsDataModel.countDocuments({ip, url, date: {$gte: fromDate}}).exec()
     },
     async addAttemptToList(ip: string, url: string) {
-        await AttemptsDataModel.insertMany(
+        await AttemptsDataModel.create(
             {
-                _id: new ObjectId(),
+                //_id: new ObjectId(),
                 ip,
                 url,
                 date: new Date()

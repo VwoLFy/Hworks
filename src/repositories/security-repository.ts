@@ -1,28 +1,14 @@
-import {sessionCollection} from "./db";
 import {TypeSessionData} from "../domain/security-service";
-import {ObjectId} from "mongodb";
 import {TypeShortSessionData} from "../types/types";
+import {SessionModel} from "../types/mongoose-schemas-models";
 
 export const securityRepository = {
-    async deleteSessions(userId: string, deviceId: string): Promise<boolean> {
-        const deleteFilter = {userId, deviceId: {$ne: deviceId}}
-        const result = await sessionCollection.deleteMany(deleteFilter)
-        return !!result.deletedCount
-    },
     async findUserIdByDeviceId(deviceId: string): Promise<{ userId: string } | null> {
-        return await sessionCollection.findOne({deviceId}, {
-            projection: {
-                userId: 1,
-                _id: 0
-            }
-        }) as { userId: string } | null
-    },
-    async deleteSessionByDeviceId(userId: string, deviceId: string): Promise<number> {
-        const result = await sessionCollection.deleteOne({userId, deviceId})
-        return result.deletedCount ? 204 : 404
+        return await SessionModel.findOne({deviceId})
+            .select({userId: 1, _id: 0}) as { userId: string } | null
     },
     async saveSession(sessionData: TypeSessionData): Promise<void> {
-        await sessionCollection.insertOne({...sessionData, _id: new ObjectId()})
+        await SessionModel.create(sessionData)
     },
     async updateSessionData(sessionData: TypeSessionData) {
         const filter = {
@@ -37,7 +23,7 @@ export const securityRepository = {
                 iat: sessionData.iat
             }
         }
-        await sessionCollection.updateOne(filter, update)
+        await SessionModel.updateOne(filter, update)
     },
     async isValidSession(shortSessionData: TypeShortSessionData): Promise<boolean> {
         const filter = {
@@ -45,16 +31,25 @@ export const securityRepository = {
             deviceId: shortSessionData.deviceId,
             userId: shortSessionData.userId
         }
-        return !!(await sessionCollection.findOne(filter))
-    },
-    async deleteAll() {
-        await sessionCollection.deleteMany({})
+        return !!(await SessionModel.findOne(filter))
     },
     async maxValueActiveDeviceId(): Promise<number> {
-        return (await sessionCollection.find()
-                .sort({'deviceId': -1})
-                .limit(1)
-                .toArray()
-        ).reduce((acc, it) => acc > +it.deviceId ? acc : +it.deviceId, 0)
+        return (await SessionModel.find()
+            .sort({'deviceId': -1})
+            .limit(1)
+            .lean())
+            .reduce((acc, it) => acc > +it.deviceId ? acc : +it.deviceId, 0)
+    },
+    async deleteSessions(userId: string, deviceId: string): Promise<boolean> {
+        const deleteFilter = {userId, deviceId: {$ne: deviceId}}
+        const result = await SessionModel.deleteMany(deleteFilter)
+        return !!result.deletedCount
+    },
+    async deleteSessionByDeviceId(userId: string, deviceId: string): Promise<number> {
+        const result = await SessionModel.deleteOne({userId, deviceId})
+        return result.deletedCount ? 204 : 404
+    },
+    async deleteAll() {
+        await SessionModel.deleteMany({})
     }
 }

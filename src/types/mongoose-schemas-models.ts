@@ -7,7 +7,6 @@ import {
     TypeUserAccountType,
     TypeUserDB
 } from "./types";
-import {ObjectId} from "mongodb";
 
 const UserAccountSchema = new mongoose.Schema<TypeUserAccountType>({
     login: String,
@@ -21,19 +20,19 @@ const EmailConfirmationSchema = new mongoose.Schema<TypeEmailConfirmation>({
     expirationDate: Date
 })
 const UserSchema = new mongoose.Schema<TypeUserDB>({
-    _id: ObjectId,
+    //_id: ObjectId,
     accountData: UserAccountSchema,
     emailConfirmation: EmailConfirmationSchema
 })
 const BlogSchema = new mongoose.Schema<TypeBlogDB>({
-    _id: ObjectId,
+    //_id: ObjectId,
     name: String,
     description: String,
     websiteUrl: String,
     createdAt: String
 })
 const PostSchema = new mongoose.Schema<TypePostDB>({
-    _id: ObjectId,
+    //_id: ObjectId,
     title: String,
     shortDescription: String,
     content: String,
@@ -42,15 +41,15 @@ const PostSchema = new mongoose.Schema<TypePostDB>({
     createdAt: String
 })
 const CommentSchema = new mongoose.Schema<TypeCommentDB>({
-    _id: ObjectId,
-    content: String,
+    //_id: ObjectId,
+    content: {type: String},
     userId: String,
     userLogin: String,
     createdAt: String,
     postId: String,
 })
 const SessionSchema = new mongoose.Schema<TypeSessionDB>({
-    _id: ObjectId,
+    //_id: ObjectId,
     userId: String,
     exp: Number,
     ip: String,
@@ -59,7 +58,7 @@ const SessionSchema = new mongoose.Schema<TypeSessionDB>({
     deviceId: String,
 })
 const AttemptsDataSchema = new mongoose.Schema<TypeAttemptsDataDB>({
-    _id: ObjectId,
+    //_id: ObjectId,
     ip: String,
     url: String,
     date: Date

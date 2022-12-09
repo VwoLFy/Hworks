@@ -1,20 +1,19 @@
-import {commentCollection} from "./db";
 import {TypeNewComment} from "../domain/comments-service";
-import {ObjectId} from "mongodb";
 import {TypeCommentDB} from "../types/types";
+import {CommentModel} from "../types/mongoose-schemas-models";
 
 export const commentsRepository = {
-    async createComment (newComment: TypeNewComment): Promise<string> {
-        const result = await commentCollection.insertOne({...newComment, _id: new ObjectId()})
-        return result.insertedId.toString()
-    },
     async findUserIdByCommentId(id: string): Promise<string | null> {
-        const foundComment: TypeCommentDB | null = await commentCollection.findOne({_id: new ObjectId(id)})
+        const foundComment: TypeCommentDB | null = await CommentModel.findById({_id: id})
         return foundComment ? foundComment.userId : null
     },
+    async createComment (newComment: TypeNewComment): Promise<string> {
+        const result = await CommentModel.create(newComment)
+        return result.id
+    },
     async updateComment(id: string, content: string): Promise<number | null> {
-        const result = await commentCollection.updateOne(
-            {_id: new ObjectId(id)},
+        const result = await CommentModel.updateOne(
+            {_id: id},
             {$set: {content: content}}
         )
         if (!result.modifiedCount) {
@@ -24,7 +23,7 @@ export const commentsRepository = {
         }
     },
     async deleteComment(id: string): Promise<number | null> {
-        const result = await commentCollection.deleteOne({_id: new ObjectId(id)})
+        const result = await CommentModel.deleteOne({_id: id})
         if (!result.deletedCount) {
             return null
         } else {
@@ -32,6 +31,6 @@ export const commentsRepository = {
         }
     },
     async deleteAll() {
-        commentCollection.deleteMany({})
+        CommentModel.deleteMany({})
     }
 }

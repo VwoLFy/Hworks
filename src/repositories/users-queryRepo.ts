@@ -1,7 +1,7 @@
-import {userCollection} from "./db";
-import {ObjectId} from "mongodb";
 import {TypeUserDB} from "../types/types";
 import {SortDirection} from "../types/enums";
+import {UserModel} from "../types/mongoose-schemas-models";
+import {WithId} from "mongodb";
 
 type TypeUserOutputModel = {
     id: string
@@ -37,15 +37,15 @@ export const usersQueryRepo = {
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const optionsSort = {[sortBy]: sortDirection}
 
-        const totalCount = await userCollection.count(filterFind)
+        const totalCount = await UserModel.countDocuments(filterFind)
         const pagesCount = Math.ceil( totalCount / pageSize)
         const page = pageNumber;
 
-        const items = (await userCollection.find(filterFind)
+        const items = (await UserModel.find(filterFind)
             .skip((pageNumber - 1) * pageSize )
             .limit(pageSize)
             .sort(optionsSort)
-            .toArray())
+            .lean())
             .map(foundBlog => this.userWithReplaceId(foundBlog))
         return {
             pagesCount,
@@ -56,14 +56,14 @@ export const usersQueryRepo = {
         }
     },
     async findUserById(id: string): Promise<TypeUserOutputModel | null> {
-        const foundUser = await userCollection.findOne({_id: new ObjectId(id)})
+        const foundUser: WithId<TypeUserDB> | null = await UserModel.findById({_id: id})
         if (!foundUser) {
             return null
         } else {
             return this.userWithReplaceId(foundUser)
         }
     },
-    userWithReplaceId(object: TypeUserDB): TypeUserOutputModel {
+    userWithReplaceId(object: WithId<TypeUserDB>): TypeUserOutputModel {
         return {
             id: object._id.toString(),
             login: object.accountData.login,
