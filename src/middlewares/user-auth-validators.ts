@@ -65,7 +65,7 @@ const authEmailResendValidation = body("email", "'email' has incorrect values")
     .isString().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$").custom(emailValid);
 const authEmailPasswordRecoveryValidation = body("email", "'email' must be a email")
     .isString().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
-const authNewPasswordValidation = body("password", "'password' must be a string")
+const authNewPasswordValidation = body("newPassword", "'newPassword' must be a string")
     .isString().trim().isLength({min: 6, max: 20})
 const authRecoveryCodeValidation = body('recoveryCode').isString().trim()
 
