@@ -61,20 +61,13 @@ const emailValid: CustomValidator = async (value) => {
     if (!foundUser || foundUser.emailConfirmation.isConfirmed) throw new Error()
     return true
 }
-const authEmailResendValidation = body("email", "'email' has incorrect values or is already confirmed")
+const authEmailResendValidation = body("email", "'email' has incorrect values")
     .isString().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$").custom(emailValid);
-const authEmailPasswordRecoveryValidation = body("email").trim().customSanitizer((value) => {
-    if (!value || typeof value !== "string" || !value.match("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) return ''
-    return value
-})
-const authNewPasswordValidation = body('newPassword').trim().customSanitizer((value) => {
-    if (!value || typeof value !== "string" || value.length < 6 || value.length > 20) return ''
-    return value
-})
-const authRecoveryCodeValidation = body('recoveryCode').trim().customSanitizer((value) => {
-    if (!value || typeof value !== "string") return ''
-    return value
-})
+const authEmailPasswordRecoveryValidation = body("email", "'email' must be a email")
+    .isString().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
+const authNewPasswordValidation = body("password", "'password' must be a string")
+    .isString().trim().isLength({min: 6, max: 20})
+const authRecoveryCodeValidation = body('recoveryCode').isString().trim()
 
 //list for user
 export const getUsersValidation = userQueryValidation
@@ -119,10 +112,12 @@ export const getUserInfoAuthValidation = [
 ]
 export const passwordRecoveryAuthValidation = [
     attemptsValidationMiddleware,
-    authEmailPasswordRecoveryValidation
+    authEmailPasswordRecoveryValidation,
+    inputValidationMiddleware
 ]
 export const newPasswordAuthValidation = [
     attemptsValidationMiddleware,
     authNewPasswordValidation,
-    authRecoveryCodeValidation
+    authRecoveryCodeValidation,
+    inputValidationMiddleware
 ]
