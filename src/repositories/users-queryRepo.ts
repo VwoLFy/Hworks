@@ -1,7 +1,6 @@
 import {TypeUserDB} from "../types/types";
 import {SortDirection} from "../types/enums";
 import {UserModel} from "../types/mongoose-schemas-models";
-import {WithId} from "mongodb";
 
 type TypeUserOutputModel = {
     id: string
@@ -56,14 +55,14 @@ export const usersQueryRepo = {
         }
     },
     async findUserById(id: string): Promise<TypeUserOutputModel | null> {
-        const foundUser: WithId<TypeUserDB> | null = await UserModel.findById({_id: id})
+        const foundUser: TypeUserDB | null = await UserModel.findById({_id: id})
         if (!foundUser) {
             return null
         } else {
             return this.userWithReplaceId(foundUser)
         }
     },
-    userWithReplaceId(object: WithId<TypeUserDB>): TypeUserOutputModel {
+    userWithReplaceId(object: TypeUserDB): TypeUserOutputModel {
         return {
             id: object._id.toString(),
             login: object.accountData.login,

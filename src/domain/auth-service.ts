@@ -3,19 +3,13 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from 'uuid'
 import add from "date-fns/add";
 import {emailManager} from "../managers/email-manager";
-import {TypeEmailConfirmation, TypeUserAccountType} from "../types/types";
+import {TypeEmailConfirmation, TypeUser, TypeUserWithId} from "../types/types";
 import {jwtService} from "../application/jwt-service";
 import {securityService} from "./security-service";
 
-export type TypeNewUser = {
-    accountData: TypeUserAccountType
-    emailConfirmation: TypeEmailConfirmation
-}
-type TypeUser = TypeNewUser & { id: string }
-
 export const authService = {
     async checkCredentials(loginOrEmail: string, password: string): Promise<string | null> {
-        const foundUser: TypeUser | null = await usersRepository.findUserByLoginOrEmail(loginOrEmail)
+        const foundUser: TypeUserWithId | null = await usersRepository.findUserByLoginOrEmail(loginOrEmail)
         if (!foundUser ||
             !foundUser.emailConfirmation.isConfirmed ||
             !await bcrypt.compare(password, foundUser.accountData.passwordHash)) return null
@@ -24,7 +18,7 @@ export const authService = {
     async createUser(login: string, password: string, email: string): Promise<boolean> {
         const passwordHash = await this.getPasswordHash(password)
 
-        const newUser: TypeNewUser = {
+        const newUser: TypeUser = {
             accountData: {
                 login,
                 passwordHash,
@@ -55,7 +49,7 @@ export const authService = {
         return await usersRepository.updateConfirmation(confirmationCode)
     },
     async registrationResendEmail(email: string): Promise<boolean> {
-        const foundUser: TypeUser | null = await usersRepository.findUserByLoginOrEmail(email)
+        const foundUser: TypeUserWithId | null = await usersRepository.findUserByLoginOrEmail(email)
         if (!foundUser) return false
         if (!foundUser.emailConfirmation) return false
 

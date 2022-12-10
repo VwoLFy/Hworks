@@ -1,16 +1,9 @@
-import {TypeNewUser} from "../domain/auth-service";
-import {TypeEmailConfirmation, TypeUserAccountType, TypeUserDB} from "../types/types";
+import {TypeEmailConfirmation, TypeUser, TypeUserAccount, TypeUserWithId} from "../types/types";
 import {UserModel} from "../types/mongoose-schemas-models";
 
-type TypeUserOutput = {
-    id: string
-    accountData: TypeUserAccountType
-    emailConfirmation: TypeEmailConfirmation
-}
-
 export const usersRepository = {
-    async findUserByLoginOrEmail(loginOrEmail: string): Promise<TypeUserOutput | null> {
-        const result= await UserModel.findOne({
+    async findUserByLoginOrEmail(loginOrEmail: string): Promise<TypeUserWithId| null> {
+        const result = await UserModel.findOne({
             $or: [
                 {'accountData.login': loginOrEmail},
                 {'accountData.email': loginOrEmail}
@@ -43,8 +36,8 @@ export const usersRepository = {
                 ]
             }))
     },
-    async createUserAdm(newUser: TypeUserAccountType): Promise<string> {
-        const user: TypeUserDB = {
+    async createUserAdm(newUser: TypeUserAccount): Promise<string> {
+        const user: TypeUser = {
             accountData: newUser,
             emailConfirmation: {
                 isConfirmed: true,
@@ -55,7 +48,7 @@ export const usersRepository = {
         const result = await UserModel.create(user)
         return result.id
     },
-    async createUser(newUser: TypeNewUser): Promise<string> {
+    async createUser(newUser: TypeUser): Promise<string> {
         const result = await UserModel.create(newUser)
         return result.id
     },
@@ -66,10 +59,11 @@ export const usersRepository = {
         )
         return result.modifiedCount === 1
     },
-    async updateEmailConfirmation(user: TypeUserOutput) {
+    async updateEmailConfirmation(user: TypeUserWithId) {
         await UserModel.updateOne(
             {_id: user.id},
-            {$set: {
+            {
+                $set: {
                     'emailConfirmation.confirmationCode': user.emailConfirmation.confirmationCode,
                     'emailConfirmation.expirationDate': user.emailConfirmation.expirationDate
                 }

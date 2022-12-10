@@ -1,8 +1,8 @@
-import {TypeNewPost} from "../domain/posts-service";
 import {PostModel} from "../types/mongoose-schemas-models";
+import {TypePost} from "../types/types";
 
 export const postsRepository = {
-    async createPost(newPost: TypeNewPost): Promise<string> {
+    async createPost(newPost: TypePost): Promise<string> {
         const result = await PostModel.create(newPost)
         return result.id
     },

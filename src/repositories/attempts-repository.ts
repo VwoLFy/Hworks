@@ -10,7 +10,6 @@ export const attemptsRepository = {
     async addAttemptToList(ip: string, url: string) {
         await AttemptsDataModel.create(
             {
-                //_id: new ObjectId(),
                 ip,
                 url,
                 date: new Date()

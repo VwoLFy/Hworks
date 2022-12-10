@@ -10,11 +10,11 @@ export type RequestWithParamAndBody<B> = Request<TypeURIParamsModel, {}, B>
 export type RequestWithParamAndQuery<Q> = Request<TypeURIParamsModel, {}, {}, Q>
 //export type RequestWithParamAndBodyAndQuery<P, B, Q> = Request<P, {}, B, Q>
 
-export type TypeUserDB = {
-    accountData: TypeUserAccountType
+export type TypeUser = {
+    accountData: TypeUserAccount
     emailConfirmation: TypeEmailConfirmation
 }
-export type TypeUserAccountType = {
+export type TypeUserAccount = {
     login: string
     passwordHash: string
     email: string
@@ -25,15 +25,13 @@ export type TypeEmailConfirmation = {
     confirmationCode: string
     expirationDate: Date
 }
-export type TypeBlogDB = {
-    _id: ObjectId
+export type TypeBlog = {
     name: string
     description: string
     websiteUrl: string
     createdAt: string
 }
-export type TypePostDB = {
-    _id: ObjectId
+export type TypePost = {
     title: string
     shortDescription: string
     content: string
@@ -41,16 +39,14 @@ export type TypePostDB = {
     blogName: string
     createdAt: string
 }
-export type TypeCommentDB = {
-    _id: ObjectId
+export type TypeComment = {
     content: string
     userId: string
     userLogin: string
     createdAt: string
     postId: string
 }
-export type TypeSessionDB = {
-    _id: ObjectId
+export type TypeSession = {
     userId: string
     exp: number
     ip: string
@@ -59,9 +55,22 @@ export type TypeSessionDB = {
     deviceId: string
 }
 export type TypeShortSessionData = TypeRefreshTokenData
-export type TypeAttemptsDataDB = {
-    _id: ObjectId
+export type TypeAttemptsData = {
     ip: string
     url: string
     date: Date
 }
+
+export type TypeUserDB = TypeUser & {_id: ObjectId}
+export type TypeBlogDB = TypeBlog & {_id: ObjectId}
+export type TypePostDB = TypePost & {_id: ObjectId}
+export type TypeCommentDB = TypeComment & {_id: ObjectId}
+export type TypeSessionDB = TypeSession & {_id: ObjectId}
+export type TypeAttemptsDataDB = TypeAttemptsData & {_id: ObjectId}
+
+export type TypeUserWithId = TypeUser & {id: string}
+export type TypeBlogWithId = TypeBlog & {id: string}
+export type TypePostWithId = TypePost & {id: string}
+export type TypeCommentWithId = TypeComment & {id: string}
+export type TypeSessionWithId = TypeSession & {id: string}
+export type TypeAttemptsDataWithId = TypeAttemptsData & {id: string}

@@ -1,6 +1,5 @@
-import {TypeNewBlog} from "../domain/blogs-service";
 import {BlogModel} from "../types/mongoose-schemas-models";
-import {TypeBlogDB} from "../types/types";
+import {TypeBlog, TypeBlogDB} from "../types/types";
 
 export const blogsRepository = {
     async findBlogNameById(id: string): Promise<string | null> {
@@ -10,7 +9,7 @@ export const blogsRepository = {
         }
         return foundBlog.name
     },
-    async createBlog(newBlog: TypeNewBlog): Promise<string> {
+    async createBlog(newBlog: TypeBlog): Promise<string> {
         const result = await BlogModel.create(newBlog);
         return result.id
     },

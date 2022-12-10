@@ -1,5 +1,4 @@
-import {TypeSessionData} from "../domain/security-service";
-import {TypeShortSessionData} from "../types/types";
+import {TypeSession, TypeShortSessionData} from "../types/types";
 import {SessionModel} from "../types/mongoose-schemas-models";
 
 export const securityRepository = {
@@ -7,10 +6,10 @@ export const securityRepository = {
         return await SessionModel.findOne({deviceId})
             .select({userId: 1, _id: 0}) as { userId: string } | null
     },
-    async saveSession(sessionData: TypeSessionData): Promise<void> {
+    async saveSession(sessionData: TypeSession): Promise<void> {
         await SessionModel.create(sessionData)
     },
-    async updateSessionData(sessionData: TypeSessionData) {
+    async updateSessionData(sessionData: TypeSession) {
         const filter = {
             deviceId: sessionData.deviceId,
             userId: sessionData.userId

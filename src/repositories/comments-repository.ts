@@ -1,5 +1,4 @@
-import {TypeNewComment} from "../domain/comments-service";
-import {TypeCommentDB} from "../types/types";
+import {TypeComment, TypeCommentDB} from "../types/types";
 import {CommentModel} from "../types/mongoose-schemas-models";
 
 export const commentsRepository = {
@@ -7,14 +6,14 @@ export const commentsRepository = {
         const foundComment: TypeCommentDB | null = await CommentModel.findById({_id: id})
         return foundComment ? foundComment.userId : null
     },
-    async createComment (newComment: TypeNewComment): Promise<string> {
+    async createComment (newComment: TypeComment): Promise<string> {
         const result = await CommentModel.create(newComment)
         return result.id
     },
     async updateComment(id: string, content: string): Promise<number | null> {
         const result = await CommentModel.updateOne(
             {_id: id},
-            {$set: {content: content}}
+            {$set: {content}}
         )
         if (!result.modifiedCount) {
             return null
