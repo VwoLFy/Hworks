@@ -2,60 +2,65 @@ import mongoose from "mongoose";
 import {
     TypeAttemptsDataDB,
     TypeBlogDB, TypeCommentDB,
-    TypeEmailConfirmation,
+    TypeEmailConfirmation, TypePasswordRecovery,
     TypePostDB, TypeSessionDB,
     TypeUserAccount,
     TypeUserDB
 } from "./types";
 
 const UserAccountSchema = new mongoose.Schema<TypeUserAccount>({
-    login: String,
-    passwordHash: String,
-    email: String,
-    createdAt: String
+    login: {type: String, required: true, minlength: 3,maxlength: 30},
+    passwordHash: {type: String, required: true},
+    email: {type: String, required: true},
+    createdAt: {type: String, required: true}
 })
 const EmailConfirmationSchema = new mongoose.Schema<TypeEmailConfirmation>({
-    isConfirmed: Boolean,
-    confirmationCode: String,
-    expirationDate: Date
+    isConfirmed: {type: Boolean, required: true},
+    confirmationCode: {type: String, required: true},
+    expirationDate: {type: Date, required: true}
 })
 const UserSchema = new mongoose.Schema<TypeUserDB>({
-    accountData: UserAccountSchema,
-    emailConfirmation: EmailConfirmationSchema
+    accountData: {type: UserAccountSchema, required: true},
+    emailConfirmation: {type: EmailConfirmationSchema, required: true}
 })
 const BlogSchema = new mongoose.Schema<TypeBlogDB>({
-    name: String,
-    description: String,
-    websiteUrl: String,
-    createdAt: String
+    name: {type: String, required: true, maxlength: 15},
+    description: {type: String, required: true, maxlength: 500},
+    websiteUrl: {type: String, required: true, maxlength: 100},
+    createdAt: {type: String, required: true}
 })
 const PostSchema = new mongoose.Schema<TypePostDB>({
-    title: String,
-    shortDescription: String,
-    content: String,
-    blogId: String,
-    blogName: String,
-    createdAt: String
+    title: {type: String, required: true, maxlength: 30},
+    shortDescription: {type: String, required: true, maxlength: 100},
+    content: {type: String, required: true, maxlength: 1000},
+    blogId: {type: String, required: true},
+    blogName: {type: String, required: true, maxlength: 15},
+    createdAt: {type: String, required: true}
 })
 const CommentSchema = new mongoose.Schema<TypeCommentDB>({
-    content: {type: String},
-    userId: String,
-    userLogin: String,
-    createdAt: String,
-    postId: String,
+    content: {type: String, required: true, minlength: 20,maxlength: 300},
+    userId: {type: String, required: true},
+    userLogin: {type: String, required: true, minlength: 3,maxlength: 30},
+    createdAt: {type: String, required: true},
+    postId: {type: String, required: true},
 })
 const SessionSchema = new mongoose.Schema<TypeSessionDB>({
-    userId: String,
-    exp: Number,
-    ip: String,
-    title: String,
-    iat: Number,
-    deviceId: String,
+    userId: {type: String, required: true},
+    exp: {type: Number, required: true},
+    ip: {type: String, required: true},
+    title: {type: String, required: true},
+    iat: {type: Number, required: true},
+    deviceId: {type: String, required: true},
 })
 const AttemptsDataSchema = new mongoose.Schema<TypeAttemptsDataDB>({
-    ip: String,
-    url: String,
-    date: Date
+    ip: {type: String, required: true},
+    url: {type: String, required: true},
+    date: {type: Date, required: true}
+})
+const PasswordRecoverySchema = new mongoose.Schema<TypePasswordRecovery>({
+    email: {type: String, required: true},
+    recoveryCode: {type: String, required: true},
+    expirationDate: {type: Date, required: true}
 })
 
 export const UserModel = mongoose.model('users', UserSchema)
@@ -64,3 +69,4 @@ export const PostModel = mongoose.model('posts', PostSchema)
 export const CommentModel = mongoose.model('comments', CommentSchema)
 export const SessionModel = mongoose.model('sessions', SessionSchema)
 export const AttemptsDataModel = mongoose.model('attempts_data', AttemptsDataSchema)
+export const PasswordRecoveryModel = mongoose.model('pass_recovery', PasswordRecoverySchema)

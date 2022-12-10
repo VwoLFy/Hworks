@@ -70,11 +70,14 @@ export const usersRepository = {
             }
         )
     },
+    async updatePassword(email: string, passwordHash: string) {
+        await UserModel.updateOne({'accountData.email': email}, {'accountData.passwordHash': passwordHash})
+    },
     async deleteUser(id: string): Promise<boolean> {
         const result = await UserModel.deleteOne({_id: id})
         return result.deletedCount !== 0;
     },
     async deleteAll() {
         await UserModel.deleteMany({})
-    }
+    },
 }

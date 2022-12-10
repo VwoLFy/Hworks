@@ -60,6 +60,11 @@ export type TypeAttemptsData = {
     url: string
     date: Date
 }
+export type TypePasswordRecovery = {
+    email: string
+    recoveryCode: string
+    expirationDate: Date
+}
 
 export type TypeUserDB = TypeUser & {_id: ObjectId}
 export type TypeBlogDB = TypeBlog & {_id: ObjectId}

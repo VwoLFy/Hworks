@@ -6,6 +6,8 @@ import {emailManager} from "../managers/email-manager";
 import {TypeEmailConfirmation, TypeUser, TypeUserWithId} from "../types/types";
 import {jwtService} from "../application/jwt-service";
 import {securityService} from "./security-service";
+import {PasswordRecoveryModel} from "../types/mongoose-schemas-models";
+import {passRecoveryRepository} from "../repositories/pass-recovery-repository";
 
 export const authService = {
     async checkCredentials(loginOrEmail: string, password: string): Promise<string | null> {
@@ -75,5 +77,34 @@ export const authService = {
         const refreshTokenData = await jwtService.getRefreshTokenData(tokens.refreshToken)
         await securityService.saveSession({...refreshTokenData, ip, title})
         return tokens
+    },
+    async passwordRecoverySendEmail(email: string) {
+        const isUserExist = await usersRepository.findUserByLoginOrEmail(email)
+        if (!isUserExist) return
+
+        const passwordRecovery = await PasswordRecoveryModel.create({
+            email,
+            recoveryCode: uuidv4(),
+            expirationDate: add(new Date(), {hours: 24})
+        })
+        try {
+            await emailManager.sendEmailPasswordRecoveryMessage(email, passwordRecovery.recoveryCode)
+        } catch (e) {
+            console.log(e)
+            return
+        }
+    },
+    async changePassword(newPassword: string, recoveryCode: string): Promise<boolean> {
+        const passwordRecovery = await passRecoveryRepository.findPassRecovery(recoveryCode)
+        if (!passwordRecovery) return false
+        if (new Date() > passwordRecovery.expirationDate) {
+            await passRecoveryRepository.deletePassRecovery(recoveryCode)
+            return false
+        }
+
+        const passwordHash = await this.getPasswordHash(newPassword)
+        await usersRepository.updatePassword(passwordRecovery.email, passwordHash)
+        await passRecoveryRepository.deletePassRecovery(recoveryCode)
+        return true
     }
 }

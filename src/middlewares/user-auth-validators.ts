@@ -63,6 +63,18 @@ const emailValid: CustomValidator = async (value) => {
 }
 const authEmailResendValidation = body("email", "'email' has incorrect values or is already confirmed")
     .isString().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$").custom(emailValid);
+const authEmailPasswordRecoveryValidation = body("email").trim().customSanitizer((value) => {
+    if (!value || typeof value !== "string" || !value.match("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) return ''
+    return value
+})
+const authNewPasswordValidation = body('newPassword').trim().customSanitizer((value) => {
+    if (!value || typeof value !== "string" || value.length < 6 || value.length > 20) return ''
+    return value
+})
+const authRecoveryCodeValidation = body('recoveryCode').trim().customSanitizer((value) => {
+    if (!value || typeof value !== "string") return ''
+    return value
+})
 
 //list for user
 export const getUsersValidation = userQueryValidation
@@ -104,4 +116,13 @@ export const emailResendingAuthValidation = [
 ]
 export const getUserInfoAuthValidation = [
     checkAuthorizationMiddleware
+]
+export const passwordRecoveryAuthValidation = [
+    attemptsValidationMiddleware,
+    authEmailPasswordRecoveryValidation
+]
+export const newPasswordAuthValidation = [
+    attemptsValidationMiddleware,
+    authNewPasswordValidation,
+    authRecoveryCodeValidation
 ]
