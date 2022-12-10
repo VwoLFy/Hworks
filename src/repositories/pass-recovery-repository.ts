@@ -6,5 +6,8 @@ export const passRecoveryRepository = {
     },
     async deletePassRecovery(recoveryCode: string) {
         await PasswordRecoveryModel.deleteOne({recoveryCode})
+    },
+    async deleteAll() {
+        await PasswordRecoveryModel.deleteMany({})
     }
 }

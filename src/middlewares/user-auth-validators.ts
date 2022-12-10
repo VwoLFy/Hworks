@@ -5,6 +5,7 @@ import {inputValidationMiddleware} from "./input-validation-middleware";
 import {SortDirection} from "../types/enums";
 import {usersRepository} from "../repositories/users-repository";
 import {attemptsValidationMiddleware} from "./attempts-validation-middleware";
+import {passRecoveryRepository} from "../repositories/pass-recovery-repository";
 
 //user
 const userQueryValidation = [
@@ -67,7 +68,13 @@ const authEmailPasswordRecoveryValidation = body("email", "'email' must be a ema
     .isString().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$");
 const authNewPasswordValidation = body("newPassword", "'newPassword' must be a string")
     .isString().trim().isLength({min: 6, max: 20})
-const authRecoveryCodeValidation = body('recoveryCode').isString().trim()
+const recoveryCodeValid: CustomValidator = async (value) => {
+    const passwordRecovery = await passRecoveryRepository.findPassRecovery(value)
+    if (!passwordRecovery) throw new Error()
+    return true
+}
+const authRecoveryCodeValidation = body('recoveryCode', "'recoveryCode' has incorrect values")
+    .isString().trim().custom(recoveryCodeValid)
 
 //list for user
 export const getUsersValidation = userQueryValidation

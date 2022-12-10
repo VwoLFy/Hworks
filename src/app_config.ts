@@ -13,6 +13,7 @@ import cookieParser from "cookie-parser";
 import {securityRouter} from "./routes/security-router";
 import {securityService} from "./domain/security-service";
 import {attemptsRepository} from "./repositories/attempts-repository";
+import {passRecoveryRepository} from "./repositories/pass-recovery-repository";
 
 export const app = express();
 const bodyMiddle = express.json();
@@ -34,5 +35,6 @@ app.delete('/testing/all-data', async (req: Request, res: Response) => {
     await commentsService.deleteAll();
     await securityService.deleteAll();
     await attemptsRepository.deleteAll();
+    await passRecoveryRepository.deleteAll();
     res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })
