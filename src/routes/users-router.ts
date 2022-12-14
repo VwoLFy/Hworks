@@ -1,21 +1,21 @@
 import {Response, Router} from "express";
 import {RequestWithBody, RequestWithParam, RequestWithQuery} from "../types/types";
-import {TypeUserViewModelPage} from "../models/UserViewModelPage";
-import {TypeUserQueryModel} from "../models/UserQueryModel";
+import {UserViewModelPageType} from "../models/UserViewModelPage";
+import {UserQueryModelType} from "../models/UserQueryModel";
 import {usersQueryRepo} from "../repositories/users-queryRepo";
 import {createUserValidation, deleteUserValidation, getUsersValidation} from "../middlewares/user-auth-validators";
-import {TypeUserInputModel} from "../models/UserInputModel";
-import {TypeUserViewModel} from "../models/UserViewModel";
+import {UserInputModelType} from "../models/UserInputModel";
+import {UserViewModelType} from "../models/UserViewModel";
 import {usersService} from "../domain/user-service";
 import {HTTP_Status} from "../types/enums";
 
 export const usersRouter = Router({})
 
-usersRouter.get('/', getUsersValidation, async (req: RequestWithQuery<TypeUserQueryModel>, res: Response<TypeUserViewModelPage>) => {
+usersRouter.get('/', getUsersValidation, async (req: RequestWithQuery<UserQueryModelType>, res: Response<UserViewModelPageType>) => {
     const {pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm} = req.query
     res.json( await usersQueryRepo.findUsers(+pageNumber, +pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm) )
 })
-usersRouter.post('/', createUserValidation, async (req: RequestWithBody<TypeUserInputModel>, res: Response<TypeUserViewModel>) => {
+usersRouter.post('/', createUserValidation, async (req: RequestWithBody<UserInputModelType>, res: Response<UserViewModelType>) => {
     const createdUserId = await usersService.createUser(req.body.login, req.body.password, req.body.email)
     if (!createdUserId) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
     const createdUser = await usersQueryRepo.findUserById(createdUserId)

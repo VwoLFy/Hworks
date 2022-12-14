@@ -1,23 +1,23 @@
-import {TypeUserDB} from "../types/types";
+import {UserDBType} from "../types/types";
 import {SortDirection} from "../types/enums";
 import {UserModel} from "../types/mongoose-schemas-models";
 
-type TypeUserOutputModel = {
+type UserOutputModelType = {
     id: string
     login: string
     email: string
     createdAt: string
 }
-type TypeUserOutputPage = {
+type UserOutputPageType = {
     pagesCount: number
     page: number
     pageSize: number
     totalCount: number
-    items: TypeUserOutputModel[]
+    items: UserOutputModelType[]
 }
 
 export const usersQueryRepo = {
-    async findUsers(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection, searchLoginTerm: string, searchEmailTerm: string): Promise<TypeUserOutputPage> {
+    async findUsers(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection, searchLoginTerm: string, searchEmailTerm: string): Promise<UserOutputPageType> {
         let filterFind = {}
 
         if (searchLoginTerm && searchEmailTerm) {
@@ -54,15 +54,15 @@ export const usersQueryRepo = {
             items
         }
     },
-    async findUserById(id: string): Promise<TypeUserOutputModel | null> {
-        const foundUser: TypeUserDB | null = await UserModel.findById({_id: id}).lean()
+    async findUserById(id: string): Promise<UserOutputModelType | null> {
+        const foundUser: UserDBType | null = await UserModel.findById({_id: id}).lean()
         if (!foundUser) {
             return null
         } else {
             return this.userWithReplaceId(foundUser)
         }
     },
-    userWithReplaceId(object: TypeUserDB): TypeUserOutputModel {
+    userWithReplaceId(object: UserDBType): UserOutputModelType {
         return {
             id: object._id.toString(),
             login: object.accountData.login,

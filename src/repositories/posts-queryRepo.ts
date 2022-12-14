@@ -1,8 +1,8 @@
 import {SortDirection} from "../types/enums";
-import {TypePostDB} from "../types/types";
+import {PostDBType} from "../types/types";
 import {PostModel} from "../types/mongoose-schemas-models";
 
-type TypePostOutputModel = {
+type PostOutputModelType = {
     id: string
     title: string
     shortDescription: string
@@ -11,16 +11,16 @@ type TypePostOutputModel = {
     blogName: string
     createdAt: string
 }
-type TypePostOutputPage = {
+type PostOutputPageType = {
     pagesCount: number
     page: number
     pageSize: number
     totalCount: number
-    items: TypePostOutputModel[]
+    items: PostOutputModelType[]
 };
 
 export const postsQueryRepo = {
-    async findPosts(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypePostOutputPage> {
+    async findPosts(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<PostOutputPageType> {
         const optionsSort: { [key: string]: SortDirection } = {};
         sortBy = sortBy === 'id' ? '_id' : sortBy
         optionsSort[sortBy] = sortDirection
@@ -43,15 +43,15 @@ export const postsQueryRepo = {
             items
         }
     },
-    async findPostById(id: string): Promise<TypePostOutputModel | null> {
-        const foundPost: TypePostDB | null = await PostModel.findById({_id: id}).lean()
+    async findPostById(id: string): Promise<PostOutputModelType | null> {
+        const foundPost: PostDBType | null = await PostModel.findById({_id: id}).lean()
         if (!foundPost) {
             return null
         } else {
             return this.postWithReplaceId(foundPost)
         }
     },
-    async findPostsByBlogId(blogId: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypePostOutputPage | null> {
+    async findPostsByBlogId(blogId: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<PostOutputPageType | null> {
         const optionsSort: { [key: string]: SortDirection } = {};
         sortBy = sortBy === 'id' ? '_id' : sortBy
         optionsSort[sortBy] = sortDirection
@@ -76,7 +76,7 @@ export const postsQueryRepo = {
             items
         }
     },
-    postWithReplaceId (object: TypePostDB ): TypePostOutputModel {
+    postWithReplaceId (object: PostDBType ): PostOutputModelType {
         return {
             id: object._id.toString(),
             title: object.title,

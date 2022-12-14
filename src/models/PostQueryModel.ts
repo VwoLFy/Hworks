@@ -1,6 +1,6 @@
 import {SortDirection} from "../types/enums";
 
-export type TypePostQueryModel = {
+export type PostQueryModelType = {
     pageNumber: string
     pageSize: string
     sortBy: string

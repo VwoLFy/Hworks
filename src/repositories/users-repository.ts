@@ -1,8 +1,8 @@
-import {TypeEmailConfirmation, TypeUser, TypeUserAccount, TypeUserWithId} from "../types/types";
+import {EmailConfirmationType, UserType, UserAccountType, UserWithIdType} from "../types/types";
 import {UserModel} from "../types/mongoose-schemas-models";
 
 export const usersRepository = {
-    async findUserByLoginOrEmail(loginOrEmail: string): Promise<TypeUserWithId| null> {
+    async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserWithIdType| null> {
         const result = await UserModel.findOne({
             $or: [
                 {'accountData.login': loginOrEmail},
@@ -22,7 +22,7 @@ export const usersRepository = {
         if (!result) return null
         return result.accountData.login
     },
-    async findEmailConfirmationByCode(confirmationCode: string): Promise<TypeEmailConfirmation | null> {
+    async findEmailConfirmationByCode(confirmationCode: string): Promise<EmailConfirmationType | null> {
         const result = await UserModel.findOne({'emailConfirmation.confirmationCode': confirmationCode})
         if (!result) return null
         return result.emailConfirmation
@@ -36,8 +36,8 @@ export const usersRepository = {
                 ]
             }))
     },
-    async createUserAdm(newUser: TypeUserAccount): Promise<string> {
-        const user: TypeUser = {
+    async createUserAdm(newUser: UserAccountType): Promise<string> {
+        const user: UserType = {
             accountData: newUser,
             emailConfirmation: {
                 isConfirmed: true,
@@ -48,7 +48,7 @@ export const usersRepository = {
         const result = await UserModel.create(user)
         return result.id
     },
-    async createUser(newUser: TypeUser): Promise<string> {
+    async createUser(newUser: UserType): Promise<string> {
         const result = await UserModel.create(newUser)
         return result.id
     },
@@ -59,7 +59,7 @@ export const usersRepository = {
         )
         return result.modifiedCount === 1
     },
-    async updateEmailConfirmation(user: TypeUserWithId) {
+    async updateEmailConfirmation(user: UserWithIdType) {
         await UserModel.updateOne(
             {_id: user.id},
             {

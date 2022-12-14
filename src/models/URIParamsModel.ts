@@ -1,3 +1,3 @@
-export type TypeURIParamsModel = {
+export type URIParamsModelType = {
     id: string
 }

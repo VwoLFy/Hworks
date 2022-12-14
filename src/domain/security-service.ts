@@ -1,5 +1,5 @@
 import {securityRepository} from "../repositories/security-repository";
-import {TypeSession, TypeShortSessionData} from "../types/types";
+import {SessionType, ShortSessionDataType} from "../types/types";
 
 export const securityService = {
     async deleteSessions(userId: string, deviceId: string): Promise<boolean> {
@@ -11,13 +11,13 @@ export const securityService = {
         if (foundUserId.userId !== userId) return 403
         return await securityRepository.deleteSessionByDeviceId(userId, deviceId)
     },
-    async saveSession(sessionData: TypeSession): Promise<void> {
+    async saveSession(sessionData: SessionType): Promise<void> {
         await securityRepository.saveSession(sessionData)
     },
-    async updateSessionData(sessionData: TypeSession) {
+    async updateSessionData(sessionData: SessionType) {
         await securityRepository.updateSessionData(sessionData)
     },
-    async isValidSession(shortSessionData: TypeShortSessionData): Promise<boolean> {
+    async isValidSession(shortSessionData: ShortSessionDataType): Promise<boolean> {
         return await securityRepository.isValidSession(shortSessionData)
     },
     async deleteAll() {

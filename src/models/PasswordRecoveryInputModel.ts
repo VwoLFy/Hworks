@@ -1,3 +1,3 @@
-export type TypePasswordRecoveryInputModel = {
+export type PasswordRecoveryInputModelType = {
     email: string
 }

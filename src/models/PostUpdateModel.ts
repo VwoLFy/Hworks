@@ -1,4 +1,4 @@
-export type TypePostUpdateModel = {
+export type PostUpdateModelType = {
     title: string
     shortDescription: string
     content: string

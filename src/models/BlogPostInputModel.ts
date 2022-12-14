@@ -1,4 +1,4 @@
-export type TypeBlogPostInputModel = {
+export type BlogPostInputModelType = {
     title: string
     shortDescription: string
     content: string

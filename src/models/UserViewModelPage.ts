@@ -1,9 +1,9 @@
-import {TypeUserViewModel} from "./UserViewModel";
+import {UserViewModelType} from "./UserViewModel";
 
-export type TypeUserViewModelPage = {
+export type UserViewModelPageType = {
     pagesCount: number
     page: number
     pageSize: number
     totalCount: number
-    items: TypeUserViewModel[]
+    items: UserViewModelType[]
 }

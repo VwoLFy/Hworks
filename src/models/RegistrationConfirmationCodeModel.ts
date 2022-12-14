@@ -1,3 +1,3 @@
-export type TypeRegistrationConfirmationCodeModel = {
+export type RegistrationConfirmationCodeModelType = {
     code: string
 }

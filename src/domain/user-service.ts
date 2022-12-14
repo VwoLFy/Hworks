@@ -1,6 +1,6 @@
 import {usersRepository} from "../repositories/users-repository";
 import bcrypt from "bcrypt"
-import {TypeUserAccount} from "../types/types";
+import {UserAccountType} from "../types/types";
 
 export const usersService = {
     async createUser(login: string, password: string, email: string): Promise<string | null> {
@@ -9,7 +9,7 @@ export const usersService = {
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await bcrypt.hash(password, passwordSalt)
 
-        const newUser: TypeUserAccount = {
+        const newUser: UserAccountType = {
             login,
             passwordHash,
             email,

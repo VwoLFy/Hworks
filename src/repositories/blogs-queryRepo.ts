@@ -1,24 +1,24 @@
-import {TypeBlogDB} from "../types/types";
+import {BlogDBType} from "../types/types";
 import {SortDirection} from "../types/enums";
 import {BlogModel} from "../types/mongoose-schemas-models";
 
-type TypeBlogOutputModel = {
+type BlogOutputModelType = {
     id: string
     name: string
     description: string
     websiteUrl: string
     createdAt: string
 };
-type TypeBlogOutputPage = {
+type BlogOutputPageType = {
     pagesCount: number
     page: number
     pageSize: number
     totalCount: number
-    items: TypeBlogOutputModel[]
+    items: BlogOutputModelType[]
 };
 
 export const blogsQueryRepo = {
-    async findBlogs(searchNameTerm: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypeBlogOutputPage> {
+    async findBlogs(searchNameTerm: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<BlogOutputPageType> {
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const optionsSort = {[sortBy]: sortDirection}
 
@@ -41,15 +41,15 @@ export const blogsQueryRepo = {
             items
         }
     },
-    async findBlogById(id: string): Promise<TypeBlogOutputModel | null> {
-        const foundBlog: TypeBlogDB | null = await BlogModel.findById({_id: id}).lean()
+    async findBlogById(id: string): Promise<BlogOutputModelType | null> {
+        const foundBlog: BlogDBType | null = await BlogModel.findById({_id: id}).lean()
         if (!foundBlog) {
             return null
         } else {
             return this.blogWithReplaceId(foundBlog)
         }
     },
-    blogWithReplaceId(object: TypeBlogDB): TypeBlogOutputModel {
+    blogWithReplaceId(object: BlogDBType): BlogOutputModelType {
         return {
             id: object._id.toString(),
             name: object.name,

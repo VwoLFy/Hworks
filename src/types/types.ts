@@ -1,37 +1,38 @@
 import {Request} from "express";
-import {TypeURIParamsModel} from "../models/URIParamsModel";
+import {URIParamsModelType} from "../models/URIParamsModel";
 import {ObjectId} from "mongodb";
-import {TypeRefreshTokenData} from "../application/jwt-service";
+import {RefreshTokenDataType} from "../application/jwt-service";
+import mongoose, {HydratedDocument} from "mongoose";
 
-export type RequestWithParam= Request<TypeURIParamsModel>
+export type RequestWithParam= Request<URIParamsModelType>
 export type RequestWithBody<B> = Request<{}, {}, B>
 export type RequestWithQuery<Q> = Request<{}, {}, {}, Q>
-export type RequestWithParamAndBody<B> = Request<TypeURIParamsModel, {}, B>
-export type RequestWithParamAndQuery<Q> = Request<TypeURIParamsModel, {}, {}, Q>
+export type RequestWithParamAndBody<B> = Request<URIParamsModelType, {}, B>
+export type RequestWithParamAndQuery<Q> = Request<URIParamsModelType, {}, {}, Q>
 //export type RequestWithParamAndBodyAndQuery<P, B, Q> = Request<P, {}, B, Q>
 
-export type TypeUser = {
-    accountData: TypeUserAccount
-    emailConfirmation: TypeEmailConfirmation
+export type UserType = {
+    accountData: UserAccountType
+    emailConfirmation: EmailConfirmationType
 }
-export type TypeUserAccount = {
+export type UserAccountType = {
     login: string
     passwordHash: string
     email: string
     createdAt: string
 }
-export type TypeEmailConfirmation = {
+export type EmailConfirmationType = {
     isConfirmed: boolean
     confirmationCode: string
     expirationDate: Date
 }
-export type TypeBlog = {
+export interface BlogType {
     name: string
     description: string
     websiteUrl: string
     createdAt: string
 }
-export type TypePost = {
+export type PostType = {
     title: string
     shortDescription: string
     content: string
@@ -39,14 +40,14 @@ export type TypePost = {
     blogName: string
     createdAt: string
 }
-export type TypeComment = {
+export type CommentType = {
     content: string
     userId: string
     userLogin: string
     createdAt: string
     postId: string
 }
-export type TypeSession = {
+export type SessionType = {
     userId: string
     exp: number
     ip: string
@@ -54,28 +55,49 @@ export type TypeSession = {
     iat: number
     deviceId: string
 }
-export type TypeShortSessionData = TypeRefreshTokenData
-export type TypeAttemptsData = {
+export type ShortSessionDataType = RefreshTokenDataType
+export type AttemptsDataType = {
     ip: string
     url: string
     date: Date
 }
-export type TypePasswordRecovery = {
+export type PasswordRecoveryType = {
     email: string
     recoveryCode: string
     expirationDate: Date
 }
 
-export type TypeUserDB = TypeUser & {_id: ObjectId}
-export type TypeBlogDB = TypeBlog & {_id: ObjectId}
-export type TypePostDB = TypePost & {_id: ObjectId}
-export type TypeCommentDB = TypeComment & {_id: ObjectId}
-export type TypeSessionDB = TypeSession & {_id: ObjectId}
-export type TypeAttemptsDataDB = TypeAttemptsData & {_id: ObjectId}
+export type UserDBType = UserType & {_id: ObjectId}
+export interface BlogDBType extends BlogType {_id: ObjectId}
+export type PostDBType = PostType & {_id: ObjectId}
+export type CommentDBType = CommentType & {_id: ObjectId}
+export type SessionDBType = SessionType & {_id: ObjectId}
+export type AttemptsDataDBType = AttemptsDataType & {_id: ObjectId}
 
-export type TypeUserWithId = TypeUser & {id: string}
-export type TypeBlogWithId = TypeBlog & {id: string}
-export type TypePostWithId = TypePost & {id: string}
-export type TypeCommentWithId = TypeComment & {id: string}
-export type TypeSessionWithId = TypeSession & {id: string}
-export type TypeAttemptsDataWithId = TypeAttemptsData & {id: string}
+export type UserWithIdType = UserType & {id: string}
+export type BlogWithIdType = BlogType & {id: string}
+export type PostWithIdType = PostType & {id: string}
+export type CommentWithIdType = CommentType & {id: string}
+export type SessionWithIdType = SessionType & {id: string}
+export type AttemptsDataWithIdType = AttemptsDataType & {id: string}
+
+export interface BlogMethodsType {
+    updateBlog(dto: UpdateBlogType): void
+}
+
+export interface BlogModelType extends mongoose.Model<BlogType, {}, BlogMethodsType> {
+    createBlog(dto: UpdateBlogType): HydratedDocument<BlogType, BlogMethodsType>
+}
+
+export type HDBlogType = HydratedDocument<BlogType, BlogMethodsType>
+
+export type UpdateBlogType = {
+    name: string
+    description: string
+    websiteUrl: string
+}
+export type CreateBlogType = {
+    name: string
+    description: string
+    websiteUrl: string
+}

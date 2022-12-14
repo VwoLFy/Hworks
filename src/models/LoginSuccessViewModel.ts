@@ -1,3 +1,3 @@
-export type TypeLoginSuccessViewModel = {
+export type LoginSuccessViewModelType = {
     accessToken: string
 }

@@ -1,28 +1,28 @@
 import {Request, Response, Router} from "express";
 import {RequestWithBody} from "../types/types";
-import {TypeLoginInputModel} from "../models/LoginInputModel";
+import {LoginInputModelType} from "../models/LoginInputModel";
 import {
     emailConfirmationAuthValidation, emailResendingAuthValidation,
     getUserInfoAuthValidation,
     loginAuthValidation, newPasswordAuthValidation, passwordRecoveryAuthValidation,
     registrationAuthValidation
 } from "../middlewares/user-auth-validators";
-import {TypeLoginSuccessViewModel} from "../models/LoginSuccessViewModel";
+import {LoginSuccessViewModelType} from "../models/LoginSuccessViewModel";
 import {jwtService} from "../application/jwt-service";
-import {TypeMeViewModel} from "../models/MeViewModel";
+import {MeViewModelType} from "../models/MeViewModel";
 import {usersQueryRepo} from "../repositories/users-queryRepo";
 import {HTTP_Status} from "../types/enums";
-import {TypeUserInputModel} from "../models/UserInputModel";
+import {UserInputModelType} from "../models/UserInputModel";
 import {authService} from "../domain/auth-service";
-import {TypeRegistrationConfirmationCodeModel} from "../models/RegistrationConfirmationCodeModel";
-import {TypeRegistrationEmailResending} from "../models/RegistrationEmailResending";
+import {RegistrationConfirmationCodeModelType} from "../models/RegistrationConfirmationCodeModel";
+import {RegistrationEmailResendingType} from "../models/RegistrationEmailResending";
 import {refreshTokenValidationMiddleware} from "../middlewares/refreshToken-validation-middleware";
-import {TypePasswordRecoveryInputModel} from "../models/PasswordRecoveryInputModel";
-import {TypeNewPasswordRecoveryInputModel} from "../models/NewPasswordRecoveryInputModel";
+import {PasswordRecoveryInputModelType} from "../models/PasswordRecoveryInputModel";
+import {NewPasswordRecoveryInputModelType} from "../models/NewPasswordRecoveryInputModel";
 
 export const authRouter = Router({})
 
-authRouter.post('/login', loginAuthValidation, async (req: RequestWithBody<TypeLoginInputModel>, res: Response<TypeLoginSuccessViewModel>) => {
+authRouter.post('/login', loginAuthValidation, async (req: RequestWithBody<LoginInputModelType>, res: Response<LoginSuccessViewModelType>) => {
     const ip = req.ip
     const title = req.headers["user-agent"] || 'unknown'
 
@@ -33,19 +33,19 @@ authRouter.post('/login', loginAuthValidation, async (req: RequestWithBody<TypeL
     res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
     return res.status(HTTP_Status.OK_200).json({accessToken})
 })
-authRouter.post('/password-recovery', passwordRecoveryAuthValidation, async (req: RequestWithBody<TypePasswordRecoveryInputModel>, res: Response) => {
+authRouter.post('/password-recovery', passwordRecoveryAuthValidation, async (req: RequestWithBody<PasswordRecoveryInputModelType>, res: Response) => {
     if (!req.body.email) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
     await authService.passwordRecoverySendEmail(req.body.email)
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })
-authRouter.post('/new-password', newPasswordAuthValidation, async (req: RequestWithBody<TypeNewPasswordRecoveryInputModel>, res: Response) => {
+authRouter.post('/new-password', newPasswordAuthValidation, async (req: RequestWithBody<NewPasswordRecoveryInputModelType>, res: Response) => {
     if (!req.body.newPassword || !req.body.recoveryCode) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
 
     const isChangedPassword = await authService.changePassword(req.body.newPassword, req.body.recoveryCode)
     if (!isChangedPassword) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })
-authRouter.post('/refresh-token', refreshTokenValidationMiddleware, async (req: Request, res: Response<TypeLoginSuccessViewModel>) => {
+authRouter.post('/refresh-token', refreshTokenValidationMiddleware, async (req: Request, res: Response<LoginSuccessViewModelType>) => {
     const ip = req.ip
     const title = req.headers["user-agent"] || 'unknown'
 
@@ -54,17 +54,17 @@ authRouter.post('/refresh-token', refreshTokenValidationMiddleware, async (req: 
     res.cookie('refreshToken', refreshToken, {httpOnly: true, secure: true})
     return res.status(HTTP_Status.OK_200).json({accessToken})
 })
-authRouter.post('/registration', registrationAuthValidation, async (req: RequestWithBody<TypeUserInputModel>, res: Response) => {
+authRouter.post('/registration', registrationAuthValidation, async (req: RequestWithBody<UserInputModelType>, res: Response) => {
     const isRegistered = await authService.createUser(req.body.login, req.body.password, req.body.email)
     if (!isRegistered) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })
-authRouter.post('/registration-confirmation', emailConfirmationAuthValidation, async (req: RequestWithBody<TypeRegistrationConfirmationCodeModel>, res: Response) => {
+authRouter.post('/registration-confirmation', emailConfirmationAuthValidation, async (req: RequestWithBody<RegistrationConfirmationCodeModelType>, res: Response) => {
     const isConfirm = await authService.confirmEmail(req.body.code)
     if (!isConfirm) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })
-authRouter.post('/registration-email-resending', emailResendingAuthValidation, async (req: RequestWithBody<TypeRegistrationEmailResending>, res: Response) => {
+authRouter.post('/registration-email-resending', emailResendingAuthValidation, async (req: RequestWithBody<RegistrationEmailResendingType>, res: Response) => {
     const isResendEmail = await authService.registrationResendEmail(req.body.email)
     if (!isResendEmail) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)
@@ -74,7 +74,7 @@ authRouter.post('/logout', refreshTokenValidationMiddleware, async (req: Request
     res.clearCookie('refreshToken')
     return res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })
-authRouter.get('/me', getUserInfoAuthValidation, async (req: Request, res: Response<TypeMeViewModel>) => {
+authRouter.get('/me', getUserInfoAuthValidation, async (req: Request, res: Response<MeViewModelType>) => {
     const userId = req.userId
     const userData = await usersQueryRepo.findUserById(userId)
     if (!userData) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)

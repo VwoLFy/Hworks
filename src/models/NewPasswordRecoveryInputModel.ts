@@ -1,4 +1,4 @@
-export type TypeNewPasswordRecoveryInputModel = {
+export type NewPasswordRecoveryInputModelType = {
     newPassword: string
     recoveryCode: string
 }

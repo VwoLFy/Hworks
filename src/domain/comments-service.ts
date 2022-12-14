@@ -1,7 +1,7 @@
 import {postsRepository} from "../repositories/posts-repository";
 import {usersRepository} from "../repositories/users-repository";
 import {commentsRepository} from "../repositories/comments-repository";
-import {TypeComment} from "../types/types";
+import {CommentType} from "../types/types";
 
 export const commentsService = {
     async createComment(postId: string, content: string, userId: string): Promise<string | null> {
@@ -9,7 +9,7 @@ export const commentsService = {
         const userLogin = await usersRepository.findUserLoginById(userId)
         if (!isPostExist || !userLogin) return null
         
-        const newComment: TypeComment = {
+        const newComment: CommentType = {
             content,
             userId,
             userLogin,

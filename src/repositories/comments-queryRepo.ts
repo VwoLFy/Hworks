@@ -1,29 +1,29 @@
 import {SortDirection} from "../types/enums";
-import {TypeCommentDB} from "../types/types";
+import {CommentDBType} from "../types/types";
 import {CommentModel} from "../types/mongoose-schemas-models";
 
-type TypeCommentOutputModel = {
+type CommentOutputModelType = {
     id: string
     content: string
     userId: string
     userLogin: string
     createdAt: string
 }
-type TypeCommentOutputPage = {
+type CommentOutputPageType = {
     pagesCount: number
     page: number
     pageSize: number
     totalCount: number
-    items:  TypeCommentOutputModel[]
+    items:  CommentOutputModelType[]
 }
 
 export const commentsQueryRepo = {
-    async findCommentById(id: string): Promise<TypeCommentOutputModel | null> {
-        const foundComment: TypeCommentDB | null = await CommentModel.findById({_id: id}).lean()
+    async findCommentById(id: string): Promise<CommentOutputModelType | null> {
+        const foundComment: CommentDBType | null = await CommentModel.findById({_id: id}).lean()
         if (!foundComment) return null
         return this.commentWithReplaceId(foundComment)
     },
-    async findCommentsByPostId(postId: string, page: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypeCommentOutputPage | null> {
+    async findCommentsByPostId(postId: string, page: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<CommentOutputPageType | null> {
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const sortOptions = {[sortBy]: sortDirection}
         const totalCount = await CommentModel.countDocuments({postId})
@@ -45,7 +45,7 @@ export const commentsQueryRepo = {
             items
         }
     },
-    commentWithReplaceId(comment: TypeCommentDB): TypeCommentOutputModel {
+    commentWithReplaceId(comment: CommentDBType): CommentOutputModelType {
         return {
             id: comment._id.toString(),
             content: comment.content,

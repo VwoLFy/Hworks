@@ -1,6 +1,6 @@
 import {postsRepository} from "../repositories/posts-repository";
 import {blogsRepository} from "../repositories/blogs-repository";
-import {TypePost} from "../types/types";
+import {PostType} from "../types/types";
 
 export const postsService = {
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<string | null> {
@@ -8,7 +8,7 @@ export const postsService = {
         if (!foundBlogName) {
             return null
         }
-        const newPost: TypePost = {
+        const newPost: PostType = {
             title,
             shortDescription,
             content,

@@ -2,14 +2,14 @@ import {NextFunction, Request, Response} from "express";
 import {validationResult} from "express-validator";
 import {HTTP_Status} from "../types/enums";
 
-type TypeError = {
+type ErrorType = {
     message: string
     field: string
 }
-export type TypeErrorResult = {
-    errorsMessages: Array<TypeError>
+export type ErrorResultType = {
+    errorsMessages: Array<ErrorType>
 }
-const apiErrorResult: TypeErrorResult = {
+const apiErrorResult: ErrorResultType = {
     errorsMessages: []
 }
 

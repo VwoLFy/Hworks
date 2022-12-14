@@ -1,8 +1,8 @@
 import {Response, Router} from "express";
 import {RequestWithParam, RequestWithParamAndBody} from "../types/types";
-import {TypeCommentViewModel} from "../models/CommentViewModel";
+import {CommentViewModelType} from "../models/CommentViewModel";
 import {commentsQueryRepo} from "../repositories/comments-queryRepo";
-import {TypeCommentInputModel} from "../models/CommentInputModel";
+import {CommentInputModelType} from "../models/CommentInputModel";
 import {commentsService} from "../domain/comments-service";
 import {HTTP_Status} from "../types/enums";
 import {
@@ -13,7 +13,7 @@ import {
 
 export const commentsRouter = Router({})
 
-commentsRouter.get(('/:id'), getCommentByIdValidation, async (req: RequestWithParam, res: Response<TypeCommentViewModel>) => {
+commentsRouter.get(('/:id'), getCommentByIdValidation, async (req: RequestWithParam, res: Response<CommentViewModelType>) => {
     const foundComment = await commentsQueryRepo.findCommentById(req.params.id);
     if (!foundComment) {
         res.sendStatus(HTTP_Status.NOT_FOUND_404)
@@ -21,7 +21,7 @@ commentsRouter.get(('/:id'), getCommentByIdValidation, async (req: RequestWithPa
         res.status(HTTP_Status.OK_200).json(foundComment)
     }
 })
-commentsRouter.put(('/:id'), updateCommentByIdValidation, async (req: RequestWithParamAndBody<TypeCommentInputModel>, res: Response) => {
+commentsRouter.put(('/:id'), updateCommentByIdValidation, async (req: RequestWithParamAndBody<CommentInputModelType>, res: Response) => {
     const updateStatus = await commentsService.updateComment(req.params.id, req.body.content, req.userId)
     if (!updateStatus) {
         res.sendStatus(HTTP_Status.NOT_FOUND_404)

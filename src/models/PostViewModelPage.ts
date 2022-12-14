@@ -1,9 +1,9 @@
-import {TypePostViewModel} from "./PostViewModel";
+import {PostViewModelType} from "./PostViewModel";
 
 export type TypePostViewModelPage = {
     pagesCount: number
     page: number
     pageSize: number
     totalCount: number
-    items: TypePostViewModel[]
+    items: PostViewModelType[]
 }

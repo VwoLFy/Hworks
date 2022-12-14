@@ -1,24 +1,13 @@
 import {BlogModel} from "../types/mongoose-schemas-models";
-import {TypeBlog, TypeBlogDB} from "../types/types";
+import {HDBlogType, BlogType} from "../types/types";
 
 export const blogsRepository = {
     async findBlogNameById(id: string): Promise<string | null> {
-        const foundBlog: TypeBlogDB | null = await BlogModel.findById({_id: id})
+        const foundBlog: BlogType | null = await BlogModel.findById({_id: id})
         if (!foundBlog) {
             return null
         }
         return foundBlog.name
-    },
-    async createBlog(newBlog: TypeBlog): Promise<string> {
-        const result = await BlogModel.create(newBlog);
-        return result.id
-    },
-    async updateBlog(id: string, name: string, description: string, websiteUrl: string): Promise<boolean> {
-        const result = await BlogModel.updateOne(
-            {_id: id},
-            {$set: {name, description, websiteUrl}}
-        );
-        return result.matchedCount !== 0;
     },
     async deleteBlog(id: string): Promise<boolean> {
         const result = await BlogModel.deleteOne({_id: id});
@@ -26,5 +15,11 @@ export const blogsRepository = {
     },
     async deleteAll() {
         await BlogModel.deleteMany({})
+    },
+    async findBlogById(id: string): Promise<HDBlogType | null> {
+        return BlogModel.findById(id)
+    },
+    async blogSave(blog: HDBlogType) {
+        await blog.save()
     }
 }
