@@ -19,17 +19,15 @@ type TypeBlogOutputPage = {
 
 export const blogsQueryRepo = {
     async findBlogs(searchNameTerm: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<TypeBlogOutputPage> {
-        let filterFind = {};
-        if (searchNameTerm) filterFind = {name: {$regex: searchNameTerm, $options: 'i'}}
-
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const optionsSort = {[sortBy]: sortDirection}
 
-        const totalCount = await BlogModel.countDocuments(filterFind)
+        const totalCount = await BlogModel.countDocuments().where('name').regex(RegExp(searchNameTerm, 'i'))
         const pagesCount = Math.ceil(totalCount / pageSize)
         const page = pageNumber;
 
-        const items = (await BlogModel.find(filterFind)
+        const items = (await BlogModel.find()
+            .where('name').regex(RegExp(searchNameTerm, 'i'))
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .sort(optionsSort)
@@ -44,7 +42,7 @@ export const blogsQueryRepo = {
         }
     },
     async findBlogById(id: string): Promise<TypeBlogOutputModel | null> {
-        const foundBlog: TypeBlogDB | null = await BlogModel.findById({_id: id})
+        const foundBlog: TypeBlogDB | null = await BlogModel.findById({_id: id}).lean()
         if (!foundBlog) {
             return null
         } else {

@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from 'uuid'
 import add from "date-fns/add";
 import {emailManager} from "../managers/email-manager";
-import {TypeEmailConfirmation, TypeUser, TypeUserWithId} from "../types/types";
+import {TypeEmailConfirmation, TypePasswordRecovery, TypeUser, TypeUserWithId} from "../types/types";
 import {jwtService} from "../application/jwt-service";
 import {securityService} from "./security-service";
 import {PasswordRecoveryModel} from "../types/mongoose-schemas-models";
@@ -95,7 +95,7 @@ export const authService = {
         }
     },
     async changePassword(newPassword: string, recoveryCode: string): Promise<boolean> {
-        const passwordRecovery = await passRecoveryRepository.findPassRecovery(recoveryCode)
+        const passwordRecovery: TypePasswordRecovery | null = await passRecoveryRepository.findPassRecovery(recoveryCode)
         if (!passwordRecovery) return false
         if (new Date() > passwordRecovery.expirationDate) {
             await passRecoveryRepository.deletePassRecovery(recoveryCode)

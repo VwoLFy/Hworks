@@ -1,8 +1,9 @@
 import {PasswordRecoveryModel} from "../types/mongoose-schemas-models";
+import {TypePasswordRecovery} from "../types/types";
 
 export const passRecoveryRepository = {
-    async findPassRecovery(recoveryCode: string) {
-        return PasswordRecoveryModel.findOne({recoveryCode}).exec()
+    async findPassRecovery(recoveryCode: string): Promise<TypePasswordRecovery | null> {
+        return PasswordRecoveryModel.findOne({recoveryCode}).lean()
     },
     async deletePassRecovery(recoveryCode: string) {
         await PasswordRecoveryModel.deleteOne({recoveryCode})

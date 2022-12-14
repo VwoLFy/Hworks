@@ -19,7 +19,7 @@ type TypeCommentOutputPage = {
 
 export const commentsQueryRepo = {
     async findCommentById(id: string): Promise<TypeCommentOutputModel | null> {
-        const foundComment: TypeCommentDB | null = await CommentModel.findById({_id: id})
+        const foundComment: TypeCommentDB | null = await CommentModel.findById({_id: id}).lean()
         if (!foundComment) return null
         return this.commentWithReplaceId(foundComment)
     },

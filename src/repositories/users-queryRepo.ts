@@ -55,7 +55,7 @@ export const usersQueryRepo = {
         }
     },
     async findUserById(id: string): Promise<TypeUserOutputModel | null> {
-        const foundUser: TypeUserDB | null = await UserModel.findById({_id: id})
+        const foundUser: TypeUserDB | null = await UserModel.findById({_id: id}).lean()
         if (!foundUser) {
             return null
         } else {

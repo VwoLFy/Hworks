@@ -44,7 +44,7 @@ export const postsQueryRepo = {
         }
     },
     async findPostById(id: string): Promise<TypePostOutputModel | null> {
-        const foundPost: TypePostDB | null = await PostModel.findById({_id: id})
+        const foundPost: TypePostDB | null = await PostModel.findById({_id: id}).lean()
         if (!foundPost) {
             return null
         } else {
