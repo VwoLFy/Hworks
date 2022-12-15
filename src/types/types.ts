@@ -2,7 +2,7 @@ import {Request} from "express";
 import {URIParamsModelType} from "../models/URIParamsModel";
 import {ObjectId} from "mongodb";
 import {RefreshTokenDataType} from "../application/jwt-service";
-import mongoose, {HydratedDocument} from "mongoose";
+import {HydratedDocument, Model} from "mongoose";
 
 export type RequestWithParam= Request<URIParamsModelType>
 export type RequestWithBody<B> = Request<{}, {}, B>
@@ -84,11 +84,13 @@ export type AttemptsDataWithIdType = AttemptsDataType & {id: string}
 export interface BlogMethodsType {
     updateBlog(dto: UpdateBlogType): void
 }
-
-export interface BlogModelType extends mongoose.Model<BlogType, {}, BlogMethodsType> {
+export interface BlogModelType extends Model<BlogType, {}, BlogMethodsType> {
     createBlog(dto: UpdateBlogType): HydratedDocument<BlogType, BlogMethodsType>
+    findBlogWithId(id: string): Promise<BlogWithIdType | null>
+    findBlogsWithId(dto: FindBlogsWithIdType): Promise<BlogWithIdType[]>
+    findBlogNameById(id: string): Promise<string | null>
+    findHDBlog(id: string): Promise<HDBlogType | null>
 }
-
 export type HDBlogType = HydratedDocument<BlogType, BlogMethodsType>
 
 export type UpdateBlogType = {
@@ -100,4 +102,17 @@ export type CreateBlogType = {
     name: string
     description: string
     websiteUrl: string
+}
+export type FindBlogsWithIdType = {
+    searchNameTerm: string
+    pageNumber: number
+    pageSize: number
+    optionsSort: {}
+}
+export type FindBlogsType = {
+    searchNameTerm: string
+    pageNumber: number
+    pageSize: number
+    sortBy: string
+    sortDirection: string
 }

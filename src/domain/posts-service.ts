@@ -1,10 +1,10 @@
 import {postsRepository} from "../repositories/posts-repository";
-import {blogsRepository} from "../repositories/blogs-repository";
 import {PostType} from "../types/types";
+import {BlogModel} from "../types/mongoose-schemas-models";
 
 export const postsService = {
     async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<string | null> {
-        const foundBlogName = await blogsRepository.findBlogNameById(blogId)
+        const foundBlogName = await BlogModel.findBlogNameById(blogId)
         if (!foundBlogName) {
             return null
         }

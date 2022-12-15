@@ -10,7 +10,7 @@ export const blogsService = {
         return newBlog.id
     },
     async updateBlog(id: string, dto: UpdateBlogType): Promise<boolean> {
-        const blog: HDBlogType | null = await blogsRepository.findBlogById(id)
+        const blog: HDBlogType | null = await BlogModel.findHDBlog(id)
         if (!blog) return false
         blog.updateBlog(dto)
         await blogsRepository.blogSave(blog)

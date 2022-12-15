@@ -1,6 +1,5 @@
-import {BlogDBType} from "../types/types";
-import {SortDirection} from "../types/enums";
 import {BlogModel} from "../types/mongoose-schemas-models";
+import {FindBlogsType} from "../types/types";
 
 type BlogOutputModelType = {
     id: string
@@ -18,7 +17,8 @@ type BlogOutputPageType = {
 };
 
 export const blogsQueryRepo = {
-    async findBlogs(searchNameTerm: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<BlogOutputPageType> {
+    async findBlogs(dto: FindBlogsType): Promise<BlogOutputPageType> {
+        let {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = dto
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const optionsSort = {[sortBy]: sortDirection}
 
@@ -26,13 +26,12 @@ export const blogsQueryRepo = {
         const pagesCount = Math.ceil(totalCount / pageSize)
         const page = pageNumber;
 
-        const items = (await BlogModel.find()
-            .where('name').regex(RegExp(searchNameTerm, 'i'))
-            .skip((pageNumber - 1) * pageSize)
-            .limit(pageSize)
-            .sort(optionsSort)
-            .lean())
-            .map(foundBlog => this.blogWithReplaceId(foundBlog))
+        const items: BlogOutputModelType[] = await BlogModel.findBlogsWithId({
+            searchNameTerm,
+            pageNumber,
+            pageSize,
+            optionsSort
+        })
         return {
             pagesCount,
             page,
@@ -42,20 +41,7 @@ export const blogsQueryRepo = {
         }
     },
     async findBlogById(id: string): Promise<BlogOutputModelType | null> {
-        const foundBlog: BlogDBType | null = await BlogModel.findById({_id: id}).lean()
-        if (!foundBlog) {
-            return null
-        } else {
-            return this.blogWithReplaceId(foundBlog)
-        }
-    },
-    blogWithReplaceId(object: BlogDBType): BlogOutputModelType {
-        return {
-            id: object._id.toString(),
-            name: object.name,
-            description: object.description,
-            websiteUrl: object.websiteUrl,
-            createdAt: object.createdAt
-        }
+        const foundBlog: BlogOutputModelType | null = await BlogModel.findBlogWithId(id)
+        return foundBlog ? foundBlog : null
     }
 }
