@@ -1,5 +1,4 @@
-import {SortDirection} from "../types/enums";
-import {PostDBType} from "../types/types";
+import {FindPostsByBlogId, FindPostsType} from "../types/types";
 import {PostModel} from "../types/mongoose-schemas-models";
 
 type PostOutputModelType = {
@@ -20,71 +19,38 @@ type PostOutputPageType = {
 };
 
 export const postsQueryRepo = {
-    async findPosts(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<PostOutputPageType> {
-        const optionsSort: { [key: string]: SortDirection } = {};
-        sortBy = sortBy === 'id' ? '_id' : sortBy
-        optionsSort[sortBy] = sortDirection
-
-        const totalCount = await PostModel.countDocuments({})
+    async findPosts(dto: FindPostsType): Promise<PostOutputPageType> {
+        let {pageNumber, pageSize} = dto;
+        const totalCount = await PostModel.countDocuments()
         const pagesCount = Math.ceil(totalCount / pageSize)
-        const page = pageNumber;
 
-        const items = (await PostModel.find({})
-            .skip((pageNumber - 1) * pageSize)
-            .limit(pageSize)
-            .sort(optionsSort)
-            .lean())
-            .map(foundBlog => this.postWithReplaceId(foundBlog))
+        const items: PostOutputModelType[] = await PostModel.findPostsWithId(dto)
         return {
             pagesCount,
-            page,
+            page: pageNumber,
             pageSize,
             totalCount,
             items
         }
     },
     async findPostById(id: string): Promise<PostOutputModelType | null> {
-        const foundPost: PostDBType | null = await PostModel.findById({_id: id}).lean()
-        if (!foundPost) {
-            return null
-        } else {
-            return this.postWithReplaceId(foundPost)
-        }
+        const foundPost: PostOutputModelType | null = await PostModel.findPostWithId(id)
+        return foundPost ? foundPost : null
     },
-    async findPostsByBlogId(blogId: string, pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<PostOutputPageType | null> {
-        const optionsSort: { [key: string]: SortDirection } = {};
-        sortBy = sortBy === 'id' ? '_id' : sortBy
-        optionsSort[sortBy] = sortDirection
+    async findPostsByBlogId(dto: FindPostsByBlogId): Promise<PostOutputPageType | null> {
+        let {blogId, pageNumber, pageSize} = dto
 
-        const totalCount = await PostModel.countDocuments({blogId})
+        const totalCount = await PostModel.countDocuments().where('blogId').equals(blogId)
         if (totalCount == 0) return null
 
         const pagesCount = Math.ceil(totalCount / pageSize)
-        const page = pageNumber;
 
-        const items = (await PostModel.find({blogId})
-            .skip((pageNumber - 1) * pageSize)
-            .limit(pageSize)
-            .sort(optionsSort)
-            .lean())
-            .map(foundBlog => this.postWithReplaceId(foundBlog))
+        const items: PostOutputModelType[] = await PostModel.findPostsWithId(dto)
         return {
             pagesCount,
-            page,
+            page: pageNumber,
             pageSize,
             totalCount,
             items
         }
-    },
-    postWithReplaceId (object: PostDBType ): PostOutputModelType {
-        return {
-            id: object._id.toString(),
-            title: object.title,
-            shortDescription: object.shortDescription,
-            content: object.content,
-            blogId: object.blogId,
-            blogName: object.blogName,
-            createdAt: object.createdAt
-        }
-    }
-}
+    },}

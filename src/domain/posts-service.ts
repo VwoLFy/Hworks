@@ -1,25 +1,26 @@
 import {postsRepository} from "../repositories/posts-repository";
-import {PostType} from "../types/types";
-import {BlogModel} from "../types/mongoose-schemas-models";
+import {CreatePostsByBlogIdR, HDPostType, UpdatePostTypeR} from "../types/types";
+import {BlogModel, PostModel} from "../types/mongoose-schemas-models";
 
 export const postsService = {
-    async createPost(title: string, shortDescription: string, content: string, blogId: string): Promise<string | null> {
-        const foundBlogName = await BlogModel.findBlogNameById(blogId)
-        if (!foundBlogName) {
-            return null
-        }
-        const newPost: PostType = {
-            title,
-            shortDescription,
-            content,
-            blogId,
-            blogName: foundBlogName,
-            createdAt: new Date().toISOString()
-        }
-        return await postsRepository.createPost(newPost)
+    async createPost(dto: CreatePostsByBlogIdR): Promise<string | null> {
+        const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)
+        if (!foundBlogName) return null
+
+        const newPost: HDPostType = await PostModel.createPost({...dto, blogName: foundBlogName})
+        await postsRepository.savePost(newPost)
+        return newPost.id
     },
-    async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {
-        return await postsRepository.updatePost(id, title, shortDescription, content,blogId)
+    async updatePost(id: string, dto: UpdatePostTypeR): Promise<boolean> {
+        const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)
+        if (!foundBlogName) return false
+
+        const post: HDPostType | null = await PostModel.findHDPost(id)
+        if (!post) return false
+
+        post.updatePost({...dto, blogName: foundBlogName})
+        await postsRepository.savePost(post)
+        return true
     },
     async deletePost(id: string): Promise<boolean> {
         return await postsRepository.deletePost(id)

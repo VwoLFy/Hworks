@@ -29,8 +29,12 @@ import {createCommentValidation, getCommentByPostIdValidation} from "../middlewa
 export const postsRouter = Router({});
 
 postsRouter.get("/", getPostsValidation, async (req: RequestWithQuery<PostQueryModelType>, res: Response<TypePostViewModelPage>) => {
-    const {pageNumber, pageSize, sortBy, sortDirection} = req.query;
-    res.json(await postsQueryRepo.findPosts(+pageNumber, +pageSize, sortBy, sortDirection))
+    res.json(await postsQueryRepo.findPosts({
+        pageNumber: +req.query.pageNumber,
+        pageSize: +req.query.pageSize,
+        sortBy: req.query.sortBy,
+        sortDirection: req.query.sortDirection
+    }))
 })
 postsRouter.get("/:id", getPostValidation, async (req: RequestWithParam, res: Response<PostViewModelType>) => {
     const foundPost = await postsQueryRepo.findPostById(req.params.id)
@@ -41,7 +45,12 @@ postsRouter.get("/:id", getPostValidation, async (req: RequestWithParam, res: Re
     }
 })
 postsRouter.post("/", createPostValidation, async (req: RequestWithBody<PostInputModelType>, res: Response<PostViewModelType>) => {
-    const createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
+    const createdPostId = await postsService.createPost({
+        title: req.body.title,
+        shortDescription: req.body.shortDescription,
+        content: req.body.content,
+        blogId: req.body.blogId
+    })
     if (!createdPostId) {
         res.sendStatus(HTTP_Status.NOT_FOUND_404)
     } else {
@@ -50,7 +59,12 @@ postsRouter.post("/", createPostValidation, async (req: RequestWithBody<PostInpu
     }
 })
 postsRouter.put("/:id", updatePostValidation, async (req: RequestWithParamAndBody<PostUpdateModelType>, res: Response) => {
-    const isUpdatedPost = await postsService.updatePost(req.params.id, req.body.title, req.body.shortDescription, req.body.content, req.body.blogId)
+    const isUpdatedPost = await postsService.updatePost(req.params.id, {
+        title: req.body.title,
+        shortDescription: req.body.shortDescription,
+        content: req.body.content,
+        blogId: req.body.blogId
+    })
     if (!isUpdatedPost) {
         res.sendStatus(HTTP_Status.NOT_FOUND_404)
     } else {

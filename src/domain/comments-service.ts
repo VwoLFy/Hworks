@@ -1,11 +1,11 @@
-import {postsRepository} from "../repositories/posts-repository";
 import {usersRepository} from "../repositories/users-repository";
 import {commentsRepository} from "../repositories/comments-repository";
 import {CommentType} from "../types/types";
+import {PostModel} from "../types/mongoose-schemas-models";
 
 export const commentsService = {
     async createComment(postId: string, content: string, userId: string): Promise<string | null> {
-        const isPostExist = await postsRepository.isPostExist(postId)
+        const isPostExist = await PostModel.isPostExist(postId)
         const userLogin = await usersRepository.findUserLoginById(userId)
         if (!isPostExist || !userLogin) return null
         

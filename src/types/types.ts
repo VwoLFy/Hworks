@@ -3,6 +3,7 @@ import {URIParamsModelType} from "../models/URIParamsModel";
 import {ObjectId} from "mongodb";
 import {RefreshTokenDataType} from "../application/jwt-service";
 import {HydratedDocument, Model} from "mongoose";
+import {SortDirection} from "./enums";
 
 export type RequestWithParam= Request<URIParamsModelType>
 export type RequestWithBody<B> = Request<{}, {}, B>
@@ -68,8 +69,6 @@ export type PasswordRecoveryType = {
 }
 
 export type UserDBType = UserType & {_id: ObjectId}
-export interface BlogDBType extends BlogType {_id: ObjectId}
-export type PostDBType = PostType & {_id: ObjectId}
 export type CommentDBType = CommentType & {_id: ObjectId}
 export type SessionDBType = SessionType & {_id: ObjectId}
 export type AttemptsDataDBType = AttemptsDataType & {_id: ObjectId}
@@ -82,37 +81,84 @@ export type SessionWithIdType = SessionType & {id: string}
 export type AttemptsDataWithIdType = AttemptsDataType & {id: string}
 
 export interface BlogMethodsType {
-    updateBlog(dto: UpdateBlogType): void
+    updateBlog(dto: UpdateBlogTypeM): void
 }
 export interface BlogModelType extends Model<BlogType, {}, BlogMethodsType> {
-    createBlog(dto: UpdateBlogType): HydratedDocument<BlogType, BlogMethodsType>
+    createBlog(dto: CreateBlogTypeM): HDBlogType
     findBlogWithId(id: string): Promise<BlogWithIdType | null>
-    findBlogsWithId(dto: FindBlogsWithIdType): Promise<BlogWithIdType[]>
+    findBlogsWithId(dto: FindBlogsType): Promise<BlogWithIdType[]>
     findBlogNameById(id: string): Promise<string | null>
     findHDBlog(id: string): Promise<HDBlogType | null>
 }
 export type HDBlogType = HydratedDocument<BlogType, BlogMethodsType>
 
-export type UpdateBlogType = {
+export type UpdateBlogTypeM = {
     name: string
     description: string
     websiteUrl: string
 }
-export type CreateBlogType = {
+export type CreateBlogTypeM = {
     name: string
     description: string
     websiteUrl: string
-}
-export type FindBlogsWithIdType = {
-    searchNameTerm: string
-    pageNumber: number
-    pageSize: number
-    optionsSort: {}
 }
 export type FindBlogsType = {
     searchNameTerm: string
     pageNumber: number
     pageSize: number
     sortBy: string
-    sortDirection: string
+    sortDirection: SortDirection
+}
+
+export interface PostMethodsType {
+    updatePost(dto: UpdatePostTypeM): void
+}
+export interface PostModelType extends Model<PostType, {}, PostMethodsType> {
+    createPost(dto: CreatePostTypeM): HDPostType
+    findHDPost(id: string): Promise<HDPostType | null>
+    isPostExist(id: string): Promise<boolean>
+    findPostsWithId(dto: FindPostsType): Promise<PostWithIdType[]>
+    findPostWithId (id: string): Promise<PostWithIdType | null>
+    findPostsByBlogId (dto: FindPostsByBlogId): Promise<PostWithIdType[] | null>
+}
+export type HDPostType = HydratedDocument<PostType, PostMethodsType>
+
+export type CreatePostTypeM = {
+    title: string
+    shortDescription: string
+    content: string
+    blogId: string
+    blogName: string
+}
+export type UpdatePostTypeM = {
+    title: string
+    shortDescription: string
+    content: string
+    blogId: string
+    blogName: string
+}
+export type UpdatePostTypeR = {
+    title: string
+    shortDescription: string
+    content: string
+    blogId: string
+}
+export type FindPostsType = {
+    pageNumber: number
+    pageSize: number
+    sortBy: string
+    sortDirection: SortDirection
+}
+export type FindPostsByBlogId = {
+    blogId: string
+    pageNumber: number
+    pageSize: number
+    sortBy: string
+    sortDirection: SortDirection
+}
+export type CreatePostsByBlogIdR = {
+    title: string
+    shortDescription: string
+    content: string
+    blogId: string
 }

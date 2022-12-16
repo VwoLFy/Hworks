@@ -1,34 +1,38 @@
-import {HydratedDocument, model, Schema} from "mongoose";
+import {model, Schema} from "mongoose";
 import {
     AttemptsDataDBType,
     BlogMethodsType,
     BlogModelType,
     BlogType,
     BlogWithIdType,
-    CommentDBType,
-    EmailConfirmationType,
-    FindBlogsWithIdType, HDBlogType,
+    CommentDBType, CreateBlogTypeM, CreatePostTypeM,
+    EmailConfirmationType, FindBlogsType, FindPostsByBlogId,
+    FindPostsType, HDBlogType, HDPostType,
     PasswordRecoveryType,
-    PostDBType,
+    PostMethodsType, PostModelType, PostType, PostWithIdType,
     SessionDBType,
-    UpdateBlogType,
+    UpdateBlogTypeM, UpdatePostTypeM,
     UserAccountType,
     UserDBType
 } from "./types";
+import {SortDirection} from "./enums";
 
 const BlogSchema = new Schema<BlogType, BlogModelType, BlogMethodsType>({
     name: {type: String, required: true, maxlength: 15},
     description: {type: String, required: true, maxlength: 500},
-    websiteUrl: {type: String, required: true, maxlength: 100, validate: (val: string) =>
-        { return val.match("^https://([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$") }},
+    websiteUrl: {
+        type: String, required: true, maxlength: 100, validate: (val: string) => {
+            return val.match("^https://([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$")
+        }
+    },
     createdAt: {type: String, required: true}
 })
-BlogSchema.methods.updateBlog = function (dto: UpdateBlogType) {
+BlogSchema.methods.updateBlog = function (dto: UpdateBlogTypeM) {
     this.name = dto.name
     this.description = dto.description
     this.websiteUrl = dto.websiteUrl
 }
-BlogSchema.statics.createBlog = function (dto: UpdateBlogType): Promise<HydratedDocument<BlogType, BlogMethodsType>> {
+BlogSchema.statics.createBlog = function (dto: CreateBlogTypeM): Promise<HDBlogType> {
     return BlogModel.create({
         ...dto,
         createdAt: new Date().toISOString()
@@ -38,22 +42,26 @@ BlogSchema.statics.findBlogWithId = async function (id: string): Promise<BlogWit
     const foundBlog = await BlogModel.findById({_id: id})
     if (!foundBlog) return null
     return {
-        id: foundBlog._id.toString(),
+        id: foundBlog.id,
         name: foundBlog.name,
         description: foundBlog.description,
         websiteUrl: foundBlog.websiteUrl,
         createdAt: foundBlog.createdAt
     }
 }
-BlogSchema.statics.findBlogsWithId = async function (dto: FindBlogsWithIdType): Promise<BlogWithIdType[]> {
+BlogSchema.statics.findBlogsWithId = async function (dto: FindBlogsType): Promise<BlogWithIdType[]> {
+    let {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = dto
+
+    sortBy = sortBy === 'id' ? '_id' : sortBy
+    const optionsSort: { [key: string]: SortDirection } = {[sortBy]: sortDirection}
+
     return (await BlogModel.find()
-        .where('name').regex(RegExp(dto.searchNameTerm, 'i'))
-        .skip((dto.pageNumber - 1) * dto.pageSize)
-        .limit(dto.pageSize)
-        .sort(dto.optionsSort)
-        .lean())
+        .where('name').regex(RegExp(searchNameTerm, 'i'))
+        .skip((pageNumber - 1) * pageSize)
+        .limit(pageSize)
+        .sort(optionsSort))
         .map(foundBlog => ({
-            id: foundBlog._id.toString(),
+            id: foundBlog.id,
             name: foundBlog.name,
             description: foundBlog.description,
             websiteUrl: foundBlog.websiteUrl,
@@ -69,12 +77,102 @@ BlogSchema.statics.findHDBlog = async function (id: string): Promise<HDBlogType 
 }
 export const BlogModel = model<BlogType, BlogModelType>('blogs', BlogSchema)
 
+const PostSchema = new Schema<PostType, PostModelType, PostMethodsType>({
+    title: {type: String, required: true, maxlength: 30},
+    shortDescription: {type: String, required: true, maxlength: 100},
+    content: {type: String, required: true, maxlength: 1000},
+    blogId: {type: String, required: true},
+    blogName: {type: String, required: true, maxlength: 15},
+    createdAt: {type: String, required: true}
+})
+PostSchema.methods.updatePost = function (dto: UpdatePostTypeM) {
+    this.title = dto.title
+    this.shortDescription = dto.shortDescription
+    this.content = dto.content
+    this.blogId = dto.blogId
+    this.blogName = dto.blogName
+}
+PostSchema.statics.createPost = function (dto: CreatePostTypeM): Promise<HDPostType> {
+    return PostModel.create({
+        ...dto,
+        createdAt: new Date().toISOString()
+    })
+}
+PostSchema.statics.findHDPost = async function (id: string): Promise<HDPostType | null> {
+    return PostModel.findById(id)
+}
+PostSchema.statics.isPostExist = async function (id: string): Promise<boolean> {
+    return !!(await PostModel.findById({_id: id}))
+}
+PostSchema.statics.findPostsWithId = async function (dto: FindPostsType): Promise<PostWithIdType[]> {
+    let {pageNumber, pageSize, sortBy, sortDirection} = dto
+
+    sortBy = sortBy === 'id' ? '_id' : sortBy
+    const optionsSort: { [key: string]: SortDirection } = {[sortBy]: sortDirection}
+
+    return (await PostModel.find()
+        .skip((pageNumber - 1) * pageSize)
+        .limit(pageSize)
+        .sort(optionsSort))
+        .map(foundPost => ({
+            id: foundPost.id,
+            title: foundPost.title,
+            shortDescription: foundPost.shortDescription,
+            content: foundPost.content,
+            blogId: foundPost.blogId,
+            blogName: foundPost.blogName,
+            createdAt: foundPost.createdAt
+        }))
+}
+PostSchema.statics.findPostWithId = async function (id: string): Promise<PostWithIdType | null> {
+    const foundPost = await PostModel.findById({_id: id})
+    if (!foundPost) return null
+    return {
+        id: foundPost.id,
+        title: foundPost.title,
+        shortDescription: foundPost.shortDescription,
+        content: foundPost.content,
+        blogId: foundPost.blogId,
+        blogName: foundPost.blogName,
+        createdAt: foundPost.createdAt
+    }
+}
+PostSchema.statics.findPostsByBlogId = async function (dto: FindPostsByBlogId): Promise<PostWithIdType[] | null> {
+    let {blogId, pageNumber, pageSize, sortBy, sortDirection} = dto
+
+    sortBy = sortBy === 'id' ? '_id' : sortBy
+    const optionsSort: { [key: string]: SortDirection } = {[sortBy]: sortDirection}
+
+    return (await PostModel.find()
+        .where('blogId').equals(blogId)
+        .skip((pageNumber - 1) * pageSize)
+        .limit(pageSize)
+        .sort(optionsSort))
+        .map(foundPost => ({
+            id: foundPost.id,
+            title: foundPost.title,
+            shortDescription: foundPost.shortDescription,
+            content: foundPost.content,
+            blogId: foundPost.blogId,
+            blogName: foundPost.blogName,
+            createdAt: foundPost.createdAt
+        }))
+}
+
+export const PostModel = model<PostType, PostModelType>('posts', PostSchema)
+
 const UserAccountSchema = new Schema<UserAccountType>({
-    login: {type: String, required: true, minlength: 3, maxlength: 30, validate: (val: string) =>
-        { return val.match("^[a-zA-Z0-9_-]*$") }},
+    login: {
+        type: String, required: true, minlength: 3, maxlength: 30, validate: (val: string) => {
+            return val.match("^[a-zA-Z0-9_-]*$")
+        }
+    },
     passwordHash: {type: String, required: true},
-    email: {type: String, required: true, validate: (val: string) =>
-        { return val.match("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$") }},
+    email: {
+        type: String, required: true, validate: (val: string) => {
+            return val.match("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
+        }
+    },
     createdAt: {type: String, required: true}
 })
 const EmailConfirmationSchema = new Schema<EmailConfirmationType>({
@@ -85,14 +183,6 @@ const EmailConfirmationSchema = new Schema<EmailConfirmationType>({
 const UserSchema = new Schema<UserDBType>({
     accountData: {type: UserAccountSchema, required: true},
     emailConfirmation: {type: EmailConfirmationSchema, required: true}
-})
-const PostSchema = new Schema<PostDBType>({
-    title: {type: String, required: true, maxlength: 30},
-    shortDescription: {type: String, required: true, maxlength: 100},
-    content: {type: String, required: true, maxlength: 1000},
-    blogId: {type: String, required: true},
-    blogName: {type: String, required: true, maxlength: 15},
-    createdAt: {type: String, required: true}
 })
 const CommentSchema = new Schema<CommentDBType>({
     content: {type: String, required: true, minlength: 20, maxlength: 300},
@@ -115,14 +205,16 @@ const AttemptsDataSchema = new Schema<AttemptsDataDBType>({
     date: {type: Date, required: true}
 })
 const PasswordRecoverySchema = new Schema<PasswordRecoveryType>({
-    email: {type: String, required: true, validate: (val: string) =>
-        { return val.match("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$") }},
+    email: {
+        type: String, required: true, validate: (val: string) => {
+            return val.match("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")
+        }
+    },
     recoveryCode: {type: String, required: true},
     expirationDate: {type: Date, required: true}
 })
 
 export const UserModel = model('users', UserSchema)
-export const PostModel = model('posts', PostSchema)
 export const CommentModel = model('comments', CommentSchema)
 export const SessionModel = model('sessions', SessionSchema)
 export const AttemptsDataModel = model('attempts_data', AttemptsDataSchema)

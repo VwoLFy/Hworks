@@ -18,23 +18,14 @@ type BlogOutputPageType = {
 
 export const blogsQueryRepo = {
     async findBlogs(dto: FindBlogsType): Promise<BlogOutputPageType> {
-        let {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = dto
-        sortBy = sortBy === 'id' ? '_id' : sortBy
-        const optionsSort = {[sortBy]: sortDirection}
-
+        const {searchNameTerm, pageNumber, pageSize} = dto
         const totalCount = await BlogModel.countDocuments().where('name').regex(RegExp(searchNameTerm, 'i'))
         const pagesCount = Math.ceil(totalCount / pageSize)
-        const page = pageNumber;
 
-        const items: BlogOutputModelType[] = await BlogModel.findBlogsWithId({
-            searchNameTerm,
-            pageNumber,
-            pageSize,
-            optionsSort
-        })
+        const items: BlogOutputModelType[] = await BlogModel.findBlogsWithId(dto)
         return {
             pagesCount,
-            page,
+            page: pageNumber,
             pageSize,
             totalCount,
             items

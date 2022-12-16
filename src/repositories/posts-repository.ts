@@ -1,20 +1,9 @@
 import {PostModel} from "../types/mongoose-schemas-models";
-import {PostType} from "../types/types";
+import {HDPostType} from "../types/types";
 
 export const postsRepository = {
-    async createPost(newPost: PostType): Promise<string> {
-        const result = await PostModel.create(newPost)
-        return result.id
-    },
-    async updatePost(id: string, title: string, shortDescription: string, content: string, blogId: string): Promise<boolean> {
-        const result = await PostModel.updateOne(
-            {_id: id},
-            {$set: {title, shortDescription, content, blogId}}
-        );
-        return result.matchedCount !== 0
-    },
-    async isPostExist(id: string): Promise<boolean> {
-        return !!(await PostModel.findById({_id: id}))
+    async savePost(newPost: HDPostType) {
+        await newPost.save()
     },
     async deletePost(id: string): Promise<boolean> {
         const result = await PostModel.deleteOne({_id: id})
@@ -26,5 +15,6 @@ export const postsRepository = {
     },
     async deleteAll() {
         await PostModel.deleteMany({})
-    }
+    },
+
 }

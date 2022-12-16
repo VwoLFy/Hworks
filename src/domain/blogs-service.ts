@@ -1,19 +1,20 @@
 import {blogsRepository} from "../repositories/blogs-repository";
 import {postsRepository} from "../repositories/posts-repository";
 import {BlogModel} from "../types/mongoose-schemas-models";
-import {CreateBlogType, HDBlogType, UpdateBlogType} from "../types/types";
+import {CreateBlogTypeM, HDBlogType, UpdateBlogTypeM} from "../types/types";
 
 export const blogsService = {
-    async createBlog(dto: CreateBlogType): Promise<string> {
+    async createBlog(dto: CreateBlogTypeM): Promise<string> {
         const newBlog: HDBlogType = await BlogModel.createBlog(dto)
-        await blogsRepository.blogSave(newBlog)
+        await blogsRepository.saveBlog(newBlog)
         return newBlog.id
     },
-    async updateBlog(id: string, dto: UpdateBlogType): Promise<boolean> {
+    async updateBlog(id: string, dto: UpdateBlogTypeM): Promise<boolean> {
         const blog: HDBlogType | null = await BlogModel.findHDBlog(id)
         if (!blog) return false
+
         blog.updateBlog(dto)
-        await blogsRepository.blogSave(blog)
+        await blogsRepository.saveBlog(blog)
         return true
     },
     async deleteBlog(id: string): Promise<boolean> {

@@ -67,9 +67,13 @@ blogsRouter.put('/:id', updateBlogValidation, async (req: RequestWithParamAndBod
     }
 })
 blogsRouter.get('/:id/posts', getPostsByBlogIdValidation, async (req: RequestWithParamAndQuery<BlogQueryModelType>, res: Response<TypePostViewModelPage>) => {
-    const {pageNumber, pageSize, sortBy, sortDirection} = req.query
-
-    const foundBlog = await postsQueryRepo.findPostsByBlogId(req.params.id, +pageNumber, +pageSize, sortBy, sortDirection);
+    const foundBlog = await postsQueryRepo.findPostsByBlogId({
+        blogId: req.params.id,
+        pageNumber: +req.query.pageNumber,
+        pageSize: +req.query.pageSize,
+        sortBy: req.query.sortBy,
+        sortDirection: req.query.sortDirection
+    })
     if (!foundBlog) {
         res.sendStatus(HTTP_Status.NOT_FOUND_404)
     } else {
@@ -77,7 +81,12 @@ blogsRouter.get('/:id/posts', getPostsByBlogIdValidation, async (req: RequestWit
     }
 })
 blogsRouter.post('/:id/posts', createPostsByBlogIdValidation, async (req: RequestWithParamAndBody<BlogPostInputModelType>, res: Response<PostViewModelType>) => {
-    const createdPostId = await postsService.createPost(req.body.title, req.body.shortDescription, req.body.content, req.params.id)
+    const createdPostId = await postsService.createPost({
+        title: req.body.title,
+        shortDescription: req.body.shortDescription,
+        content: req.body.content,
+        blogId: req.params.id
+    })
     if (!createdPostId) {
         res.sendStatus(HTTP_Status.NOT_FOUND_404)
     } else {
