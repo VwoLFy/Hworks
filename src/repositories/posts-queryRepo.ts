@@ -1,4 +1,4 @@
-import {FindPostsByBlogId, FindPostsType} from "../types/types";
+import {FindPostsByBlogIdType, FindPostsType} from "../types/types";
 import {PostModel} from "../types/mongoose-schemas-models";
 
 type PostOutputModelType = {
@@ -37,7 +37,7 @@ export const postsQueryRepo = {
         const foundPost: PostOutputModelType | null = await PostModel.findPostWithId(id)
         return foundPost ? foundPost : null
     },
-    async findPostsByBlogId(dto: FindPostsByBlogId): Promise<PostOutputPageType | null> {
+    async findPostsByBlogId(dto: FindPostsByBlogIdType): Promise<PostOutputPageType | null> {
         let {blogId, pageNumber, pageSize} = dto
 
         const totalCount = await PostModel.countDocuments().where('blogId').equals(blogId)

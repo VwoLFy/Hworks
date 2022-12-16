@@ -71,15 +71,14 @@ export type PasswordRecoveryType = {
 export type UserDBType = UserType & {_id: ObjectId}
 export type CommentDBType = CommentType & {_id: ObjectId}
 export type SessionDBType = SessionType & {_id: ObjectId}
-export type AttemptsDataDBType = AttemptsDataType & {_id: ObjectId}
 
 export type UserWithIdType = UserType & {id: string}
 export type BlogWithIdType = BlogType & {id: string}
 export type PostWithIdType = PostType & {id: string}
 export type CommentWithIdType = CommentType & {id: string}
 export type SessionWithIdType = SessionType & {id: string}
-export type AttemptsDataWithIdType = AttemptsDataType & {id: string}
 
+//blogs-----------------------------
 export interface BlogMethodsType {
     updateBlog(dto: UpdateBlogTypeM): void
 }
@@ -110,6 +109,7 @@ export type FindBlogsType = {
     sortDirection: SortDirection
 }
 
+//posts-----------------------------
 export interface PostMethodsType {
     updatePost(dto: UpdatePostTypeM): void
 }
@@ -119,7 +119,7 @@ export interface PostModelType extends Model<PostType, {}, PostMethodsType> {
     isPostExist(id: string): Promise<boolean>
     findPostsWithId(dto: FindPostsType): Promise<PostWithIdType[]>
     findPostWithId (id: string): Promise<PostWithIdType | null>
-    findPostsByBlogId (dto: FindPostsByBlogId): Promise<PostWithIdType[] | null>
+    findPostsByBlogId (dto: FindPostsByBlogIdType): Promise<PostWithIdType[] | null>
 }
 export type HDPostType = HydratedDocument<PostType, PostMethodsType>
 
@@ -137,6 +137,12 @@ export type UpdatePostTypeM = {
     blogId: string
     blogName: string
 }
+export type CreatePostsByBlogIdR = {
+    title: string
+    shortDescription: string
+    content: string
+    blogId: string
+}
 export type UpdatePostTypeR = {
     title: string
     shortDescription: string
@@ -149,16 +155,18 @@ export type FindPostsType = {
     sortBy: string
     sortDirection: SortDirection
 }
-export type FindPostsByBlogId = {
+export type FindPostsByBlogIdType = {
     blogId: string
     pageNumber: number
     pageSize: number
     sortBy: string
     sortDirection: SortDirection
 }
-export type CreatePostsByBlogIdR = {
-    title: string
-    shortDescription: string
-    content: string
-    blogId: string
+
+//attempts-----------------------------
+export interface AttemptsDataMethodsType {
+}
+export interface AttemptsDataModelType extends Model<AttemptsDataType, {}, AttemptsDataMethodsType> {
+    findAttempts(ip: string, url: string): Promise<number>
+    addAttemptToList(ip: string, url: string): void
 }

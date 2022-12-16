@@ -1,12 +1,12 @@
 import {model, Schema} from "mongoose";
 import {
-    AttemptsDataDBType,
+    AttemptsDataMethodsType, AttemptsDataModelType, AttemptsDataType,
     BlogMethodsType,
     BlogModelType,
     BlogType,
     BlogWithIdType,
     CommentDBType, CreateBlogTypeM, CreatePostTypeM,
-    EmailConfirmationType, FindBlogsType, FindPostsByBlogId,
+    EmailConfirmationType, FindBlogsType, FindPostsByBlogIdType,
     FindPostsType, HDBlogType, HDPostType,
     PasswordRecoveryType,
     PostMethodsType, PostModelType, PostType, PostWithIdType,
@@ -16,6 +16,7 @@ import {
     UserDBType
 } from "./types";
 import {SortDirection} from "./enums";
+import add from "date-fns/add";
 
 const BlogSchema = new Schema<BlogType, BlogModelType, BlogMethodsType>({
     name: {type: String, required: true, maxlength: 15},
@@ -137,7 +138,7 @@ PostSchema.statics.findPostWithId = async function (id: string): Promise<PostWit
         createdAt: foundPost.createdAt
     }
 }
-PostSchema.statics.findPostsByBlogId = async function (dto: FindPostsByBlogId): Promise<PostWithIdType[] | null> {
+PostSchema.statics.findPostsByBlogId = async function (dto: FindPostsByBlogIdType): Promise<PostWithIdType[] | null> {
     let {blogId, pageNumber, pageSize, sortBy, sortDirection} = dto
 
     sortBy = sortBy === 'id' ? '_id' : sortBy
@@ -158,8 +159,32 @@ PostSchema.statics.findPostsByBlogId = async function (dto: FindPostsByBlogId): 
             createdAt: foundPost.createdAt
         }))
 }
-
 export const PostModel = model<PostType, PostModelType>('posts', PostSchema)
+
+const AttemptsDataSchema = new Schema<AttemptsDataType, AttemptsDataModelType, AttemptsDataMethodsType>({
+    ip: {type: String, required: true},
+    url: {type: String, required: true},
+    date: {type: Date, required: true}
+})
+AttemptsDataSchema.statics.findAttempts = async function (ip: string, url: string): Promise<number> {
+    const fromDate = +add(new Date(), {seconds: -10})
+    let query = AttemptsDataModel.countDocuments()
+        .where('ip').equals(ip)
+        .where('url').equals(url)
+        .where('date').gte(fromDate)
+    return query.exec()
+}
+AttemptsDataSchema.statics.addAttemptToList = async function (ip: string, url: string) {
+    await AttemptsDataModel.create(
+        {
+            ip,
+            url,
+            date: new Date()
+        }
+    )
+}
+export const AttemptsDataModel = model<AttemptsDataType, AttemptsDataModelType>('attempts_data', AttemptsDataSchema)
+
 
 const UserAccountSchema = new Schema<UserAccountType>({
     login: {
@@ -199,11 +224,6 @@ const SessionSchema = new Schema<SessionDBType>({
     iat: {type: Number, required: true},
     deviceId: {type: String, required: true},
 })
-const AttemptsDataSchema = new Schema<AttemptsDataDBType>({
-    ip: {type: String, required: true},
-    url: {type: String, required: true},
-    date: {type: Date, required: true}
-})
 const PasswordRecoverySchema = new Schema<PasswordRecoveryType>({
     email: {
         type: String, required: true, validate: (val: string) => {
@@ -217,5 +237,4 @@ const PasswordRecoverySchema = new Schema<PasswordRecoveryType>({
 export const UserModel = model('users', UserSchema)
 export const CommentModel = model('comments', CommentSchema)
 export const SessionModel = model('sessions', SessionSchema)
-export const AttemptsDataModel = model('attempts_data', AttemptsDataSchema)
 export const PasswordRecoveryModel = model('pass_recovery', PasswordRecoverySchema)
