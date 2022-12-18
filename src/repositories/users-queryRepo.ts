@@ -1,4 +1,4 @@
-import {UserDBType} from "../types/types";
+import {UserClass} from "../types/types";
 import {SortDirection} from "../types/enums";
 import {UserModel} from "../types/mongoose-schemas-models";
 
@@ -55,14 +55,14 @@ class UsersQueryRepo{
         }
     }
     async findUserById(id: string): Promise<UserOutputModelType | null> {
-        const foundUser: UserDBType | null = await UserModel.findById({_id: id}).lean()
+        const foundUser: UserClass | null = await UserModel.findById({_id: id}).lean()
         if (!foundUser) {
             return null
         } else {
             return this.userWithReplaceId(foundUser)
         }
     }
-    userWithReplaceId(object: UserDBType): UserOutputModelType {
+    userWithReplaceId(object: UserClass): UserOutputModelType {
         return {
             id: object._id.toString(),
             login: object.accountData.login,

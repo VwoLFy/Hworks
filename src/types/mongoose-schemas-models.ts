@@ -5,14 +5,13 @@ import {
     BlogModelType,
     BlogType,
     BlogWithIdType, CommentClass,
-    CreateBlogTypeM, CreatePostTypeM,
-    EmailConfirmationType, FindBlogsType, FindPostsByBlogIdType,
+    CreateBlogTypeM, CreatePostTypeM, EmailConfirmationClass,
+    FindBlogsType, FindPostsByBlogIdType,
     FindPostsType, HDBlogType, HDPostType,
     PasswordRecoveryType,
     PostMethodsType, PostModelType, PostType, PostWithIdType, SessionClass,
-    UpdateBlogTypeM, UpdatePostTypeM,
-    UserAccountType,
-    UserDBType
+    UpdateBlogTypeM, UpdatePostTypeM, UserAccountClass,
+    UserClass
 } from "./types";
 import {SortDirection} from "./enums";
 import add from "date-fns/add";
@@ -185,7 +184,7 @@ AttemptsDataSchema.statics.addAttemptToList = async function (ip: string, url: s
 export const AttemptsDataModel = model<AttemptsDataType, AttemptsDataModelType>('attempts_data', AttemptsDataSchema)
 
 
-const UserAccountSchema = new Schema<UserAccountType>({
+const UserAccountSchema = new Schema<UserAccountClass>({
     login: {
         type: String, required: true, minlength: 3, maxlength: 30, validate: (val: string) => {
             return val.match("^[a-zA-Z0-9_-]*$")
@@ -199,12 +198,12 @@ const UserAccountSchema = new Schema<UserAccountType>({
     },
     createdAt: {type: String, required: true}
 })
-const EmailConfirmationSchema = new Schema<EmailConfirmationType>({
+const EmailConfirmationSchema = new Schema<EmailConfirmationClass>({
     isConfirmed: {type: Boolean, required: true},
     confirmationCode: {type: String},
     expirationDate: {type: Date, required: true}
 })
-const UserSchema = new Schema<UserDBType>({
+const UserSchema = new Schema<UserClass>({
     accountData: {type: UserAccountSchema, required: true},
     emailConfirmation: {type: EmailConfirmationSchema, required: true}
 })

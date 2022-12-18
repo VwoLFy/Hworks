@@ -12,22 +12,6 @@ export type RequestWithParamAndBody<B> = Request<URIParamsModelType, {}, B>
 export type RequestWithParamAndQuery<Q> = Request<URIParamsModelType, {}, {}, Q>
 //export type RequestWithParamAndBodyAndQuery<P, B, Q> = Request<P, {}, B, Q>
 
-export type UserType = {
-    accountData: UserAccountType
-    emailConfirmation: EmailConfirmationType
-}
-export type UserAccountType = {
-    login: string
-    passwordHash: string
-    email: string
-    createdAt: string
-}
-export type EmailConfirmationType = {
-    isConfirmed: boolean
-    confirmationCode: string
-    expirationDate: Date
-}
-
 export interface BlogType {
     name: string
     description: string
@@ -63,9 +47,6 @@ export type PasswordRecoveryType = {
     expirationDate: Date
 }
 
-export type UserDBType = UserType & { _id: ObjectId }
-
-export type UserWithIdType = UserType & { id: string }
 export type BlogWithIdType = BlogType & { id: string }
 export type PostWithIdType = PostType & { id: string }
 
@@ -179,6 +160,29 @@ export class SessionClass {
                 public title: string,
                 public iat: number,
                 public deviceId: string) {
+        this._id = new ObjectId()
+    }
+}
+export class UserAccountClass {
+    createdAt: string
+
+    constructor(public login: string,
+                public passwordHash: string,
+                public email: string) {
+        this.createdAt = new Date().toISOString()
+    }
+}
+export class EmailConfirmationClass {
+    constructor(public isConfirmed: boolean,
+                public confirmationCode: string,
+                public expirationDate: Date) {
+    }
+}
+export class UserClass {
+    _id: ObjectId
+
+    constructor(public accountData: UserAccountClass,
+                public emailConfirmation: EmailConfirmationClass) {
         this._id = new ObjectId()
     }
 }

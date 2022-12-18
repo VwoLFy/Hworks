@@ -1,25 +1,37 @@
 import {usersRepository} from "../repositories/users-repository";
 import bcrypt from "bcrypt"
-import {UserAccountType} from "../types/types";
+import {EmailConfirmationClass, UserAccountClass, UserClass} from "../types/types";
+import {ObjectId} from "mongodb";
 
-class UsersService{
+class UsersService {
     async createUser(login: string, password: string, email: string): Promise<string | null> {
         const isFreeLoginAndEmail: boolean = await usersRepository.isFreeLoginAndEmail(login, email)
         if (!isFreeLoginAndEmail) return null
         const passwordSalt = await bcrypt.genSalt(10)
         const passwordHash = await bcrypt.hash(password, passwordSalt)
 
-        const newUser: UserAccountType = {
+        const newUserAccount = new UserAccountClass(
             login,
             passwordHash,
-            email,
-            createdAt: (new Date()).toISOString(),
-        }
+            email
+        )
+        const newEmailConfirmation = new EmailConfirmationClass(
+            true,
+            '',
+            new Date(newUserAccount.createdAt)
+        )
+        const newUser = new UserClass(
+            newUserAccount,
+            newEmailConfirmation
+        )
+
         return await usersRepository.createUserAdm(newUser)
     }
-    async deleteUser(id: string): Promise<boolean> {
-        return await usersRepository.deleteUser(id)
+
+    async deleteUser(_id: string): Promise<boolean> {
+        return await usersRepository.deleteUser(new ObjectId(_id))
     }
+
     async deleteAll() {
         await usersRepository.deleteAll()
     }

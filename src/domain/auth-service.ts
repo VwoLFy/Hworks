@@ -3,7 +3,10 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from 'uuid'
 import add from "date-fns/add";
 import {emailManager} from "../managers/email-manager";
-import {EmailConfirmationType, PasswordRecoveryType, UserType, UserWithIdType} from "../types/types";
+import {
+    EmailConfirmationClass,
+    PasswordRecoveryType, UserAccountClass, UserClass,
+} from "../types/types";
 import {jwtService} from "../application/jwt-service";
 import {securityService} from "./security-service";
 import {PasswordRecoveryModel} from "../types/mongoose-schemas-models";
@@ -11,28 +14,29 @@ import {passRecoveryRepository} from "../repositories/pass-recovery-repository";
 
 class AuthService{
     async checkCredentials(loginOrEmail: string, password: string): Promise<string | null> {
-        const foundUser: UserWithIdType | null = await usersRepository.findUserByLoginOrEmail(loginOrEmail)
+        const foundUser: UserClass | null = await usersRepository.findUserByLoginOrEmail(loginOrEmail)
         if (!foundUser ||
             !foundUser.emailConfirmation.isConfirmed ||
             !await bcrypt.compare(password, foundUser.accountData.passwordHash)) return null
-        return foundUser.id.toString()
+        return foundUser._id.toString()
     }
     async createUser(login: string, password: string, email: string): Promise<boolean> {
         const passwordHash = await this.getPasswordHash(password)
 
-        const newUser: UserType = {
-            accountData: {
-                login,
-                passwordHash,
-                email,
-                createdAt: (new Date()).toISOString(),
-            },
-            emailConfirmation: {
-                isConfirmed: false,
-                expirationDate: add(new Date(), {hours: 1}),
-                confirmationCode: uuidv4()
-            }
-        }
+        const newUserAccount = new UserAccountClass(
+            login,
+            passwordHash,
+            email
+        )
+        const newEmailConfirmation = new EmailConfirmationClass(
+            false,
+            uuidv4(),
+            add(new Date(), {hours: 1})
+        )
+        const newUser = new UserClass(
+            newUserAccount,
+            newEmailConfirmation
+        )
         const newUserId = await usersRepository.createUser(newUser)
 
         try {
@@ -45,13 +49,13 @@ class AuthService{
         return true
     }
     async confirmEmail(confirmationCode: string): Promise<boolean> {
-        const emailConfirmation: EmailConfirmationType | null = await usersRepository.findEmailConfirmationByCode(confirmationCode)
+        const emailConfirmation: EmailConfirmationClass | null = await usersRepository.findEmailConfirmationByCode(confirmationCode)
         if (!emailConfirmation) return false
 
         return await usersRepository.updateConfirmation(confirmationCode)
     }
     async registrationResendEmail(email: string): Promise<boolean> {
-        const foundUser: UserWithIdType | null = await usersRepository.findUserByLoginOrEmail(email)
+        const foundUser: UserClass | null = await usersRepository.findUserByLoginOrEmail(email)
         if (!foundUser) return false
         if (!foundUser.emailConfirmation) return false
 
@@ -63,7 +67,7 @@ class AuthService{
             await emailManager.sendEmailConfirmationMessage(email, foundUser.emailConfirmation.confirmationCode)
         } catch (e) {
             console.log(e)
-            await usersRepository.deleteUser(foundUser.id)
+            await usersRepository.deleteUser(foundUser._id)
             return false
         }
         return true
