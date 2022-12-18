@@ -5,7 +5,7 @@ import {RefreshTokenDataType} from "../application/jwt-service";
 import {HydratedDocument, Model} from "mongoose";
 import {SortDirection} from "./enums";
 
-export type RequestWithParam= Request<URIParamsModelType>
+export type RequestWithParam = Request<URIParamsModelType>
 export type RequestWithBody<B> = Request<{}, {}, B>
 export type RequestWithQuery<Q> = Request<{}, {}, {}, Q>
 export type RequestWithParamAndBody<B> = Request<URIParamsModelType, {}, B>
@@ -27,12 +27,14 @@ export type EmailConfirmationType = {
     confirmationCode: string
     expirationDate: Date
 }
+
 export interface BlogType {
     name: string
     description: string
     websiteUrl: string
     createdAt: string
 }
+
 export type PostType = {
     title: string
     shortDescription: string
@@ -40,13 +42,6 @@ export type PostType = {
     blogId: string
     blogName: string
     createdAt: string
-}
-export type CommentType = {
-    content: string
-    userId: string
-    userLogin: string
-    createdAt: string
-    postId: string
 }
 export type SessionType = {
     userId: string
@@ -68,15 +63,12 @@ export type PasswordRecoveryType = {
     expirationDate: Date
 }
 
-export type UserDBType = UserType & {_id: ObjectId}
-export type CommentDBType = CommentType & {_id: ObjectId}
-export type SessionDBType = SessionType & {_id: ObjectId}
+export type UserDBType = UserType & { _id: ObjectId }
+export type SessionDBType = SessionType & { _id: ObjectId }
 
-export type UserWithIdType = UserType & {id: string}
-export type BlogWithIdType = BlogType & {id: string}
-export type PostWithIdType = PostType & {id: string}
-export type CommentWithIdType = CommentType & {id: string}
-export type SessionWithIdType = SessionType & {id: string}
+export type UserWithIdType = UserType & { id: string }
+export type BlogWithIdType = BlogType & { id: string }
+export type PostWithIdType = PostType & { id: string }
 
 //blogs-----------------------------
 export interface BlogMethodsType {
@@ -84,9 +76,13 @@ export interface BlogMethodsType {
 }
 export interface BlogModelType extends Model<BlogType, {}, BlogMethodsType> {
     createBlog(dto: CreateBlogTypeM): HDBlogType
+
     findBlogWithId(id: string): Promise<BlogWithIdType | null>
+
     findBlogsWithId(dto: FindBlogsType): Promise<BlogWithIdType[]>
+
     findBlogNameById(id: string): Promise<string | null>
+
     findHDBlog(id: string): Promise<HDBlogType | null>
 }
 export type HDBlogType = HydratedDocument<BlogType, BlogMethodsType>
@@ -115,11 +111,16 @@ export interface PostMethodsType {
 }
 export interface PostModelType extends Model<PostType, {}, PostMethodsType> {
     createPost(dto: CreatePostTypeM): HDPostType
+
     findHDPost(id: string): Promise<HDPostType | null>
+
     isPostExist(id: string): Promise<boolean>
+
     findPostsWithId(dto: FindPostsType): Promise<PostWithIdType[]>
-    findPostWithId (id: string): Promise<PostWithIdType | null>
-    findPostsByBlogId (dto: FindPostsByBlogIdType): Promise<PostWithIdType[] | null>
+
+    findPostWithId(id: string): Promise<PostWithIdType | null>
+
+    findPostsByBlogId(dto: FindPostsByBlogIdType): Promise<PostWithIdType[] | null>
 }
 export type HDPostType = HydratedDocument<PostType, PostMethodsType>
 
@@ -168,5 +169,19 @@ export interface AttemptsDataMethodsType {
 }
 export interface AttemptsDataModelType extends Model<AttemptsDataType, {}, AttemptsDataMethodsType> {
     findAttempts(ip: string, url: string): Promise<number>
+
     addAttemptToList(ip: string, url: string): void
+}
+
+export class CommentClass {
+    _id: ObjectId
+    createdAt: string
+
+    constructor(public content: string,
+                public userId: string,
+                public userLogin: string,
+                public postId: string) {
+        this._id = new ObjectId()
+        this.createdAt = new Date().toISOString()
+    }
 }

@@ -13,27 +13,35 @@ import {
 
 export const commentsRouter = Router({})
 
-commentsRouter.get(('/:id'), getCommentByIdValidation, async (req: RequestWithParam, res: Response<CommentViewModelType>) => {
-    const foundComment = await commentsQueryRepo.findCommentById(req.params.id);
-    if (!foundComment) {
-        res.sendStatus(HTTP_Status.NOT_FOUND_404)
-    } else {
-        res.status(HTTP_Status.OK_200).json(foundComment)
+class CommentsController {
+    async getComment(req: RequestWithParam, res: Response<CommentViewModelType>) {
+        const foundComment = await commentsQueryRepo.findCommentById(req.params.id);
+        if (!foundComment) {
+            res.sendStatus(HTTP_Status.NOT_FOUND_404)
+        } else {
+            res.status(HTTP_Status.OK_200).json(foundComment)
+        }
     }
-})
-commentsRouter.put(('/:id'), updateCommentByIdValidation, async (req: RequestWithParamAndBody<CommentInputModelType>, res: Response) => {
-    const updateStatus = await commentsService.updateComment(req.params.id, req.body.content, req.userId)
-    if (!updateStatus) {
-        res.sendStatus(HTTP_Status.NOT_FOUND_404)
-    } else {
-        res.sendStatus(updateStatus as HTTP_Status)
+    async updateComment(req: RequestWithParamAndBody<CommentInputModelType>, res: Response) {
+        const updateStatus = await commentsService.updateComment(req.params.id, req.body.content, req.userId)
+        if (!updateStatus) {
+            res.sendStatus(HTTP_Status.NOT_FOUND_404)
+        } else {
+            res.sendStatus(updateStatus as HTTP_Status)
+        }
     }
-})
-commentsRouter.delete(('/:id'), deleteCommentByIdValidation, async (req: RequestWithParam, res: Response) => {
-    const deleteStatus = await commentsService.deleteComment(req.params.id, req.userId)
-    if (!deleteStatus) {
-        res.sendStatus(HTTP_Status.NOT_FOUND_404)
-    } else {
-        res.sendStatus(deleteStatus as HTTP_Status)
+    async deleteComment(req: RequestWithParam, res: Response) {
+        const deleteStatus = await commentsService.deleteComment(req.params.id, req.userId)
+        if (!deleteStatus) {
+            res.sendStatus(HTTP_Status.NOT_FOUND_404)
+        } else {
+            res.sendStatus(deleteStatus as HTTP_Status)
+        }
     }
-})
+}
+
+const commentsController = new CommentsController()
+
+commentsRouter.get('/:id', getCommentByIdValidation, commentsController.getComment)
+commentsRouter.put('/:id', updateCommentByIdValidation, commentsController.updateComment)
+commentsRouter.delete('/:id', deleteCommentByIdValidation, commentsController.deleteComment)

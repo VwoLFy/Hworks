@@ -16,9 +16,9 @@ type TokensType = {
 
 export const jwtService = {
     async createJWT(userId: string, deviceId: string | null): Promise<TokensType> {
-        const accessToken = jwt.sign({userId}, settings.JWT_SECRET, {expiresIn: '10s'})
+        const accessToken = jwt.sign({userId}, settings.JWT_SECRET, {expiresIn: '10m'})
         deviceId = deviceId ? deviceId : await securityService.newDeviceId()
-        const refreshToken = jwt.sign({userId, deviceId}, settings.JWT_SECRET_FOR_REFRESHTOKEN, {expiresIn: '20s'})
+        const refreshToken = jwt.sign({userId, deviceId}, settings.JWT_SECRET_FOR_REFRESHTOKEN, {expiresIn: '1d'})
         return {accessToken, refreshToken}
     },
     async updateTokens(usedRefreshTokenData: RefreshTokenDataType, ip: string, title: string): Promise<TokensType> {

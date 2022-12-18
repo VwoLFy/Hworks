@@ -742,6 +742,7 @@ describe('Test of the Homework', () => {
                 .auth(validAccessToken.accessToken, {type: "bearer"})
                 .expect(HTTP_Status.OK_200)
         })
+/*
         it('GET shouldn`t get data about user when the AccessToken has expired', async () => {
             await delay(10000);
 
@@ -769,7 +770,9 @@ describe('Test of the Homework', () => {
                 .set("Cookie", `refreshToken=${validRefreshToken}`)
                 .expect(HTTP_Status.UNAUTHORIZED_401)
         }, 15000);
+       */
         it('POST should authenticate user with correct email', async () => {
+            await delay(10000);
             const result = await request(app)
                 .post('/auth/login')
                 .send({
@@ -792,7 +795,7 @@ describe('Test of the Homework', () => {
             expect(refreshTokenKey).toBe('refreshToken')
             expect(oldRefreshToken).not.toEqual(validRefreshToken)
 
-        })
+        }, 15000)
         it('POST should return new tokens; content: AccessToken, RefreshToken in cookie (http only, secure)', async () => {
             const result = await request(app)
                 .post('/auth/refresh-token')

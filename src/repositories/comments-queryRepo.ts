@@ -1,5 +1,5 @@
 import {SortDirection} from "../types/enums";
-import {CommentDBType} from "../types/types";
+import {CommentClass} from "../types/types";
 import {CommentModel} from "../types/mongoose-schemas-models";
 
 type CommentOutputModelType = {
@@ -17,12 +17,12 @@ type CommentOutputPageType = {
     items:  CommentOutputModelType[]
 }
 
-export const commentsQueryRepo = {
+class CommentsQueryRepo {
     async findCommentById(id: string): Promise<CommentOutputModelType | null> {
-        const foundComment: CommentDBType | null = await CommentModel.findById({_id: id}).lean()
+        const foundComment: CommentClass | null = await CommentModel.findById({_id: id}).lean()
         if (!foundComment) return null
         return this.commentWithReplaceId(foundComment)
-    },
+    }
     async findCommentsByPostId(postId: string, page: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<CommentOutputPageType | null> {
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const sortOptions = {[sortBy]: sortDirection}
@@ -44,8 +44,8 @@ export const commentsQueryRepo = {
             totalCount,
             items
         }
-    },
-    commentWithReplaceId(comment: CommentDBType): CommentOutputModelType {
+    }
+    commentWithReplaceId(comment: CommentClass): CommentOutputModelType {
         return {
             id: comment._id.toString(),
             content: comment.content,
@@ -54,5 +54,7 @@ export const commentsQueryRepo = {
             createdAt: comment.createdAt
 
         }
-    },
+    }
 }
+
+export const commentsQueryRepo = new CommentsQueryRepo()

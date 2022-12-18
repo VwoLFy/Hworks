@@ -1,15 +1,15 @@
-import {CommentType, CommentDBType} from "../types/types";
+import {CommentClass} from "../types/types";
 import {CommentModel} from "../types/mongoose-schemas-models";
 
-export const commentsRepository = {
+class CommentsRepository {
     async findUserIdByCommentId(id: string): Promise<string | null> {
-        const foundComment: CommentDBType | null = await CommentModel.findById({_id: id})
+        const foundComment: CommentClass | null = await CommentModel.findById({_id: id})
         return foundComment ? foundComment.userId : null
-    },
-    async createComment (newComment: CommentType): Promise<string> {
+    }
+    async createComment (newComment: CommentClass): Promise<string> {
         const result = await CommentModel.create(newComment)
         return result.id
-    },
+    }
     async updateComment(id: string, content: string): Promise<number | null> {
         const result = await CommentModel.updateOne(
             {_id: id},
@@ -20,7 +20,7 @@ export const commentsRepository = {
         } else {
             return 204
         }
-    },
+    }
     async deleteComment(id: string): Promise<number | null> {
         const result = await CommentModel.deleteOne({_id: id})
         if (!result.deletedCount) {
@@ -28,8 +28,10 @@ export const commentsRepository = {
         } else {
             return 204
         }
-    },
+    }
     async deleteAll() {
         CommentModel.deleteMany({})
     }
 }
+
+export const commentsRepository = new CommentsRepository()

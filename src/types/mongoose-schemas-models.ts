@@ -4,8 +4,8 @@ import {
     BlogMethodsType,
     BlogModelType,
     BlogType,
-    BlogWithIdType,
-    CommentDBType, CreateBlogTypeM, CreatePostTypeM,
+    BlogWithIdType, CommentClass,
+    CreateBlogTypeM, CreatePostTypeM,
     EmailConfirmationType, FindBlogsType, FindPostsByBlogIdType,
     FindPostsType, HDBlogType, HDPostType,
     PasswordRecoveryType,
@@ -209,7 +209,8 @@ const UserSchema = new Schema<UserDBType>({
     accountData: {type: UserAccountSchema, required: true},
     emailConfirmation: {type: EmailConfirmationSchema, required: true}
 })
-const CommentSchema = new Schema<CommentDBType>({
+const CommentSchema = new Schema<CommentClass>({
+    _id: {type: Schema.Types.ObjectId, required: true},
     content: {type: String, required: true, minlength: 20, maxlength: 300},
     userId: {type: String, required: true},
     userLogin: {type: String, required: true, minlength: 3, maxlength: 30},
