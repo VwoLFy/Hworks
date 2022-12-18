@@ -27,7 +27,7 @@ export const createCommentValidation = [
     inputValidationMiddleware,
     checkIdValidForMongodb
 ]
-export const getCommentByPostIdValidation = [
+export const getCommentsByPostIdValidation = [
     checkIdValidForMongodb,
     ...commentQueryValidation
 ]

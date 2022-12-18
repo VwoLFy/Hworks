@@ -1,4 +1,4 @@
-import {SessionDBType} from "../types/types";
+import {SessionClass} from "../types/types";
 import {SessionModel} from "../types/mongoose-schemas-models";
 
 type DeviceOutputModelType = {
@@ -8,11 +8,11 @@ type DeviceOutputModelType = {
     deviceId: string
 }
 
-export const securityQueryRepo = {
+class SecurityQueryRepo {
     async findUserSessions(userId: string): Promise<DeviceOutputModelType[]> {
         return (await SessionModel.find({userId}).lean()).map(s => this.getOutputModel(s))
-    },
-    getOutputModel(session: SessionDBType): DeviceOutputModelType {
+    }
+    getOutputModel(session: SessionClass): DeviceOutputModelType {
         return {
             ip: session.ip,
             title: session.title,
@@ -21,3 +21,5 @@ export const securityQueryRepo = {
         }
     }
 }
+
+export const securityQueryRepo = new SecurityQueryRepo()

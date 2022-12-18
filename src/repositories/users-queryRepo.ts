@@ -16,7 +16,7 @@ type UserOutputPageType = {
     items: UserOutputModelType[]
 }
 
-export const usersQueryRepo = {
+class UsersQueryRepo{
     async findUsers(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection, searchLoginTerm: string, searchEmailTerm: string): Promise<UserOutputPageType> {
         let filterFind = {}
 
@@ -53,7 +53,7 @@ export const usersQueryRepo = {
             totalCount,
             items
         }
-    },
+    }
     async findUserById(id: string): Promise<UserOutputModelType | null> {
         const foundUser: UserDBType | null = await UserModel.findById({_id: id}).lean()
         if (!foundUser) {
@@ -61,7 +61,7 @@ export const usersQueryRepo = {
         } else {
             return this.userWithReplaceId(foundUser)
         }
-    },
+    }
     userWithReplaceId(object: UserDBType): UserOutputModelType {
         return {
             id: object._id.toString(),
@@ -71,3 +71,5 @@ export const usersQueryRepo = {
         }
     }
 }
+
+export const usersQueryRepo = new UsersQueryRepo()

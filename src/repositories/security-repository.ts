@@ -1,14 +1,14 @@
-import {SessionType, ShortSessionDataType} from "../types/types";
+import {SessionClass, SessionType, ShortSessionDataType} from "../types/types";
 import {SessionModel} from "../types/mongoose-schemas-models";
 
-export const securityRepository = {
+class SecurityRepository {
     async findUserIdByDeviceId(deviceId: string): Promise<{ userId: string } | null> {
         return await SessionModel.findOne({deviceId})
             .select({userId: 1, _id: 0}) as { userId: string } | null
-    },
-    async saveSession(sessionData: SessionType): Promise<void> {
-        await SessionModel.create(sessionData)
-    },
+    }
+    async saveSession(newSession: SessionClass): Promise<void> {
+        await SessionModel.create(newSession)
+    }
     async updateSessionData(sessionData: SessionType) {
         const filter = {
             deviceId: sessionData.deviceId,
@@ -23,7 +23,7 @@ export const securityRepository = {
             }
         }
         await SessionModel.updateOne(filter, update)
-    },
+    }
     async isValidSession(shortSessionData: ShortSessionDataType): Promise<boolean> {
         const filter = {
             iat: shortSessionData.iat,
@@ -31,24 +31,26 @@ export const securityRepository = {
             userId: shortSessionData.userId
         }
         return !!(await SessionModel.findOne(filter))
-    },
+    }
     async maxValueActiveDeviceId(): Promise<number> {
         return (await SessionModel.find()
             .sort({'deviceId': -1})
             .limit(1)
             .lean())
             .reduce((acc, it) => acc > +it.deviceId ? acc : +it.deviceId, 0)
-    },
+    }
     async deleteSessions(userId: string, deviceId: string): Promise<boolean> {
         const deleteFilter = {userId, deviceId: {$ne: deviceId}}
         const result = await SessionModel.deleteMany(deleteFilter)
         return !!result.deletedCount
-    },
+    }
     async deleteSessionByDeviceId(userId: string, deviceId: string): Promise<number> {
         const result = await SessionModel.deleteOne({userId, deviceId})
         return result.deletedCount ? 204 : 404
-    },
+    }
     async deleteAll() {
         await SessionModel.deleteMany({})
     }
 }
+
+export const securityRepository = new SecurityRepository()

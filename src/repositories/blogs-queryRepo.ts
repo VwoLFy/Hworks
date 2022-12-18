@@ -16,7 +16,7 @@ type BlogOutputPageType = {
     items: BlogOutputModelType[]
 };
 
-export const blogsQueryRepo = {
+class BlogsQueryRepo {
     async findBlogs(dto: FindBlogsType): Promise<BlogOutputPageType> {
         const {searchNameTerm, pageNumber, pageSize} = dto
         const totalCount = await BlogModel.countDocuments().where('name').regex(RegExp(searchNameTerm, 'i'))
@@ -30,9 +30,11 @@ export const blogsQueryRepo = {
             totalCount,
             items
         }
-    },
+    }
     async findBlogById(id: string): Promise<BlogOutputModelType | null> {
         const foundBlog: BlogOutputModelType | null = await BlogModel.findBlogWithId(id)
         return foundBlog ? foundBlog : null
     }
 }
+
+export const blogsQueryRepo = new BlogsQueryRepo()

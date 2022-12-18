@@ -8,18 +8,26 @@ import {refreshTokenValidationMiddleware} from "../middlewares/refreshToken-vali
 
 export const securityRouter = Router({})
 
-securityRouter.get('/devices', refreshTokenValidationMiddleware, async (req: Request, res: Response<DeviceViewModelType[]>) => {
-    const foundActiveDevices = await securityQueryRepo.findUserSessions(req.refreshTokenData.userId)
-    if (!foundActiveDevices) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
-    return res.status(HTTP_Status.OK_200).json(foundActiveDevices)
-})
-securityRouter.delete('/devices', refreshTokenValidationMiddleware, async (req: Request, res: Response) => {
-    const isDeletedSessions = await securityService.deleteSessions(req.refreshTokenData.userId, req.refreshTokenData.deviceId)
-    if (!isDeletedSessions) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
-    return res.sendStatus(HTTP_Status.NO_CONTENT_204)
-})
-securityRouter.delete('/devices/:id', refreshTokenValidationMiddleware, async (req: RequestWithParam, res: Response) => {
-    const result = await securityService.deleteSessionByDeviceId(req.refreshTokenData.userId, req.params.id)
-    res.sendStatus(result as HTTP_Status)
-    return
-})
+class SecurityController {
+    async getDevices(req: Request, res: Response<DeviceViewModelType[]>) {
+        const foundActiveDevices = await securityQueryRepo.findUserSessions(req.refreshTokenData.userId)
+        if (!foundActiveDevices) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
+        return res.status(HTTP_Status.OK_200).json(foundActiveDevices)
+    }
+    async deleteDevices(req: Request, res: Response) {
+        const isDeletedSessions = await securityService.deleteSessions(req.refreshTokenData.userId, req.refreshTokenData.deviceId)
+        if (!isDeletedSessions) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
+        return res.sendStatus(HTTP_Status.NO_CONTENT_204)
+    }
+    async deleteDevice(req: RequestWithParam, res: Response) {
+        const result = await securityService.deleteSessionByDeviceId(req.refreshTokenData.userId, req.params.id)
+        res.sendStatus(result as HTTP_Status)
+        return
+    }
+}
+
+const securityController = new SecurityController()
+
+securityRouter.get('/devices', refreshTokenValidationMiddleware, securityController.getDevices)
+securityRouter.delete('/devices', refreshTokenValidationMiddleware, securityController.deleteDevices)
+securityRouter.delete('/devices/:id', refreshTokenValidationMiddleware, securityController.deleteDevice)

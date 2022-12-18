@@ -9,14 +9,14 @@ import {securityService} from "./security-service";
 import {PasswordRecoveryModel} from "../types/mongoose-schemas-models";
 import {passRecoveryRepository} from "../repositories/pass-recovery-repository";
 
-export const authService = {
+class AuthService{
     async checkCredentials(loginOrEmail: string, password: string): Promise<string | null> {
         const foundUser: UserWithIdType | null = await usersRepository.findUserByLoginOrEmail(loginOrEmail)
         if (!foundUser ||
             !foundUser.emailConfirmation.isConfirmed ||
             !await bcrypt.compare(password, foundUser.accountData.passwordHash)) return null
         return foundUser.id.toString()
-    },
+    }
     async createUser(login: string, password: string, email: string): Promise<boolean> {
         const passwordHash = await this.getPasswordHash(password)
 
@@ -43,13 +43,13 @@ export const authService = {
             return false
         }
         return true
-    },
+    }
     async confirmEmail(confirmationCode: string): Promise<boolean> {
         const emailConfirmation: EmailConfirmationType | null = await usersRepository.findEmailConfirmationByCode(confirmationCode)
         if (!emailConfirmation) return false
 
         return await usersRepository.updateConfirmation(confirmationCode)
-    },
+    }
     async registrationResendEmail(email: string): Promise<boolean> {
         const foundUser: UserWithIdType | null = await usersRepository.findUserByLoginOrEmail(email)
         if (!foundUser) return false
@@ -67,17 +67,17 @@ export const authService = {
             return false
         }
         return true
-    },
+    }
     async getPasswordHash(password: string): Promise<string> {
         const passwordSalt = await bcrypt.genSalt(10)
         return await bcrypt.hash(password, passwordSalt)
-    },
+    }
     async loginUser(userId: string, ip: string, title: string) {
         const tokens = await jwtService.createJWT(userId, null)
         const refreshTokenData = await jwtService.getRefreshTokenData(tokens.refreshToken)
         await securityService.saveSession({...refreshTokenData, ip, title})
         return tokens
-    },
+    }
     async passwordRecoverySendEmail(email: string) {
         const isUserExist = await usersRepository.findUserByLoginOrEmail(email)
         if (!isUserExist) return
@@ -93,7 +93,7 @@ export const authService = {
             console.log(e)
             return
         }
-    },
+    }
     async changePassword(newPassword: string, recoveryCode: string): Promise<boolean> {
         const passwordRecovery: PasswordRecoveryType | null = await passRecoveryRepository.findPassRecovery(recoveryCode)
         if (!passwordRecovery) return false
@@ -108,3 +108,5 @@ export const authService = {
         return true
     }
 }
+
+export const authService = new AuthService()

@@ -64,7 +64,6 @@ export type PasswordRecoveryType = {
 }
 
 export type UserDBType = UserType & { _id: ObjectId }
-export type SessionDBType = SessionType & { _id: ObjectId }
 
 export type UserWithIdType = UserType & { id: string }
 export type BlogWithIdType = BlogType & { id: string }
@@ -76,15 +75,10 @@ export interface BlogMethodsType {
 }
 export interface BlogModelType extends Model<BlogType, {}, BlogMethodsType> {
     createBlog(dto: CreateBlogTypeM): HDBlogType
-
     findBlogWithId(id: string): Promise<BlogWithIdType | null>
-
     findBlogsWithId(dto: FindBlogsType): Promise<BlogWithIdType[]>
-
     findBlogNameById(id: string): Promise<string | null>
-
-    findHDBlog(id: string): Promise<HDBlogType | null>
-}
+    findHDBlog(id: string): Promise<HDBlogType | null>}
 export type HDBlogType = HydratedDocument<BlogType, BlogMethodsType>
 
 export type UpdateBlogTypeM = {
@@ -111,17 +105,11 @@ export interface PostMethodsType {
 }
 export interface PostModelType extends Model<PostType, {}, PostMethodsType> {
     createPost(dto: CreatePostTypeM): HDPostType
-
     findHDPost(id: string): Promise<HDPostType | null>
-
     isPostExist(id: string): Promise<boolean>
-
     findPostsWithId(dto: FindPostsType): Promise<PostWithIdType[]>
-
     findPostWithId(id: string): Promise<PostWithIdType | null>
-
-    findPostsByBlogId(dto: FindPostsByBlogIdType): Promise<PostWithIdType[] | null>
-}
+    findPostsByBlogId(dto: FindPostsByBlogIdType): Promise<PostWithIdType[] | null>}
 export type HDPostType = HydratedDocument<PostType, PostMethodsType>
 
 export type CreatePostTypeM = {
@@ -169,19 +157,28 @@ export interface AttemptsDataMethodsType {
 }
 export interface AttemptsDataModelType extends Model<AttemptsDataType, {}, AttemptsDataMethodsType> {
     findAttempts(ip: string, url: string): Promise<number>
-
     addAttemptToList(ip: string, url: string): void
 }
 
 export class CommentClass {
     _id: ObjectId
     createdAt: string
-
     constructor(public content: string,
                 public userId: string,
                 public userLogin: string,
                 public postId: string) {
         this._id = new ObjectId()
         this.createdAt = new Date().toISOString()
+    }
+}
+export class SessionClass {
+    _id: ObjectId
+    constructor(public userId: string,
+                public exp: number,
+                public ip: string,
+                public title: string,
+                public iat: number,
+                public deviceId: string) {
+        this._id = new ObjectId()
     }
 }

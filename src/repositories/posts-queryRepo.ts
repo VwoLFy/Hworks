@@ -18,7 +18,7 @@ type PostOutputPageType = {
     items: PostOutputModelType[]
 };
 
-export const postsQueryRepo = {
+class PostsQueryRepo{
     async findPosts(dto: FindPostsType): Promise<PostOutputPageType> {
         let {pageNumber, pageSize} = dto;
         const totalCount = await PostModel.countDocuments()
@@ -32,11 +32,11 @@ export const postsQueryRepo = {
             totalCount,
             items
         }
-    },
+    }
     async findPostById(id: string): Promise<PostOutputModelType | null> {
         const foundPost: PostOutputModelType | null = await PostModel.findPostWithId(id)
         return foundPost ? foundPost : null
-    },
+    }
     async findPostsByBlogId(dto: FindPostsByBlogIdType): Promise<PostOutputPageType | null> {
         let {blogId, pageNumber, pageSize} = dto
 
@@ -53,4 +53,7 @@ export const postsQueryRepo = {
             totalCount,
             items
         }
-    },}
+    }
+}
+
+export const postsQueryRepo = new PostsQueryRepo()

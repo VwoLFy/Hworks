@@ -9,8 +9,7 @@ import {
     EmailConfirmationType, FindBlogsType, FindPostsByBlogIdType,
     FindPostsType, HDBlogType, HDPostType,
     PasswordRecoveryType,
-    PostMethodsType, PostModelType, PostType, PostWithIdType,
-    SessionDBType,
+    PostMethodsType, PostModelType, PostType, PostWithIdType, SessionClass,
     UpdateBlogTypeM, UpdatePostTypeM,
     UserAccountType,
     UserDBType
@@ -217,7 +216,8 @@ const CommentSchema = new Schema<CommentClass>({
     createdAt: {type: String, required: true},
     postId: {type: String, required: true},
 })
-const SessionSchema = new Schema<SessionDBType>({
+const SessionSchema = new Schema<SessionClass>({
+    _id: {type: Schema.Types.ObjectId, required: true},
     userId: {type: String, required: true},
     exp: {type: Number, required: true},
     ip: {type: String, required: true},

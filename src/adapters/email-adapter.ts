@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import {settings} from "../settings";
 
-export const emailAdapter = {
+class EmailAdapter{
     async sendEmail(email: string, subject: string, message: string) {
         let transporter = nodemailer.createTransport({
             service: "gmail",
@@ -19,3 +19,5 @@ export const emailAdapter = {
         });
     }
 }
+
+export const emailAdapter = new EmailAdapter()
