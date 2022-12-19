@@ -1,7 +1,7 @@
 import {CommentClass} from "../types/types";
 import {CommentModel} from "../types/mongoose-schemas-models";
 
-class CommentsRepository {
+export class CommentsRepository {
     async findUserIdByCommentId(id: string): Promise<string | null> {
         const foundComment: CommentClass | null = await CommentModel.findById({_id: id})
         return foundComment ? foundComment.userId : null
@@ -33,5 +33,3 @@ class CommentsRepository {
         CommentModel.deleteMany({})
     }
 }
-
-export const commentsRepository = new CommentsRepository()

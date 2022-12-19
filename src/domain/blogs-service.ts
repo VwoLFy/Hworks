@@ -1,9 +1,17 @@
-import {blogsRepository} from "../repositories/blogs-repository";
-import {postsRepository} from "../repositories/posts-repository";
+import {BlogsRepository} from "../repositories/blogs-repository";
+import {PostsRepository} from "../repositories/posts-repository";
 import {BlogModel} from "../types/mongoose-schemas-models";
 import {BlogClass, CreateBlogDtoType, HDBlogType, UpdateBlogDtoType} from "../types/types";
 
-class BlogsService{
+export class BlogsService {
+    private blogsRepository: BlogsRepository;
+    private postsRepository: PostsRepository;
+
+    constructor() {
+        this.blogsRepository = new BlogsRepository()
+        this.postsRepository = new PostsRepository()
+    }
+
     async createBlog(dto: CreateBlogDtoType): Promise<string> {
         const newBlog = new BlogClass(dto.name, dto.description, dto.websiteUrl)
         await BlogModel.create(newBlog)
@@ -14,18 +22,16 @@ class BlogsService{
         if (!blog) return false
 
         blog.updateBlog(dto)
-        await blogsRepository.saveBlog(blog)
+        await this.blogsRepository.saveBlog(blog)
         return true
     }
     async deleteBlog(id: string): Promise<boolean> {
-        const isDeletedBlog = await blogsRepository.deleteBlog(id);
+        const isDeletedBlog = await this.blogsRepository.deleteBlog(id);
         if (!isDeletedBlog) return false
-        await postsRepository.deleteAllPostsOfBlog(id)
+        await this.postsRepository.deleteAllPostsOfBlog(id)
         return true
     }
     async deleteAll() {
-        await blogsRepository.deleteAll()
+        await this.blogsRepository.deleteAll()
     }
 }
-
-export const blogsService = new BlogsService()

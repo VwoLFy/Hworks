@@ -17,7 +17,7 @@ type CommentOutputPageType = {
     items:  CommentOutputModelType[]
 }
 
-class CommentsQueryRepo {
+export class CommentsQueryRepo {
     async findCommentById(id: string): Promise<CommentOutputModelType | null> {
         const foundComment: CommentClass | null = await CommentModel.findById({_id: id}).lean()
         if (!foundComment) return null
@@ -56,5 +56,3 @@ class CommentsQueryRepo {
         }
     }
 }
-
-export const commentsQueryRepo = new CommentsQueryRepo()

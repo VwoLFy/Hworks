@@ -8,7 +8,7 @@ type DeviceOutputModelType = {
     deviceId: string
 }
 
-class SecurityQueryRepo {
+export class SecurityQueryRepo {
     async findUserSessions(userId: string): Promise<DeviceOutputModelType[]> {
         return (await SessionModel.find({userId}).lean()).map(s => this.getOutputModel(s))
     }
@@ -21,5 +21,3 @@ class SecurityQueryRepo {
         }
     }
 }
-
-export const securityQueryRepo = new SecurityQueryRepo()

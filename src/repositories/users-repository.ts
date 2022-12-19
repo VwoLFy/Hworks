@@ -4,7 +4,7 @@ import {
 import {UserModel} from "../types/mongoose-schemas-models";
 import {ObjectId} from "mongodb";
 
-class UsersRepository{
+export class UsersRepository{
     async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserClass| null> {
         const foundUser = await UserModel.findOne({
             $or: [
@@ -72,5 +72,3 @@ class UsersRepository{
         await UserModel.deleteMany({})
     }
 }
-
-export const usersRepository = new UsersRepository()

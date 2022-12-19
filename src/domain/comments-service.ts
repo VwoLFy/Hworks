@@ -1,12 +1,20 @@
-import {usersRepository} from "../repositories/users-repository";
-import {commentsRepository} from "../repositories/comments-repository";
+import {UsersRepository} from "../repositories/users-repository";
+import {CommentsRepository} from "../repositories/comments-repository";
 import {CommentClass} from "../types/types";
 import {PostModel} from "../types/mongoose-schemas-models";
 
-class CommentsService {
+export class CommentsService {
+    private usersRepository: UsersRepository;
+    private commentsRepository: CommentsRepository;
+
+    constructor() {
+        this.usersRepository = new UsersRepository()
+        this.commentsRepository = new CommentsRepository()
+    }
+
     async createComment(postId: string, content: string, userId: string): Promise<string | null> {
         const isPostExist = await PostModel.isPostExist(postId)
-        const userLogin = await usersRepository.findUserLoginById(userId)
+        const userLogin = await this.usersRepository.findUserLoginById(userId)
         if (!isPostExist || !userLogin) return null
         const newComment = new CommentClass(
             content,
@@ -14,29 +22,27 @@ class CommentsService {
             userLogin,
             postId
         )
-        return commentsRepository.createComment(newComment)
+        return this.commentsRepository.createComment(newComment)
     }
     async updateComment(commentId: string, content: string, userId: string): Promise<number | null> {
-        const userIdFromDB = await commentsRepository.findUserIdByCommentId(commentId)
+        const userIdFromDB = await this.commentsRepository.findUserIdByCommentId(commentId)
         if (!userIdFromDB) {
             return 404
         } else if (userIdFromDB !== userId) {
             return 403
         }
-        return await commentsRepository.updateComment(commentId, content)
+        return await this.commentsRepository.updateComment(commentId, content)
     }
     async deleteComment(commentId: string, userId: string): Promise<number | null> {
-        const userIdFromDB = await commentsRepository.findUserIdByCommentId(commentId)
+        const userIdFromDB = await this.commentsRepository.findUserIdByCommentId(commentId)
         if (!userIdFromDB) {
             return 404
         } else if (userIdFromDB !== userId) {
             return 403
         }
-        return await commentsRepository.deleteComment(commentId)
+        return await this.commentsRepository.deleteComment(commentId)
     }
     async deleteAll() {
-        await commentsRepository.deleteAll()
+        await this.commentsRepository.deleteAll()
     }
 }
-
-export const commentsService = new CommentsService()

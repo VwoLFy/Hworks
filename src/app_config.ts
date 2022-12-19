@@ -1,18 +1,18 @@
 import express, {Request, Response} from "express"
 import {blogsRouter} from "./routes/blogs-router";
 import {postsRouter} from "./routes/posts-router";
-import {blogsService} from "./domain/blogs-service";
-import {postsService} from "./domain/posts-service";
+import {BlogsService} from "./domain/blogs-service";
+import {PostsService} from "./domain/posts-service";
 import {usersRouter} from "./routes/users-router";
-import {usersService} from "./domain/user-service";
+import {UsersService} from "./domain/user-service";
 import {authRouter} from "./routes/auth-router";
 import {commentsRouter} from "./routes/comments-router";
-import {commentsService} from "./domain/comments-service";
+import {CommentsService} from "./domain/comments-service";
 import {HTTP_Status} from "./types/enums";
 import cookieParser from "cookie-parser";
 import {securityRouter} from "./routes/security-router";
-import {securityService} from "./domain/security-service";
-import {passRecoveryRepository} from "./repositories/pass-recovery-repository";
+import {SecurityService} from "./domain/security-service";
+import {PassRecoveryRepository} from "./repositories/pass-recovery-repository";
 import {AttemptsDataModel} from "./types/mongoose-schemas-models";
 
 export const app = express();
@@ -29,12 +29,12 @@ app.use('/comments', commentsRouter)
 app.use('/security', securityRouter)
 
 app.delete('/testing/all-data', async (req: Request, res: Response) => {
-    await blogsService.deleteAll();
-    await postsService.deleteAll();
-    await usersService.deleteAll();
-    await commentsService.deleteAll();
-    await securityService.deleteAll();
+    await new BlogsService().deleteAll();
+    await new PostsService().deleteAll();
+    await new UsersService().deleteAll();
+    await new CommentsService().deleteAll();
+    await new SecurityService().deleteAll();
     await AttemptsDataModel.deleteMany();
-    await passRecoveryRepository.deleteAll();
+    await new PassRecoveryRepository().deleteAll();
     res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })

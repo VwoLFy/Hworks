@@ -16,7 +16,7 @@ type UserOutputPageType = {
     items: UserOutputModelType[]
 }
 
-class UsersQueryRepo{
+export class UsersQueryRepo{
     async findUsers(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection, searchLoginTerm: string, searchEmailTerm: string): Promise<UserOutputPageType> {
         let filterFind = {}
 
@@ -71,5 +71,3 @@ class UsersQueryRepo{
         }
     }
 }
-
-export const usersQueryRepo = new UsersQueryRepo()

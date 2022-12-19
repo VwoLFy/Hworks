@@ -1,7 +1,7 @@
 import {BlogModel} from "../types/mongoose-schemas-models";
 import {HDBlogType} from "../types/types";
 
-class BlogsRepository {
+export class BlogsRepository {
     async saveBlog(blog: HDBlogType) {
         await blog.save()
     }
@@ -13,5 +13,3 @@ class BlogsRepository {
         await BlogModel.deleteMany({})
     }
 }
-
-export const blogsRepository = new BlogsRepository()

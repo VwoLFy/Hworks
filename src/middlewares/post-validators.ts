@@ -3,7 +3,7 @@ import {checkAuthorizationMiddleware} from "./check-authorization-middleware";
 import {inputValidationMiddleware} from "./input-validation-middleware";
 import {body, CustomValidator, query} from "express-validator";
 import {checkIdValidForMongodb} from "./check-id-valid-for-mongodb";
-import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
+import {BlogsQueryRepo} from "../repositories/blogs-queryRepo";
 import {SortDirection} from "../types/enums";
 
 export const postTitleValidation = body('title', "'title' must be  a string in range from 1 to 30 symbols")
@@ -13,7 +13,7 @@ export const postShortDescriptionValidation = body('shortDescription', "'shortDe
 export const postContentValidation = body('content', "'content' must be a string  in range from 1 to 1000 symbols")
     .isString().trim().isLength({min: 1, max: 1000});
 const blogIdIsExist: CustomValidator = async (value) => {
-    const foundBlog = await blogsQueryRepo.findBlogById(value)
+    const foundBlog = await new BlogsQueryRepo().findBlogById(value)
     if (!foundBlog) throw new Error();
     return true;
 };

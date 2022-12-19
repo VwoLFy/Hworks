@@ -1,8 +1,14 @@
-import {postsRepository} from "../repositories/posts-repository";
+import {PostsRepository} from "../repositories/posts-repository";
 import {CreatePostDtoTypeR, HDPostType, PostClass, UpdatePostDtoTypeR} from "../types/types";
 import {BlogModel, PostModel} from "../types/mongoose-schemas-models";
 
-class PostsService{
+export class PostsService{
+    private postsRepository: PostsRepository;
+
+    constructor() {
+        this.postsRepository = new PostsRepository()
+    }
+
     async createPost(dto: CreatePostDtoTypeR): Promise<string | null> {
         const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)
         if (!foundBlogName) return null
@@ -19,15 +25,13 @@ class PostsService{
         if (!post) return false
 
         post.updatePost({...dto, blogName: foundBlogName})
-        await postsRepository.savePost(post)
+        await this.postsRepository.savePost(post)
         return true
     }
     async deletePost(id: string): Promise<boolean> {
-        return await postsRepository.deletePost(id)
+        return await this.postsRepository.deletePost(id)
     }
     async deleteAll() {
-        await postsRepository.deleteAll()
+        await this.postsRepository.deleteAll()
     }
 }
-
-export const postsService = new PostsService()

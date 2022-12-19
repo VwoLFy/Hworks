@@ -1,9 +1,9 @@
 import {Response, Router} from "express";
 import {RequestWithParam, RequestWithParamAndBody} from "../types/types";
 import {CommentViewModelType} from "../models/CommentViewModel";
-import {commentsQueryRepo} from "../repositories/comments-queryRepo";
+import {CommentsQueryRepo} from "../repositories/comments-queryRepo";
 import {CommentInputModelType} from "../models/CommentInputModel";
-import {commentsService} from "../domain/comments-service";
+import {CommentsService} from "../domain/comments-service";
 import {HTTP_Status} from "../types/enums";
 import {
     deleteCommentByIdValidation,
@@ -14,8 +14,16 @@ import {
 export const commentsRouter = Router({})
 
 class CommentsController {
+    private commentsQueryRepo: CommentsQueryRepo;
+    private commentsService: CommentsService;
+
+    constructor() {
+        this.commentsQueryRepo = new CommentsQueryRepo()
+        this.commentsService = new CommentsService()
+    }
+
     async getComment(req: RequestWithParam, res: Response<CommentViewModelType>) {
-        const foundComment = await commentsQueryRepo.findCommentById(req.params.id);
+        const foundComment = await this.commentsQueryRepo.findCommentById(req.params.id);
         if (!foundComment) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
@@ -23,7 +31,7 @@ class CommentsController {
         }
     }
     async updateComment(req: RequestWithParamAndBody<CommentInputModelType>, res: Response) {
-        const updateStatus = await commentsService.updateComment(req.params.id, req.body.content, req.userId)
+        const updateStatus = await this.commentsService.updateComment(req.params.id, req.body.content, req.userId)
         if (!updateStatus) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
@@ -31,7 +39,7 @@ class CommentsController {
         }
     }
     async deleteComment(req: RequestWithParam, res: Response) {
-        const deleteStatus = await commentsService.deleteComment(req.params.id, req.userId)
+        const deleteStatus = await this.commentsService.deleteComment(req.params.id, req.userId)
         if (!deleteStatus) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
@@ -42,6 +50,6 @@ class CommentsController {
 
 const commentsController = new CommentsController()
 
-commentsRouter.get('/:id', getCommentByIdValidation, commentsController.getComment)
-commentsRouter.put('/:id', updateCommentByIdValidation, commentsController.updateComment)
-commentsRouter.delete('/:id', deleteCommentByIdValidation, commentsController.deleteComment)
+commentsRouter.get('/:id', getCommentByIdValidation, commentsController.getComment.bind(commentsController))
+commentsRouter.put('/:id', updateCommentByIdValidation, commentsController.updateComment.bind(commentsController))
+commentsRouter.delete('/:id', deleteCommentByIdValidation, commentsController.deleteComment.bind(commentsController))

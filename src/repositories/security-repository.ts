@@ -1,7 +1,7 @@
 import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../types/types";
 import {SessionModel} from "../types/mongoose-schemas-models";
 
-class SecurityRepository {
+export class SecurityRepository {
     async findUserIdByDeviceId(deviceId: string): Promise<{ userId: string } | null> {
         return await SessionModel.findOne({deviceId})
             .select({userId: 1, _id: 0}) as { userId: string } | null
@@ -52,5 +52,3 @@ class SecurityRepository {
         await SessionModel.deleteMany({})
     }
 }
-
-export const securityRepository = new SecurityRepository()

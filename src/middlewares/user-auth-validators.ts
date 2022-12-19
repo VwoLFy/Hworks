@@ -3,9 +3,9 @@ import {checkIdValidForMongodb} from "./check-id-valid-for-mongodb";
 import {checkAuthorizationMiddleware} from "./check-authorization-middleware";
 import {inputValidationMiddleware} from "./input-validation-middleware";
 import {SortDirection} from "../types/enums";
-import {usersRepository} from "../repositories/users-repository";
+import {UsersRepository} from "../repositories/users-repository";
 import {attemptsValidationMiddleware} from "./attempts-validation-middleware";
-import {passRecoveryRepository} from "../repositories/pass-recovery-repository";
+import {PassRecoveryRepository} from "../repositories/pass-recovery-repository";
 
 //user
 const userQueryValidation = [
@@ -38,7 +38,7 @@ const authLoginOrEmailValidation = body("loginOrEmail", "'loginOrEmail' must be 
 const authPasswordValidation = body("password", "'password' must be a string")
     .isString().trim().isLength({min: 6, max: 20})
 const freeLoginOrEmail: CustomValidator = async (value) => {
-    const loginExist =  await usersRepository.findUserByLoginOrEmail(value)
+    const loginExist =  await new UsersRepository().findUserByLoginOrEmail(value)
     if (loginExist) throw new Error()
     return true
 }
@@ -48,7 +48,7 @@ const authEmailRegValidation = body("email", "'email' must be a email or already
     .isString().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$").custom(freeLoginOrEmail);
 
 const codeValid: CustomValidator = async (value) => {
-    const emailConfirmation = await usersRepository.findEmailConfirmationByCode(value)
+    const emailConfirmation = await new UsersRepository().findEmailConfirmationByCode(value)
     if (!emailConfirmation) throw new Error()
     if (emailConfirmation.isConfirmed) throw new Error()
     if (emailConfirmation.expirationDate! < new Date()) throw new Error()
@@ -58,7 +58,7 @@ const codeValid: CustomValidator = async (value) => {
 const authCodeValidation = body("code", "'code' confirmation code is incorrect, expired or already been applied")
     .custom(codeValid)
 const emailValid: CustomValidator = async (value) => {
-    const foundUser = await usersRepository.findUserByLoginOrEmail(value)
+    const foundUser = await new UsersRepository().findUserByLoginOrEmail(value)
     if (!foundUser || foundUser.emailConfirmation.isConfirmed) throw new Error()
     return true
 }
@@ -69,7 +69,7 @@ const authEmailPasswordRecoveryValidation = body("email", "'email' must be a ema
 const authNewPasswordValidation = body("newPassword", "'newPassword' must be a string")
     .isString().trim().isLength({min: 6, max: 20})
 const recoveryCodeValid: CustomValidator = async (value) => {
-    const passwordRecovery = await passRecoveryRepository.findPassRecovery(value)
+    const passwordRecovery = await new PassRecoveryRepository().findPassRecovery(value)
     if (!passwordRecovery) throw new Error()
     return true
 }

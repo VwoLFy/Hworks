@@ -1,7 +1,7 @@
 import {PostModel} from "../types/mongoose-schemas-models";
 import {HDPostType} from "../types/types";
 
-class PostsRepository{
+export class PostsRepository{
     async savePost(newPost: HDPostType) {
         await newPost.save()
     }
@@ -17,5 +17,3 @@ class PostsRepository{
         await PostModel.deleteMany({})
     }
 }
-
-export const postsRepository = new PostsRepository()

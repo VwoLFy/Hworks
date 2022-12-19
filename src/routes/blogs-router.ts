@@ -1,8 +1,8 @@
 import {Response, Router} from "express";
-import {blogsService} from "../domain/blogs-service";
-import {blogsQueryRepo} from "../repositories/blogs-queryRepo";
-import {postsQueryRepo} from "../repositories/posts-queryRepo";
-import {postsService} from "../domain/posts-service";
+import {BlogsService} from "../domain/blogs-service";
+import {BlogsQueryRepo} from "../repositories/blogs-queryRepo";
+import {PostsQueryRepo} from "../repositories/posts-queryRepo";
+import {PostsService} from "../domain/posts-service";
 import {
     RequestWithBody,
     RequestWithParam,
@@ -29,8 +29,20 @@ import {
 export const blogsRouter = Router({});
 
 class BlogsController {
+    private blogsQueryRepo: BlogsQueryRepo;
+    private blogsService: BlogsService;
+    private postsQueryRepo: PostsQueryRepo;
+    private postsService: PostsService;
+
+    constructor() {
+    this.blogsQueryRepo = new BlogsQueryRepo()
+    this.blogsService = new BlogsService()
+    this.postsQueryRepo = new PostsQueryRepo()
+    this.postsService = new PostsService()
+    }
+
     async getBlogs(req: RequestWithQuery<BlogQueryModelType>, res: Response<TypeBlogViewModelPage>) {
-        res.json(await blogsQueryRepo.findBlogs({
+        res.json(await this.blogsQueryRepo.findBlogs({
             searchNameTerm: req.query.searchNameTerm,
             pageNumber: +req.query.pageNumber,
             pageSize: +req.query.pageSize,
@@ -39,7 +51,7 @@ class BlogsController {
         }))
     }
     async getBlog(req: RequestWithParam, res: Response<BlogViewModelType>) {
-        const foundBlog = await blogsQueryRepo.findBlogById(req.params.id);
+        const foundBlog = await this.blogsQueryRepo.findBlogById(req.params.id);
         if (!foundBlog) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
@@ -47,16 +59,16 @@ class BlogsController {
         }
     }
     async createBlog(req: RequestWithBody<BlogInputModelType>, res: Response<BlogViewModelType>) {
-        const createdBlogId = await blogsService.createBlog({
+        const createdBlogId = await this.blogsService.createBlog({
             name: req.body.name,
             description: req.body.description,
             websiteUrl: req.body.websiteUrl
         });
-        const createdBlog = await blogsQueryRepo.findBlogById(createdBlogId);
+        const createdBlog = await this.blogsQueryRepo.findBlogById(createdBlogId);
         if (createdBlog) res.status(HTTP_Status.CREATED_201).json(createdBlog)
     }
     async updateBlog(req: RequestWithParamAndBody<BlogUpdateModelType>, res: Response) {
-        const isUpdatedBlog = await blogsService.updateBlog(req.params.id, {
+        const isUpdatedBlog = await this.blogsService.updateBlog(req.params.id, {
             name: req.body.name,
             description: req.body.description,
             websiteUrl: req.body.websiteUrl
@@ -68,7 +80,7 @@ class BlogsController {
         }
     }
     async getPostsForBlog(req: RequestWithParamAndQuery<BlogQueryModelType>, res: Response<TypePostViewModelPage>) {
-        const foundBlog = await postsQueryRepo.findPostsByBlogId({
+        const foundBlog = await this.postsQueryRepo.findPostsByBlogId({
             blogId: req.params.id,
             pageNumber: +req.query.pageNumber,
             pageSize: +req.query.pageSize,
@@ -82,7 +94,7 @@ class BlogsController {
         }
     }
     async createPostForBlog(req: RequestWithParamAndBody<BlogPostInputModelType>, res: Response<PostViewModelType>) {
-        const createdPostId = await postsService.createPost({
+        const createdPostId = await this.postsService.createPost({
             title: req.body.title,
             shortDescription: req.body.shortDescription,
             content: req.body.content,
@@ -91,12 +103,12 @@ class BlogsController {
         if (!createdPostId) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
-            const createdPost = await postsQueryRepo.findPostById(createdPostId)
+            const createdPost = await this.postsQueryRepo.findPostById(createdPostId)
             if (createdPost) res.status(HTTP_Status.CREATED_201).json(createdPost)
         }
     }
     async deleteBlog(req: RequestWithParam, res: Response) {
-        const isDeletedBlog = await blogsService.deleteBlog(req.params.id);
+        const isDeletedBlog = await this.blogsService.deleteBlog(req.params.id);
         if (!isDeletedBlog) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
@@ -107,10 +119,10 @@ class BlogsController {
 
 const blogsController = new BlogsController()
 
-blogsRouter.get('/', getBlogsValidation, blogsController.getBlogs)
-blogsRouter.get('/:id', getBlogValidation, blogsController.getBlog)
-blogsRouter.post('/', createBlogValidation, blogsController.createBlog)
-blogsRouter.put('/:id', updateBlogValidation, blogsController.updateBlog)
-blogsRouter.get('/:id/posts', getPostsByBlogIdValidation, blogsController.getPostsForBlog)
-blogsRouter.post('/:id/posts', createPostsByBlogIdValidation, blogsController.createPostForBlog)
-blogsRouter.delete('/:id', deleteBlogValidation, blogsController.deleteBlog)
+blogsRouter.get('/', getBlogsValidation, blogsController.getBlogs.bind(blogsController))
+blogsRouter.get('/:id', getBlogValidation, blogsController.getBlog.bind(blogsController))
+blogsRouter.post('/', createBlogValidation, blogsController.createBlog.bind(blogsController))
+blogsRouter.put('/:id', updateBlogValidation, blogsController.updateBlog.bind(blogsController))
+blogsRouter.get('/:id/posts', getPostsByBlogIdValidation, blogsController.getPostsForBlog.bind(blogsController))
+blogsRouter.post('/:id/posts', createPostsByBlogIdValidation, blogsController.createPostForBlog.bind(blogsController))
+blogsRouter.delete('/:id', deleteBlogValidation, blogsController.deleteBlog.bind(blogsController))
