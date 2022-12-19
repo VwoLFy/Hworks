@@ -1,16 +1,16 @@
 import {securityRepository} from "../repositories/security-repository";
-import {SessionClass, SessionType, ShortSessionDataType} from "../types/types";
+import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../types/types";
 
 class SecurityService {
-    async saveSession(sessionData: SessionType): Promise<void> {
+    async saveSession(sessionData: SessionDtoType): Promise<void> {
         const {userId, exp, ip, title, iat, deviceId} = sessionData
         const newSession = new SessionClass(userId, exp, ip, title, iat, deviceId)
         await securityRepository.saveSession(newSession)
     }
-    async updateSessionData(sessionData: SessionType) {
+    async updateSessionData(sessionData: SessionDtoType) {
         await securityRepository.updateSessionData(sessionData)
     }
-    async isValidSession(shortSessionData: ShortSessionDataType): Promise<boolean> {
+    async isValidSession(shortSessionData: ShortSessionDtoType): Promise<boolean> {
         return await securityRepository.isValidSession(shortSessionData)
     }
     async newDeviceId(): Promise<string> {

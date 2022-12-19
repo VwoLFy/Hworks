@@ -1,4 +1,4 @@
-import {SessionClass, SessionType, ShortSessionDataType} from "../types/types";
+import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../types/types";
 import {SessionModel} from "../types/mongoose-schemas-models";
 
 class SecurityRepository {
@@ -9,7 +9,7 @@ class SecurityRepository {
     async saveSession(newSession: SessionClass): Promise<void> {
         await SessionModel.create(newSession)
     }
-    async updateSessionData(sessionData: SessionType) {
+    async updateSessionData(sessionData: SessionDtoType) {
         const filter = {
             deviceId: sessionData.deviceId,
             userId: sessionData.userId
@@ -24,7 +24,7 @@ class SecurityRepository {
         }
         await SessionModel.updateOne(filter, update)
     }
-    async isValidSession(shortSessionData: ShortSessionDataType): Promise<boolean> {
+    async isValidSession(shortSessionData: ShortSessionDtoType): Promise<boolean> {
         const filter = {
             iat: shortSessionData.iat,
             deviceId: shortSessionData.deviceId,

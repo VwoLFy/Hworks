@@ -4,8 +4,8 @@ import {v4 as uuidv4} from 'uuid'
 import add from "date-fns/add";
 import {emailManager} from "../managers/email-manager";
 import {
-    EmailConfirmationClass,
-    PasswordRecoveryType, UserAccountClass, UserClass,
+    EmailConfirmationClass, PasswordRecoveryClass,
+    UserAccountClass, UserClass,
 } from "../types/types";
 import {jwtService} from "../application/jwt-service";
 import {securityService} from "./security-service";
@@ -85,12 +85,9 @@ class AuthService{
     async passwordRecoverySendEmail(email: string) {
         const isUserExist = await usersRepository.findUserByLoginOrEmail(email)
         if (!isUserExist) return
+        const passwordRecovery = new PasswordRecoveryClass(email)
+        await PasswordRecoveryModel.create(passwordRecovery)
 
-        const passwordRecovery = await PasswordRecoveryModel.create({
-            email,
-            recoveryCode: uuidv4(),
-            expirationDate: add(new Date(), {hours: 24})
-        })
         try {
             await emailManager.sendEmailPasswordRecoveryMessage(email, passwordRecovery.recoveryCode)
         } catch (e) {
@@ -99,7 +96,7 @@ class AuthService{
         }
     }
     async changePassword(newPassword: string, recoveryCode: string): Promise<boolean> {
-        const passwordRecovery: PasswordRecoveryType | null = await passRecoveryRepository.findPassRecovery(recoveryCode)
+        const passwordRecovery: PasswordRecoveryClass | null = await passRecoveryRepository.findPassRecovery(recoveryCode)
         if (!passwordRecovery) return false
         if (new Date() > passwordRecovery.expirationDate) {
             await passRecoveryRepository.deletePassRecovery(recoveryCode)

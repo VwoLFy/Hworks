@@ -1,17 +1,17 @@
 import {postsRepository} from "../repositories/posts-repository";
-import {CreatePostsByBlogIdR, HDPostType, UpdatePostTypeR} from "../types/types";
+import {CreatePostDtoTypeR, HDPostType, PostClass, UpdatePostDtoTypeR} from "../types/types";
 import {BlogModel, PostModel} from "../types/mongoose-schemas-models";
 
 class PostsService{
-    async createPost(dto: CreatePostsByBlogIdR): Promise<string | null> {
+    async createPost(dto: CreatePostDtoTypeR): Promise<string | null> {
         const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)
         if (!foundBlogName) return null
 
-        const newPost: HDPostType = await PostModel.createPost({...dto, blogName: foundBlogName})
-        await postsRepository.savePost(newPost)
-        return newPost.id
+        const newPost = new PostClass(dto.title, dto.shortDescription, dto.content, dto.blogId, foundBlogName)
+        await PostModel.create(newPost)
+        return newPost._id.toString()
     }
-    async updatePost(id: string, dto: UpdatePostTypeR): Promise<boolean> {
+    async updatePost(id: string, dto: UpdatePostDtoTypeR): Promise<boolean> {
         const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)
         if (!foundBlogName) return false
 

@@ -1,5 +1,6 @@
 import {BlogModel} from "../types/mongoose-schemas-models";
-import {FindBlogsType} from "../types/types";
+import {FindBlogsDtoType} from "../types/types";
+import {ObjectId} from "mongodb";
 
 type BlogOutputModelType = {
     id: string
@@ -17,7 +18,7 @@ type BlogOutputPageType = {
 };
 
 class BlogsQueryRepo {
-    async findBlogs(dto: FindBlogsType): Promise<BlogOutputPageType> {
+    async findBlogs(dto: FindBlogsDtoType): Promise<BlogOutputPageType> {
         const {searchNameTerm, pageNumber, pageSize} = dto
         const totalCount = await BlogModel.countDocuments().where('name').regex(RegExp(searchNameTerm, 'i'))
         const pagesCount = Math.ceil(totalCount / pageSize)
@@ -31,8 +32,8 @@ class BlogsQueryRepo {
             items
         }
     }
-    async findBlogById(id: string): Promise<BlogOutputModelType | null> {
-        const foundBlog: BlogOutputModelType | null = await BlogModel.findBlogWithId(id)
+    async findBlogById(_id: string): Promise<BlogOutputModelType | null> {
+        const foundBlog: BlogOutputModelType | null = await BlogModel.findBlogWithId(new ObjectId(_id))
         return foundBlog ? foundBlog : null
     }
 }

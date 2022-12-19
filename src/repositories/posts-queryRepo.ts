@@ -1,5 +1,6 @@
-import {FindPostsByBlogIdType, FindPostsType} from "../types/types";
+import {FindPostsByBlogIdDtoType, FindPostsDtoType} from "../types/types";
 import {PostModel} from "../types/mongoose-schemas-models";
+import {ObjectId} from "mongodb";
 
 type PostOutputModelType = {
     id: string
@@ -19,7 +20,7 @@ type PostOutputPageType = {
 };
 
 class PostsQueryRepo{
-    async findPosts(dto: FindPostsType): Promise<PostOutputPageType> {
+    async findPosts(dto: FindPostsDtoType): Promise<PostOutputPageType> {
         let {pageNumber, pageSize} = dto;
         const totalCount = await PostModel.countDocuments()
         const pagesCount = Math.ceil(totalCount / pageSize)
@@ -33,11 +34,11 @@ class PostsQueryRepo{
             items
         }
     }
-    async findPostById(id: string): Promise<PostOutputModelType | null> {
-        const foundPost: PostOutputModelType | null = await PostModel.findPostWithId(id)
+    async findPostById(_id: string): Promise<PostOutputModelType | null> {
+        const foundPost: PostOutputModelType | null = await PostModel.findPostWithId(new ObjectId(_id))
         return foundPost ? foundPost : null
     }
-    async findPostsByBlogId(dto: FindPostsByBlogIdType): Promise<PostOutputPageType | null> {
+    async findPostsByBlogId(dto: FindPostsByBlogIdDtoType): Promise<PostOutputPageType | null> {
         let {blogId, pageNumber, pageSize} = dto
 
         const totalCount = await PostModel.countDocuments().where('blogId').equals(blogId)
