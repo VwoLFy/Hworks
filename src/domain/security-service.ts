@@ -2,11 +2,7 @@ import {SecurityRepository} from "../repositories/security-repository";
 import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../types/types";
 
 export class SecurityService {
-    private securityRepository: SecurityRepository;
-
-    constructor() {
-    this.securityRepository = new SecurityRepository()
-    }
+    constructor(protected securityRepository: SecurityRepository) {}
 
     async saveSession(sessionData: SessionDtoType): Promise<void> {
         const {userId, exp, ip, title, iat, deviceId} = sessionData

@@ -15,10 +15,8 @@ type TokensType = {
 }
 
 export class JwtService{
-    private securityService: SecurityService;
-    constructor() {
-        this.securityService = new SecurityService()
-    }
+    constructor(protected securityService: SecurityService) {}
+
     async createJWT(userId: string, deviceId: string | null): Promise<TokensType> {
         const accessToken = jwt.sign({userId}, settings.JWT_SECRET, {expiresIn: '10m'})
         deviceId = deviceId ? deviceId : await this.securityService.newDeviceId()

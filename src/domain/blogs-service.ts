@@ -4,13 +4,8 @@ import {BlogModel} from "../types/mongoose-schemas-models";
 import {BlogClass, CreateBlogDtoType, HDBlogType, UpdateBlogDtoType} from "../types/types";
 
 export class BlogsService {
-    private blogsRepository: BlogsRepository;
-    private postsRepository: PostsRepository;
-
-    constructor() {
-        this.blogsRepository = new BlogsRepository()
-        this.postsRepository = new PostsRepository()
-    }
+    constructor(protected blogsRepository: BlogsRepository,
+                protected postsRepository: PostsRepository) {}
 
     async createBlog(dto: CreateBlogDtoType): Promise<string> {
         const newBlog = new BlogClass(dto.name, dto.description, dto.websiteUrl)

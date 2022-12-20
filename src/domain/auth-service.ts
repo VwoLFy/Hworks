@@ -13,19 +13,11 @@ import {PasswordRecoveryModel} from "../types/mongoose-schemas-models";
 import {PassRecoveryRepository} from "../repositories/pass-recovery-repository";
 
 export class AuthService{
-    private jwtService: JwtService;
-    private usersRepository: UsersRepository;
-    private emailManager: EmailManager;
-    private securityService: SecurityService;
-    private passRecoveryRepository: PassRecoveryRepository;
-
-    constructor() {
-        this.jwtService = new JwtService()
-        this.usersRepository = new UsersRepository()
-        this.emailManager = new EmailManager()
-        this.securityService = new SecurityService()
-        this.passRecoveryRepository = new PassRecoveryRepository()
-    }
+    constructor(protected jwtService: JwtService,
+                protected usersRepository: UsersRepository,
+                protected emailManager: EmailManager,
+                protected securityService: SecurityService,
+                protected passRecoveryRepository: PassRecoveryRepository) {}
 
     async checkCredentials(loginOrEmail: string, password: string): Promise<string | null> {
         const foundUser: UserClass | null = await this.usersRepository.findUserByLoginOrEmail(loginOrEmail)

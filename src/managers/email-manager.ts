@@ -1,11 +1,7 @@
 import {EmailAdapter} from "../adapters/email-adapter";
 
 export class EmailManager{
-    private emailAdapter: EmailAdapter;
-
-    constructor() {
-        this.emailAdapter = new EmailAdapter()
-    }
+    constructor(protected emailAdapter: EmailAdapter) {}
 
     async sendEmailConfirmationMessage(email: string, code: string) {
         const subject = "Confirmation Message from CodevwolF"

@@ -1,7 +1,7 @@
 import {NextFunction, Request, Response} from "express";
 import {atob} from "buffer";
-import {JwtService} from "../application/jwt-service";
 import {HTTP_Status} from "../types/enums";
+import {jwtService} from "../composition-root";
 
 export const checkAuthorizationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     const authorization = req.headers.authorization;
@@ -20,7 +20,7 @@ export const checkAuthorizationMiddleware = async (req: Request, res: Response, 
         }
     } else if (authorization.startsWith("Bearer")) {
         const accessToken = authorization.split(" ")[1]
-        const userId = await new JwtService().getUserIdByAccessToken(accessToken)
+        const userId = await jwtService.getUserIdByAccessToken(accessToken)
         if (!userId) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
         req.userId = userId
         next()

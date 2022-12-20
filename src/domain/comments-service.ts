@@ -4,13 +4,8 @@ import {CommentClass} from "../types/types";
 import {PostModel} from "../types/mongoose-schemas-models";
 
 export class CommentsService {
-    private usersRepository: UsersRepository;
-    private commentsRepository: CommentsRepository;
-
-    constructor() {
-        this.usersRepository = new UsersRepository()
-        this.commentsRepository = new CommentsRepository()
-    }
+    constructor(protected usersRepository: UsersRepository,
+                protected commentsRepository: CommentsRepository) {}
 
     async createComment(postId: string, content: string, userId: string): Promise<string | null> {
         const isPostExist = await PostModel.isPostExist(postId)

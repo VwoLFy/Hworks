@@ -3,11 +3,7 @@ import {CreatePostDtoTypeR, HDPostType, PostClass, UpdatePostDtoTypeR} from "../
 import {BlogModel, PostModel} from "../types/mongoose-schemas-models";
 
 export class PostsService{
-    private postsRepository: PostsRepository;
-
-    constructor() {
-        this.postsRepository = new PostsRepository()
-    }
+    constructor(protected postsRepository: PostsRepository) {}
 
     async createPost(dto: CreatePostDtoTypeR): Promise<string | null> {
         const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)

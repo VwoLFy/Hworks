@@ -4,11 +4,7 @@ import {EmailConfirmationClass, UserAccountClass, UserClass} from "../types/type
 import {ObjectId} from "mongodb";
 
 export class UsersService {
-    private usersRepository: UsersRepository;
-
-    constructor() {
-        this.usersRepository = new UsersRepository()
-    }
+    constructor(protected usersRepository: UsersRepository) {}
 
     async createUser(login: string, password: string, email: string): Promise<string | null> {
         const isFreeLoginAndEmail: boolean = await this.usersRepository.isFreeLoginAndEmail(login, email)
