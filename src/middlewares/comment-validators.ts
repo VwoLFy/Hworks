@@ -3,7 +3,7 @@ import {checkIdValidForMongodb} from "./check-id-valid-for-mongodb";
 import {body, query} from "express-validator";
 import {checkAuthorizationMiddleware} from "./check-authorization-middleware";
 import {inputValidationMiddleware} from "./input-validation-middleware";
-import {SortDirection} from "../types/enums";
+import {LikeStatus, SortDirection} from "../types/enums";
 
 const commentContentValidation = body('content', "'content' must be a string  in range from 20 to 300 symbols")
     .isString().trim().isLength({min: 20, max: 300});
@@ -20,6 +20,13 @@ const commentQueryValidation = [
     }),
     query("sortDirection").customSanitizer(value => SortDirection.asc === value ? SortDirection.asc : SortDirection.desc),
 ]
+
+const likeValidation = body('likeStatus',"'likeStatus' must be one of value: None, Like, Dislike")
+    .custom(value => {
+        if (![LikeStatus.Like, LikeStatus.None, LikeStatus.Dislike].includes(value)) throw new Error()
+        return true
+    })
+
 //list for comment
 export const createCommentValidation = [
     checkAuthorizationMiddleware,
@@ -37,6 +44,12 @@ export const getCommentByIdValidation = [
 export const updateCommentByIdValidation = [
     checkAuthorizationMiddleware,
     commentContentValidation,
+    inputValidationMiddleware,
+    checkIdValidForMongodb
+]
+export const likeCommentValidation = [
+    checkAuthorizationMiddleware,
+    likeValidation,
     inputValidationMiddleware,
     checkIdValidForMongodb
 ]

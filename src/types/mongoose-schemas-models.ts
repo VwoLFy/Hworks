@@ -9,7 +9,7 @@ import {
     FindPostsDtoType, HDBlogType, HDPostType, PasswordRecoveryClass,
     PostMethodsType, PostModelType, PostClass, PostWithIdType, SessionClass,
     UpdateBlogDtoType, UpdatePostDtoTypeM, UserAccountClass,
-    UserClass
+    UserClass, LikeClass
 } from "./types";
 import {SortDirection} from "./enums";
 import add from "date-fns/add";
@@ -223,8 +223,16 @@ const PasswordRecoverySchema = new Schema<PasswordRecoveryClass>({
     recoveryCode: {type: String, required: true},
     expirationDate: {type: Date, required: true}
 })
+const LikeSchema = new Schema<LikeClass>({
+    _id: {type: Schema.Types.ObjectId, required: true},
+    createdAt: {type: Date, required: true},
+    commentId: {type: String, required: true},
+    userId: {type: String, required: true},
+    likeStatus: {type: String, required: true},
+})
 
 export const UserModel = model('users', UserSchema)
 export const CommentModel = model('comments', CommentSchema)
 export const SessionModel = model('sessions', SessionSchema)
 export const PasswordRecoveryModel = model('pass_recovery', PasswordRecoverySchema)
+export const LikeModel = model('likes', LikeSchema)

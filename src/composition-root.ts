@@ -24,6 +24,8 @@ import {BlogsQueryRepo} from "./repositories/blogs-queryRepo";
 import {BlogsService} from "./domain/blogs-service";
 import {BlogsController} from "./routes/blogs-controller";
 import {EmailAdapter} from "./adapters/email-adapter";
+import {LikesRepository} from "./repositories/likes-repository";
+import {LikesService} from "./domain/likes-service";
 
 const securityRepository = new SecurityRepository()
 export const securityService = new SecurityService(securityRepository)
@@ -44,7 +46,9 @@ export const usersController = new UsersController(usersQueryRepo, usersService)
 
 const commentsRepository = new CommentsRepository()
 const commentsQueryRepo = new CommentsQueryRepo()
-export const commentsService = new CommentsService(usersRepository, commentsRepository)
+const likesRepository = new LikesRepository()
+const likesService = new LikesService(likesRepository)
+export const commentsService = new CommentsService(usersRepository, commentsRepository, likesService)
 export const commentsController = new CommentsController(commentsQueryRepo, commentsService)
 
 const postsRepository = new PostsRepository()

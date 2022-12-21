@@ -3,6 +3,12 @@ export enum SortDirection {
     desc = "desc"
 }
 
+export enum LikeStatus {
+    None = "None",
+    Like = "Like",
+    Dislike = "Dislike"
+}
+
 export const enum HTTP_Status {
     CONTINUE_100 = 100,
     SWITCHING_PROTOCOLS_101 = 101,

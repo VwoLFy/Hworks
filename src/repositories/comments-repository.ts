@@ -21,6 +21,9 @@ export class CommentsRepository {
             return 204
         }
     }
+    async isCommentExist(id: string): Promise<boolean> {
+        return !!(await CommentModel.findById({_id: id}).lean())
+    }
     async deleteComment(id: string): Promise<number | null> {
         const result = await CommentModel.deleteOne({_id: id})
         if (!result.deletedCount) {

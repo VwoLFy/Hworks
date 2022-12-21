@@ -1,13 +1,19 @@
-import {SortDirection} from "../types/enums";
+import {LikeStatus, SortDirection} from "../types/enums";
 import {CommentClass} from "../types/types";
 import {CommentModel} from "../types/mongoose-schemas-models";
 
+type LikesInfoOutputModelType = {
+    likesCount: number
+    dislikesCount: number
+    myStatus: LikeStatus
+}
 type CommentOutputModelType = {
     id: string
     content: string
     userId: string
     userLogin: string
     createdAt: string
+    likesInfo: LikesInfoOutputModelType
 }
 type CommentOutputPageType = {
     pagesCount: number
@@ -51,8 +57,12 @@ export class CommentsQueryRepo {
             content: comment.content,
             userId: comment.userId,
             userLogin: comment.userLogin,
-            createdAt: comment.createdAt
-
+            createdAt: comment.createdAt,
+            likesInfo: {
+                likesCount: 0,
+                dislikesCount: 0,
+                myStatus: LikeStatus.None
+            }
         }
     }
 }

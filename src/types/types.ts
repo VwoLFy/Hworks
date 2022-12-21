@@ -3,7 +3,7 @@ import {URIParamsModelType} from "../models/URIParamsModel";
 import {ObjectId} from "mongodb";
 import {RefreshTokenDataType} from "../application/jwt-service";
 import {HydratedDocument, Model} from "mongoose";
-import {SortDirection} from "./enums";
+import {LikeStatus, SortDirection} from "./enums";
 import {v4 as uuidv4} from "uuid";
 import add from "date-fns/add";
 
@@ -92,6 +92,17 @@ export class PostClass {
                 public blogName: string) {
         this._id = new ObjectId()
         this.createdAt = new Date().toISOString()
+    }
+}
+export class LikeClass {
+    _id: ObjectId
+    createdAt: Date
+
+    constructor(public commentId: string,
+                public userId: string,
+                public likeStatus: LikeStatus) {
+        this._id = new ObjectId()
+        this.createdAt = new Date()
     }
 }
 
