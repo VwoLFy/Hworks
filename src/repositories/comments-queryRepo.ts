@@ -1,6 +1,6 @@
 import {LikeStatus, SortDirection} from "../types/enums";
 import {CommentClass} from "../types/types";
-import {CommentModel} from "../types/mongoose-schemas-models";
+import {CommentModel, LikeModel} from "../types/mongoose-schemas-models";
 
 type LikesInfoOutputModelType = {
     likesCount: number
@@ -24,10 +24,11 @@ type CommentOutputPageType = {
 }
 
 export class CommentsQueryRepo {
-    async findCommentById(id: string): Promise<CommentOutputModelType | null> {
-        const foundComment: CommentClass | null = await CommentModel.findById({_id: id}).lean()
+    async findCommentById(commentId: string): Promise<CommentOutputModelType | null> {
+        const foundComment: CommentClass | null = await CommentModel.findById({_id: commentId}).lean()
         if (!foundComment) return null
-        return this.commentWithReplaceId(foundComment)
+        const foundLikes = await this.foundLikes(commentId)
+        return this.commentWithReplaceId(foundComment, foundLikes)
     }
     async findCommentsByPostId(postId: string, page: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<CommentOutputPageType | null> {
         sortBy = sortBy === 'id' ? '_id' : sortBy
@@ -36,13 +37,20 @@ export class CommentsQueryRepo {
         if (!totalCount) return null
 
         const pagesCount = Math.ceil(totalCount / pageSize)
-        const items = (await CommentModel
+        const items_id = (await CommentModel
             .find({postId})
             .skip( (page - 1) * pageSize)
             .limit(pageSize)
             .sort(sortOptions)
             .lean())
-            .map(c => this.commentWithReplaceId(c))
+
+        let items: CommentOutputModelType[] = []
+        for (const item_id of items_id) {
+            const foundLikes = await this.foundLikes(item_id._id.toString())
+            const item = this.commentWithReplaceId(item_id, foundLikes)
+            items = [...items, item]
+        }
+
         return {
             pagesCount,
             page,
@@ -51,18 +59,24 @@ export class CommentsQueryRepo {
             items
         }
     }
-    commentWithReplaceId(comment: CommentClass): CommentOutputModelType {
+    commentWithReplaceId(comment: CommentClass, likesInfo: LikesInfoOutputModelType): CommentOutputModelType {
         return {
             id: comment._id.toString(),
             content: comment.content,
             userId: comment.userId,
             userLogin: comment.userLogin,
             createdAt: comment.createdAt,
-            likesInfo: {
-                likesCount: 0,
-                dislikesCount: 0,
-                myStatus: LikeStatus.None
-            }
+            likesInfo
+        }
+    }
+
+    async foundLikes(commentId: string): Promise<LikesInfoOutputModelType> {
+        const likesCount = await LikeModel.countDocuments({commentId, likeStatus: 'Like'})
+        const dislikesCount = await LikeModel.countDocuments({commentId, likeStatus: 'Dislike'})
+        return {
+            likesCount,
+            dislikesCount,
+            myStatus: LikeStatus.None
         }
     }
 }

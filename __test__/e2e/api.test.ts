@@ -984,6 +984,11 @@ describe('Test of the Homework', () => {
                     userId: user.id,
                     userLogin: user.login,
                     createdAt: expect.any(String),
+                    likesInfo: {
+                        "likesCount": 0,
+                        "dislikesCount": 0,
+                        "myStatus": "None"
+                    }
                 }
             )
         })
@@ -1000,7 +1005,12 @@ describe('Test of the Homework', () => {
                             content: comment.content,
                             userId: comment.userId,
                             userLogin: comment.userLogin,
-                            createdAt: comment.createdAt
+                            createdAt: comment.createdAt,
+                            likesInfo: {
+                                "likesCount": 0,
+                                "dislikesCount": 0,
+                                "myStatus": "None"
+                            }
                         }]
                     }
                 )
@@ -1013,7 +1023,12 @@ describe('Test of the Homework', () => {
                     content: comment.content,
                     userId: comment.userId,
                     userLogin: comment.userLogin,
-                    createdAt: comment.createdAt
+                    createdAt: comment.createdAt,
+                    likesInfo: {
+                        "likesCount": 0,
+                        "dislikesCount": 0,
+                        "myStatus": "None"
+                    }
                 })
         });
         it('GET should return 404', async () => {

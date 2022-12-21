@@ -95,13 +95,11 @@ export class PostClass {
     }
 }
 export class LikeClass {
-    _id: ObjectId
     createdAt: Date
 
     constructor(public commentId: string,
                 public userId: string,
                 public likeStatus: LikeStatus) {
-        this._id = new ObjectId()
         this.createdAt = new Date()
     }
 }

@@ -224,7 +224,6 @@ const PasswordRecoverySchema = new Schema<PasswordRecoveryClass>({
     expirationDate: {type: Date, required: true}
 })
 const LikeSchema = new Schema<LikeClass>({
-    _id: {type: Schema.Types.ObjectId, required: true},
     createdAt: {type: Date, required: true},
     commentId: {type: String, required: true},
     userId: {type: String, required: true},
