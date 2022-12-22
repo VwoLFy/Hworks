@@ -24,13 +24,13 @@ type CommentOutputPageType = {
 }
 
 export class CommentsQueryRepo {
-    async findCommentById(commentId: string): Promise<CommentOutputModelType | null> {
+    async findCommentById(commentId: string, userId: string | null): Promise<CommentOutputModelType | null> {
         const foundComment: CommentClass | null = await CommentModel.findById({_id: commentId}).lean()
         if (!foundComment) return null
-        const foundLikes = await this.foundLikes(commentId)
+        const foundLikes = await this.foundLikes(commentId, userId)
         return this.commentWithReplaceId(foundComment, foundLikes)
     }
-    async findCommentsByPostId(postId: string, page: number, pageSize: number, sortBy: string, sortDirection: SortDirection): Promise<CommentOutputPageType | null> {
+    async findCommentsByPostId(postId: string, page: number, pageSize: number, sortBy: string, sortDirection: SortDirection, userId: string | null): Promise<CommentOutputPageType | null> {
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const sortOptions = {[sortBy]: sortDirection}
         const totalCount = await CommentModel.countDocuments({postId})
@@ -46,7 +46,7 @@ export class CommentsQueryRepo {
 
         let items: CommentOutputModelType[] = []
         for (const item_id of items_id) {
-            const foundLikes = await this.foundLikes(item_id._id.toString())
+            const foundLikes = await this.foundLikes(item_id._id.toString(), userId)
             const item = this.commentWithReplaceId(item_id, foundLikes)
             items = [...items, item]
         }
@@ -70,13 +70,18 @@ export class CommentsQueryRepo {
         }
     }
 
-    async foundLikes(commentId: string): Promise<LikesInfoOutputModelType> {
+    async foundLikes(commentId: string, userId: string | null): Promise<LikesInfoOutputModelType> {
+        let myStatus = LikeStatus.None
+        if (userId) {
+            const status = await LikeModel.findOne({commentId, userId}).lean()
+            if (status) myStatus = status.likeStatus
+        }
         const likesCount = await LikeModel.countDocuments({commentId, likeStatus: 'Like'})
         const dislikesCount = await LikeModel.countDocuments({commentId, likeStatus: 'Dislike'})
         return {
             likesCount,
             dislikesCount,
-            myStatus: LikeStatus.None
+            myStatus
         }
     }
 }

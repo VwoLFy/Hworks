@@ -75,8 +75,9 @@ export class PostController {
     }
 
     async getCommentsForPost(req: RequestWithParamAndQuery<PostQueryModelType>, res: Response<TypeCommentViewModelPage>) {
+        const userId = req.userId ? req.userId : null
         const {pageNumber, pageSize, sortBy, sortDirection} = req.query;
-        const foundComments = await this.commentsQueryRepo.findCommentsByPostId(req.params.id, +pageNumber, +pageSize, sortBy, sortDirection)
+        const foundComments = await this.commentsQueryRepo.findCommentsByPostId(req.params.id, +pageNumber, +pageSize, sortBy, sortDirection, userId)
         if (!foundComments) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
@@ -89,7 +90,7 @@ export class PostController {
         if (!createdCommentId) {
             return res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
-            const createdComment = await this.commentsQueryRepo.findCommentById(createdCommentId);
+            const createdComment = await this.commentsQueryRepo.findCommentById(createdCommentId, req.userId);
             if (createdComment) return res.status(HTTP_Status.CREATED_201).json(createdComment)
         }
     }

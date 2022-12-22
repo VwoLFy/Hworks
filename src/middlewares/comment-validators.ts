@@ -4,6 +4,7 @@ import {body, query} from "express-validator";
 import {checkAuthorizationMiddleware} from "./check-authorization-middleware";
 import {inputValidationMiddleware} from "./input-validation-middleware";
 import {LikeStatus, SortDirection} from "../types/enums";
+import {getUserIdAuthMiddleware} from "./get-user-id-auth-middleware";
 
 const commentContentValidation = body('content', "'content' must be a string  in range from 20 to 300 symbols")
     .isString().trim().isLength({min: 20, max: 300});
@@ -35,10 +36,12 @@ export const createCommentValidation = [
     checkIdValidForMongodb
 ]
 export const getCommentsByPostIdValidation = [
+    getUserIdAuthMiddleware,
     checkIdValidForMongodb,
     ...commentQueryValidation
 ]
 export const getCommentByIdValidation = [
+    getUserIdAuthMiddleware,
     checkIdValidForMongodb
 ]
 export const updateCommentByIdValidation = [
