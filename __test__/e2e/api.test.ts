@@ -683,13 +683,13 @@ describe('Test of the Homework', () => {
                     password: "password",
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
-            await request(app)
-                .post('/auth/login')
-                .auth('admin', 'qwerty', {type: 'basic'})
-                .send({
-                    loginOrEmail: "login",
-                    password: "",
-                })
+            // await request(app)
+            //     .post('/auth/login')
+            //     .auth('admin', 'qwerty', {type: 'basic'})
+            //     .send({
+            //         loginOrEmail: "login",
+            //         password: "",
+            //     })
                 .expect(HTTP_Status.BAD_REQUEST_400)
             await request(app)
                 .post('/auth/login')
@@ -772,7 +772,7 @@ describe('Test of the Homework', () => {
         }, 15000);
        */
         it('POST should authenticate user with correct email', async () => {
-            await delay(10000);
+            //await delay(10000);
             const result = await request(app)
                 .post('/auth/login')
                 .send({
@@ -1423,6 +1423,8 @@ describe('Test of the Homework', () => {
                 }])
             expect(devices).not.toEqual(newDeviceList)
         })
+/*
+
         it('POST/registration should return status code 429 if more than 5 requests in 10 seconds, and 204 after waiting', async () => {
             await request(app)
                 .post('/auth/registration')
@@ -1633,8 +1635,609 @@ describe('Test of the Homework', () => {
                 })
                 .expect(HTTP_Status.BAD_REQUEST_400)
         }, 15000)
-    })
 
+*/
+    })
+    describe('comment likes', () => {
+        beforeAll(async () => {
+            await request(app)
+                .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
+        })
+        let token: LoginSuccessViewModelType
+        let user: UserViewModelType
+        let comment: CommentViewModelType
+        let post: PostViewModelType
+        let blog: BlogViewModelType
+        let user2: UserViewModelType
+        let token2: LoginSuccessViewModelType
+        let user3: UserViewModelType
+        let token3: LoginSuccessViewModelType
+        let user4: UserViewModelType
+        let token4: LoginSuccessViewModelType
+        it('POST should create blog, post, comment and 4 auth users', async () => {
+            const resultBlog = await request(app)
+                .post('/blogs')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    name: "blogName",
+                    description: "description",
+                    websiteUrl: " https://localhost1.uuu/blogs  "
+                })
+                .expect(HTTP_Status.CREATED_201)
+            blog = resultBlog.body
+
+            const resultPost = await request(app)
+                .post('/posts')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            post = resultPost.body
+
+            const resultUser = await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    login: "login",
+                    password: "password",
+                    email: "string@sdf.ee"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            user = resultUser.body
+
+            const resultToken = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login",
+                    password: "password"
+                })
+                .expect(HTTP_Status.OK_200)
+            token = resultToken.body
+
+            const resultUser2 = await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    login: "login2",
+                    password: "password2",
+                    email: "string2@sdf.ee"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            user2 = resultUser2.body
+
+            const resultToken2 = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login2",
+                    password: "password2"
+                })
+                .expect(HTTP_Status.OK_200)
+            token2 = resultToken2.body
+
+            const resultUser3 = await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    login: "login3",
+                    password: "password3",
+                    email: "string3@sdf.ee"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            user3 = resultUser3.body
+
+            const resultToken3 = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login3",
+                    password: "password3"
+                })
+                .expect(HTTP_Status.OK_200)
+            token3 = resultToken3.body
+
+            const resultUser4 = await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    login: "login4",
+                    password: "password4",
+                    email: "string4@sdf.ee"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            user4 = resultUser4.body
+
+            const resultToken4 = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login4",
+                    password: "password4"
+                })
+                .expect(HTTP_Status.OK_200)
+            token4 = resultToken4.body
+
+            const resultComment = await request(app)
+                .post(`/posts/${post.id}/comments`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({
+                    content: "valid comment_comment"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            comment = resultComment.body
+
+            expect(comment).toEqual(
+                {
+                    id: expect.any(String),
+                    content: "valid comment_comment",
+                    userId: user.id,
+                    userLogin: user.login,
+                    createdAt: expect.any(String),
+                    likesInfo: {
+                        "likesCount": 0,
+                        "dislikesCount": 0,
+                        "myStatus": "None"
+                    }
+                }
+            )
+        })
+        it('PUT shouldn`t like comment and return 401', async () => {
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token.accessToken + 'd', {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+        });
+        it('PUT shouldn`t like comment and return 400', async () => {
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "ErrorStatus"})
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        });
+        it('PUT shouldn`t like comment and return 404', async () => {
+            await request(app)
+                .put(`/comments/${blog.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NOT_FOUND_404)
+        });
+        it('PUT should like comment by user1', async () => {
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            const likedComment = await request(app)
+                .get(`/comments/${comment.id}`)
+                .auth(token.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
+
+            expect(comment).not.toEqual(likedComment.body)
+            expect(likedComment.body).toEqual(
+                {
+                    id: expect.any(String),
+                    content: "valid comment_comment",
+                    userId: user.id,
+                    userLogin: user.login,
+                    createdAt: expect.any(String),
+                    likesInfo: {
+                        "likesCount": 1,
+                        "dislikesCount": 0,
+                        "myStatus": "Like"
+                    }
+                }
+            )
+        });
+        it('GET should return 200 and comments with "myStatus": "None" for non auth user', async () => {
+            await request(app)
+                .get(`/comments/${comment.id}`)
+                .expect(HTTP_Status.OK_200, {
+                        id: comment.id,
+                        content: comment.content,
+                        userId: user.id,
+                        userLogin: user.login,
+                        createdAt: comment.createdAt,
+                        likesInfo: {
+                            "likesCount": 1,
+                            "dislikesCount": 0,
+                            "myStatus": "None"
+                        }
+                    }
+                )
+        })
+        it('PUT should like comment by user2, user3 and dislike by user4 with get comment by him', async () => {
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            const likedComment = await request(app)
+                .get(`/comments/${comment.id}`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
+
+            expect(likedComment.body).toEqual(
+                {
+                    id: expect.any(String),
+                    content: "valid comment_comment",
+                    userId: user.id,
+                    userLogin: user.login,
+                    createdAt: expect.any(String),
+                    likesInfo: {
+                        "likesCount": 3,
+                        "dislikesCount": 1,
+                        "myStatus": "Dislike"
+                    }
+                }
+            )
+        });
+        it('GET should return 200 and comments with "myStatus": "None" for non auth user', async () => {
+            await request(app)
+                .get(`/comments/${comment.id}`)
+                .expect(HTTP_Status.OK_200, {
+                        id: comment.id,
+                        content: comment.content,
+                        userId: user.id,
+                        userLogin: user.login,
+                        createdAt: comment.createdAt,
+                        likesInfo: {
+                            "likesCount": 3,
+                            "dislikesCount": 1,
+                            "myStatus": "None"
+                        }
+                    }
+                )
+        })
+        it('PUT should dislike comment by user2, user3 and like by user4 with get comment by him', async () => {
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            const likedComment = await request(app)
+                .get(`/comments/${comment.id}`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
+
+            expect(likedComment.body).toEqual(
+                {
+                    id: expect.any(String),
+                    content: "valid comment_comment",
+                    userId: user.id,
+                    userLogin: user.login,
+                    createdAt: expect.any(String),
+                    likesInfo: {
+                        "likesCount": 2,
+                        "dislikesCount": 2,
+                        "myStatus": "Like"
+                    }
+                }
+            )
+        });
+        it('PUT should dislike comment by user1 twice. Shouldn`t increase likes count', async () => {
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            const likedComment = await request(app)
+                .get(`/comments/${comment.id}`)
+                .auth(token.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
+
+            expect(likedComment.body).toEqual(
+                {
+                    id: expect.any(String),
+                    content: "valid comment_comment",
+                    userId: user.id,
+                    userLogin: user.login,
+                    createdAt: expect.any(String),
+                    likesInfo: {
+                        "likesCount": 1,
+                        "dislikesCount": 3,
+                        "myStatus": "Dislike"
+                    }
+                }
+            )
+        });
+        it('PUT should set None status all users with get comment by user1', async () => {
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "None"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "None"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "None"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .send({likeStatus: "None"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            const likedComment = await request(app)
+                .get(`/comments/${comment.id}`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
+
+            expect(likedComment.body).toEqual(
+                {
+                    id: expect.any(String),
+                    content: "valid comment_comment",
+                    userId: user.id,
+                    userLogin: user.login,
+                    createdAt: expect.any(String),
+                    likesInfo: {
+                        "likesCount": 0,
+                        "dislikesCount": 0,
+                        "myStatus": "None"
+                    }
+                }
+            )
+        });
+        it('create +5 comments then:' +
+            ' like comment 1 by user 1, user 2;' +
+            ' like comment 2 by user 2, user 3;' +
+            ' dislike comment 3 by user 1;' +
+            ' like comment 4 by user 1, user 4, user 2, user 3;' +
+            ' like comment 5 by user 2, dislike by user 3;' +
+            ' like comment 6 by user 1, dislike by user 2.' +
+            ' Get the comments by user 1 after all likes', async () => {
+            let resultComment = await request(app)
+                .post(`/posts/${post.id}/comments`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({
+                    content: "valid comment_comment2"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            const comment2 = {...resultComment.body}
+
+            resultComment = await request(app)
+                .post(`/posts/${post.id}/comments`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({
+                    content: "valid comment_comment3"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            const comment3 = {...resultComment.body}
+
+            resultComment = await request(app)
+                .post(`/posts/${post.id}/comments`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({
+                    content: "valid comment_comment4"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            const comment4 = {...resultComment.body}
+
+            resultComment = await request(app)
+                .post(`/posts/${post.id}/comments`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({
+                    content: "valid comment_comment5"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            const comment5 = {...resultComment.body}
+
+            resultComment = await request(app)
+                .post(`/posts/${post.id}/comments`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({
+                    content: "valid comment_comment6"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            const comment6 = {...resultComment.body}
+
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await request(app)
+                .put(`/comments/${comment2.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment2.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await request(app)
+                .put(`/comments/${comment3.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await request(app)
+                .put(`/comments/${comment4.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment4.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment4.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment4.id}/like-status`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await request(app)
+                .put(`/comments/${comment5.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment5.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await request(app)
+                .put(`/comments/${comment6.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/comments/${comment6.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            const result = await request(app)
+                .get(`/posts/${post.id}/comments`)
+                .auth(token.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
+
+            console.log(result.body)
+
+            expect(result.body).toEqual({
+                    pagesCount: 1,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 6,
+                    items: [
+                        {
+                            id: comment6.id,
+                            content: comment6.content,
+                            userId: comment6.userId,
+                            userLogin: comment6.userLogin,
+                            createdAt: comment6.createdAt,
+                            likesInfo: {
+                                "likesCount": 1,
+                                "dislikesCount": 1,
+                                "myStatus": "Like"
+                            }
+                        },
+                        {
+                            id: comment5.id,
+                            content: comment5.content,
+                            userId: comment5.userId,
+                            userLogin: comment5.userLogin,
+                            createdAt: comment5.createdAt,
+                            likesInfo: {
+                                "likesCount": 1,
+                                "dislikesCount": 1,
+                                "myStatus": "None"
+                            }
+                        },
+                        {
+                            id: comment4.id,
+                            content: comment4.content,
+                            userId: comment4.userId,
+                            userLogin: comment4.userLogin,
+                            createdAt: comment4.createdAt,
+                            likesInfo: {
+                                "likesCount": 4,
+                                "dislikesCount": 0,
+                                "myStatus": "Like"
+                            }
+                        },
+                        {
+                            id: comment3.id,
+                            content: comment3.content,
+                            userId: comment3.userId,
+                            userLogin: comment3.userLogin,
+                            createdAt: comment3.createdAt,
+                            likesInfo: {
+                                "likesCount": 0,
+                                "dislikesCount": 1,
+                                "myStatus": "Dislike"
+                            }
+                        },
+                        {
+                            id: comment2.id,
+                            content: comment2.content,
+                            userId: comment2.userId,
+                            userLogin: comment2.userLogin,
+                            createdAt: comment2.createdAt,
+                            likesInfo: {
+                                "likesCount": 2,
+                                "dislikesCount": 0,
+                                "myStatus": "None"
+                            }
+                        },
+                        {
+                            id: comment.id,
+                            content: comment.content,
+                            userId: comment.userId,
+                            userLogin: comment.userLogin,
+                            createdAt: comment.createdAt,
+                            likesInfo: {
+                                "likesCount": 2,
+                                "dislikesCount": 0,
+                                "myStatus": "Like"
+                            }
+                        }
+                    ]
+                }
+            )
+            //
+            // expect(likedComment.body).toEqual(
+            //     {
+            //         id: expect.any(String),
+            //         content: "valid comment111111111",
+            //         userId: user.id,
+            //         userLogin: user.login,
+            //         createdAt: expect.any(String),
+            //         likesInfo: {
+            //             "likesCount": 0,
+            //             "dislikesCount": 0,
+            //             "myStatus": "None"
+            //         }
+            //     }
+            //)
+        });
+
+    })
     /*
         describe('registration', () => {
             beforeAll(async () => {
