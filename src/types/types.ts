@@ -14,14 +14,26 @@ export type RequestWithParamAndBody<B> = Request<URIParamsModelType, {}, B>
 export type RequestWithParamAndQuery<Q> = Request<URIParamsModelType, {}, {}, Q>
 //export type RequestWithParamAndBodyAndQuery<P, B, Q> = Request<P, {}, B, Q>
 
+export class LikesInfoClass {
+    likesCount: number
+    dislikesCount: number
+    myStatus: LikeStatus
 
+    constructor() {
+        this.likesCount = 0
+        this.dislikesCount = 0
+        this.myStatus = LikeStatus.None
+    }
+}
 export class CommentClass {
     _id: ObjectId
     createdAt: string
+
     constructor(public content: string,
                 public userId: string,
                 public userLogin: string,
-                public postId: string) {
+                public postId: string,
+                public likesInfo: LikesInfoClass) {
         this._id = new ObjectId()
         this.createdAt = new Date().toISOString()
     }

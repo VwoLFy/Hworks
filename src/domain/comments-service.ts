@@ -1,6 +1,6 @@
 import {UsersRepository} from "../repositories/users-repository";
 import {CommentsRepository} from "../repositories/comments-repository";
-import {CommentClass, LikeClass, LikeCommentDto} from "../types/types";
+import {CommentClass, LikeClass, LikeCommentDto, LikesInfoClass} from "../types/types";
 import {PostModel} from "../types/mongoose-schemas-models";
 
 export class CommentsService {
@@ -11,11 +11,13 @@ export class CommentsService {
         const isPostExist = await PostModel.isPostExist(postId)
         const userLogin = await this.usersRepository.findUserLoginById(userId)
         if (!isPostExist || !userLogin) return null
+        const likesInfo = new LikesInfoClass()
         const newComment = new CommentClass(
             content,
             userId,
             userLogin,
-            postId
+            postId,
+            likesInfo
         )
         return this.commentsRepository.createComment(newComment)
     }

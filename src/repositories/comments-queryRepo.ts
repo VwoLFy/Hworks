@@ -25,10 +25,13 @@ type CommentOutputPageType = {
 
 export class CommentsQueryRepo {
     async findCommentById(commentId: string, userId: string | null): Promise<CommentOutputModelType | null> {
-        const foundComment: CommentClass | null = await CommentModel.findById({_id: commentId}).lean()
+        const foundComment: CommentClass | null = await CommentModel.findById({_id: commentId}).select('-likesInfo._id').lean()
         if (!foundComment) return null
         const foundLikes = await this.foundLikes(commentId, userId)
-        return this.commentWithReplaceId(foundComment, foundLikes)
+        foundComment.likesInfo.likesCount = foundLikes.likesCount
+        foundComment.likesInfo.dislikesCount = foundLikes.dislikesCount
+        foundComment.likesInfo.myStatus = foundLikes.myStatus
+        return this.commentWithReplaceId(foundComment)
     }
     async findCommentsByPostId(postId: string, page: number, pageSize: number, sortBy: string, sortDirection: SortDirection, userId: string | null): Promise<CommentOutputPageType | null> {
         sortBy = sortBy === 'id' ? '_id' : sortBy
@@ -39,6 +42,7 @@ export class CommentsQueryRepo {
         const pagesCount = Math.ceil(totalCount / pageSize)
         const items_id = (await CommentModel
             .find({postId})
+            .select('-likesInfo._id')
             .skip( (page - 1) * pageSize)
             .limit(pageSize)
             .sort(sortOptions)
@@ -47,7 +51,11 @@ export class CommentsQueryRepo {
         let items: CommentOutputModelType[] = []
         for (const item_id of items_id) {
             const foundLikes = await this.foundLikes(item_id._id.toString(), userId)
-            const item = this.commentWithReplaceId(item_id, foundLikes)
+            item_id.likesInfo.likesCount = foundLikes.likesCount
+            item_id.likesInfo.dislikesCount = foundLikes.dislikesCount
+            item_id.likesInfo.myStatus = foundLikes.myStatus
+
+            const item = this.commentWithReplaceId(item_id)
             items = [...items, item]
         }
 
@@ -59,14 +67,14 @@ export class CommentsQueryRepo {
             items
         }
     }
-    commentWithReplaceId(comment: CommentClass, likesInfo: LikesInfoOutputModelType): CommentOutputModelType {
+    commentWithReplaceId(comment: CommentClass): CommentOutputModelType {
         return {
             id: comment._id.toString(),
             content: comment.content,
             userId: comment.userId,
             userLogin: comment.userLogin,
             createdAt: comment.createdAt,
-            likesInfo
+            likesInfo: comment.likesInfo
         }
     }
 

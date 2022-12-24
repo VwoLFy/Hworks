@@ -9,7 +9,7 @@ import {
     FindPostsDtoType, HDBlogType, HDPostType, PasswordRecoveryClass,
     PostMethodsType, PostModelType, PostClass, PostWithIdType, SessionClass,
     UpdateBlogDtoType, UpdatePostDtoTypeM, UserAccountClass,
-    UserClass, LikeClass
+    UserClass, LikeClass, LikesInfoClass
 } from "./types";
 import {SortDirection} from "./enums";
 import add from "date-fns/add";
@@ -197,6 +197,11 @@ const UserSchema = new Schema<UserClass>({
     accountData: {type: UserAccountSchema, required: true},
     emailConfirmation: {type: EmailConfirmationSchema, required: true}
 })
+const LikeInfoSchema = new Schema<LikesInfoClass>({
+    likesCount: {type: Number, required: true},
+    dislikesCount: {type: Number, required: true},
+    myStatus: {type: String, required: true}
+})
 const CommentSchema = new Schema<CommentClass>({
     _id: {type: Schema.Types.ObjectId, required: true},
     content: {type: String, required: true, minlength: 20, maxlength: 300},
@@ -204,6 +209,7 @@ const CommentSchema = new Schema<CommentClass>({
     userLogin: {type: String, required: true, minlength: 3, maxlength: 30},
     createdAt: {type: String, required: true},
     postId: {type: String, required: true},
+    likesInfo: {type: LikeInfoSchema, required: true}
 })
 const SessionSchema = new Schema<SessionClass>({
     _id: {type: Schema.Types.ObjectId, required: true},

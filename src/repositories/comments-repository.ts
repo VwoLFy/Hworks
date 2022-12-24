@@ -28,7 +28,6 @@ export class CommentsRepository {
     async setLikeStatus(like: LikeClass): Promise<void> {
         await LikeModel.create(like)
     }
-
     async updateLikeStatus({commentId, userId, likeStatus}: LikeCommentDto): Promise<boolean> {
         if (likeStatus === LikeStatus.None) {
             await LikeModel.deleteOne({commentId, userId})
