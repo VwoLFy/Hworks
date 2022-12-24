@@ -25,7 +25,7 @@ export class CommentsRepository {
     async isCommentExist(id: string): Promise<boolean> {
         return !!(await CommentModel.findById({_id: id}).lean())
     }
-    async setLikeStatus(like: LikeClass): Promise<void> {
+    async newLikeStatus(like: LikeClass): Promise<void> {
         await LikeModel.create(like)
     }
     async updateLikeStatus({commentId, userId, likeStatus}: LikeCommentDto): Promise<boolean> {
@@ -35,6 +35,19 @@ export class CommentsRepository {
         }
         const result = await LikeModel.updateOne({commentId, userId}, {$set: {likeStatus, createdAt: (new Date())}})
         return !!result.matchedCount
+    }
+    async updateLikesCount(commentId: string) {
+        const likesCount = await LikeModel.countDocuments({commentId, likeStatus: 'Like'})
+        const dislikesCount = await LikeModel.countDocuments({commentId, likeStatus: 'Dislike'})
+        await CommentModel.updateOne(
+            {_id: commentId},
+            {$set:
+                    {
+                        'likesInfo.likesCount': likesCount,
+                        'likesInfo.dislikesCount': dislikesCount
+                    }
+            }
+        )
     }
     async deleteComment(id: string): Promise<number | null> {
         const result = await CommentModel.deleteOne({_id: id})

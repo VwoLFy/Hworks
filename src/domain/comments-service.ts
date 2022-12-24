@@ -34,6 +34,7 @@ export class CommentsService {
         const isCommentExist = await this.commentsRepository.isCommentExist(commentId)
         if (!isCommentExist) return false
         await this.setLikeStatus({commentId, userId, likeStatus})
+        await this.commentsRepository.updateLikesCount(commentId)
         return true
     }
     async setLikeStatus({commentId, userId, likeStatus}: LikeCommentDto) {
@@ -41,7 +42,7 @@ export class CommentsService {
         if (isLikeUpdated) return
 
         const like = new LikeClass(commentId, userId, likeStatus)
-        await this.commentsRepository.setLikeStatus(like)
+        await this.commentsRepository.newLikeStatus(like)
     }
     async deleteComment(commentId: string, userId: string): Promise<number | null> {
         const userIdFromDB = await this.commentsRepository.findUserIdByCommentId(commentId)

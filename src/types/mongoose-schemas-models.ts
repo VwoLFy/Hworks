@@ -186,12 +186,12 @@ const UserAccountSchema = new Schema<UserAccountClass>({
         }
     },
     createdAt: {type: String, required: true}
-})
+}, {_id: false})
 const EmailConfirmationSchema = new Schema<EmailConfirmationClass>({
     isConfirmed: {type: Boolean, required: true},
     confirmationCode: {type: String},
     expirationDate: {type: Date, required: true}
-})
+}, {_id: false})
 const UserSchema = new Schema<UserClass>({
     _id: {type: Schema.Types.ObjectId, required: true},
     accountData: {type: UserAccountSchema, required: true},
@@ -201,8 +201,7 @@ const LikeInfoSchema = new Schema<LikesInfoClass>({
         likesCount: {type: Number, required: true},
         dislikesCount: {type: Number, required: true},
         myStatus: {type: String, required: true}
-    },
-    {_id: false})
+    }, {_id: false})
 const CommentSchema = new Schema<CommentClass>({
     _id: {type: Schema.Types.ObjectId, required: true},
     content: {type: String, required: true, minlength: 20, maxlength: 300},
