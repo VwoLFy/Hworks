@@ -31,7 +31,10 @@ export class CommentsController {
     }
 
     async likeComment(req: RequestWithParamAndBody<LikeInputModelType>, res: Response) {
-        const result = await this.commentsService.likeComment(req.params.id, req.userId, req.body.likeStatus)
+        const result = await this.commentsService.likeComment({
+            commentId: req.params.id,
+            userId: req.userId,
+            likeStatus: req.body.likeStatus})
         if (!result) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {

@@ -33,6 +33,6 @@ export class CommentsRepository {
         }
     }
     async deleteAll() {
-        CommentModel.deleteMany({})
+        await CommentModel.deleteMany({})
     }
 }

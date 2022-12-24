@@ -1,8 +1,7 @@
 import {UsersRepository} from "../repositories/users-repository";
 import {CommentsRepository} from "../repositories/comments-repository";
-import {CommentClass} from "../types/types";
+import {CommentClass, LikeCommentDto} from "../types/types";
 import {PostModel} from "../types/mongoose-schemas-models";
-import {LikeStatus} from "../types/enums";
 import {LikesService} from "./likes-service";
 
 export class CommentsService {
@@ -31,10 +30,10 @@ export class CommentsService {
         }
         return await this.commentsRepository.updateComment(commentId, content)
     }
-    async likeComment(commentId: string, userId: string, likeStatus: LikeStatus): Promise<boolean> {
+    async likeComment({commentId, userId, likeStatus}: LikeCommentDto): Promise<boolean> {
         const isCommentExist = await this.commentsRepository.isCommentExist(commentId)
         if (!isCommentExist) return false
-        await this.likesService.setLikeStatus(commentId, userId, likeStatus)
+        await this.likesService.setLikeStatus({commentId, userId, likeStatus})
         return true
     }
     async deleteComment(commentId: string, userId: string): Promise<number | null> {
@@ -47,6 +46,7 @@ export class CommentsService {
         return await this.commentsRepository.deleteComment(commentId)
     }
     async deleteAll() {
+        console.log()
         await this.commentsRepository.deleteAll()
     }
 }

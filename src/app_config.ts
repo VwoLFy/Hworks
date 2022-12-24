@@ -7,9 +7,15 @@ import {commentsRouter} from "./routes/comments-router";
 import {HTTP_Status} from "./types/enums";
 import cookieParser from "cookie-parser";
 import {securityRouter} from "./routes/security-router";
-import {PassRecoveryRepository} from "./repositories/pass-recovery-repository";
 import {AttemptsDataModel} from "./types/mongoose-schemas-models";
-import {blogsService, commentsService, postsService, securityService, usersService} from "./composition-root";
+import {
+    blogsService,
+    commentsService, likesService,
+    passRecoveryRepository,
+    postsService,
+    securityService,
+    usersService
+} from "./composition-root";
 
 export const app = express();
 const bodyMiddle = express.json();
@@ -29,8 +35,9 @@ app.delete('/testing/all-data', async (req: Request, res: Response) => {
     await postsService.deleteAll();
     await usersService.deleteAll();
     await commentsService.deleteAll();
+    await likesService.deleteAll()
     await securityService.deleteAll();
+    await passRecoveryRepository.deleteAll();
     await AttemptsDataModel.deleteMany();
-    await new PassRecoveryRepository().deleteAll();
     res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })

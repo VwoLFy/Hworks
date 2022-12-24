@@ -205,3 +205,9 @@ export type FindPostsByBlogIdDtoType = {
     sortBy: string
     sortDirection: SortDirection
 }
+
+export type LikeCommentDto = {
+    commentId: string
+    userId: string
+    likeStatus: LikeStatus
+}

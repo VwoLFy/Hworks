@@ -2239,6 +2239,17 @@ describe('Test of the Homework', () => {
 
     })
     /*
+    describe('test', () => {
+        beforeAll(async () => {
+            await request(app)
+                .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
+        })
+        it('POST should create blog, post, comment and 4 auth users', async () => {
+        });
+
+    })
+*/
+    /*
         describe('registration', () => {
             beforeAll(async () => {
                 await request(app)
