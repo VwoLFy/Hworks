@@ -25,7 +25,7 @@ type CommentOutputPageType = {
 
 export class CommentsQueryRepo {
     async findCommentById(commentId: string, userId: string | null): Promise<CommentOutputModelType | null> {
-        const foundComment: CommentClass | null = await CommentModel.findById({_id: commentId}).select('-likesInfo._id').lean()
+        const foundComment: CommentClass | null = await CommentModel.findById({_id: commentId}).lean()
         if (!foundComment) return null
         const foundLikes = await this.foundLikes(commentId, userId)
         foundComment.likesInfo.likesCount = foundLikes.likesCount
@@ -42,7 +42,6 @@ export class CommentsQueryRepo {
         const pagesCount = Math.ceil(totalCount / pageSize)
         const items_id = (await CommentModel
             .find({postId})
-            .select('-likesInfo._id')
             .skip( (page - 1) * pageSize)
             .limit(pageSize)
             .sort(sortOptions)
