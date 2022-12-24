@@ -2137,8 +2137,6 @@ describe('Test of the Homework', () => {
                 .auth(token.accessToken, {type: "bearer"})
                 .expect(HTTP_Status.OK_200)
 
-            console.log(result.body)
-
             expect(result.body).toEqual({
                     pagesCount: 1,
                     page: 1,

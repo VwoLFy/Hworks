@@ -1,13 +1,11 @@
 import {UsersRepository} from "../repositories/users-repository";
 import {CommentsRepository} from "../repositories/comments-repository";
-import {CommentClass, LikeCommentDto} from "../types/types";
+import {CommentClass, LikeClass, LikeCommentDto} from "../types/types";
 import {PostModel} from "../types/mongoose-schemas-models";
-import {LikesService} from "./likes-service";
 
 export class CommentsService {
     constructor(protected usersRepository: UsersRepository,
-                protected commentsRepository: CommentsRepository,
-                protected likesService: LikesService) {}
+                protected commentsRepository: CommentsRepository) {}
 
     async createComment(postId: string, content: string, userId: string): Promise<string | null> {
         const isPostExist = await PostModel.isPostExist(postId)
@@ -33,8 +31,15 @@ export class CommentsService {
     async likeComment({commentId, userId, likeStatus}: LikeCommentDto): Promise<boolean> {
         const isCommentExist = await this.commentsRepository.isCommentExist(commentId)
         if (!isCommentExist) return false
-        await this.likesService.setLikeStatus({commentId, userId, likeStatus})
+        await this.setLikeStatus({commentId, userId, likeStatus})
         return true
+    }
+    async setLikeStatus({commentId, userId, likeStatus}: LikeCommentDto) {
+        const isLikeUpdated = await this.commentsRepository.updateLikeStatus({commentId, userId, likeStatus})
+        if (isLikeUpdated) return
+
+        const like = new LikeClass(commentId, userId, likeStatus)
+        await this.commentsRepository.setLikeStatus(like)
     }
     async deleteComment(commentId: string, userId: string): Promise<number | null> {
         const userIdFromDB = await this.commentsRepository.findUserIdByCommentId(commentId)
@@ -46,7 +51,6 @@ export class CommentsService {
         return await this.commentsRepository.deleteComment(commentId)
     }
     async deleteAll() {
-        console.log()
         await this.commentsRepository.deleteAll()
     }
 }

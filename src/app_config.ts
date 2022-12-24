@@ -10,7 +10,7 @@ import {securityRouter} from "./routes/security-router";
 import {AttemptsDataModel} from "./types/mongoose-schemas-models";
 import {
     blogsService,
-    commentsService, likesService,
+    commentsService,
     passRecoveryRepository,
     postsService,
     securityService,
@@ -35,7 +35,6 @@ app.delete('/testing/all-data', async (req: Request, res: Response) => {
     await postsService.deleteAll();
     await usersService.deleteAll();
     await commentsService.deleteAll();
-    await likesService.deleteAll()
     await securityService.deleteAll();
     await passRecoveryRepository.deleteAll();
     await AttemptsDataModel.deleteMany();
