@@ -7,7 +7,7 @@ import {commentsRouter} from "../comments/routes/comments-router";
 import {HTTP_Status} from "./types/enums";
 import cookieParser from "cookie-parser";
 import {securityRouter} from "../security/routes/security-router";
-import {AttemptsDataModel, PasswordRecoveryModel} from "./types/mongoose-schemas-models";
+import {AttemptsDataModel} from "./types/mongoose-schemas-models";
 import {
     blogsService,
     commentsService,
@@ -15,6 +15,7 @@ import {
     securityService,
     usersService
 } from "./composition-root";
+import {PasswordRecoveryModel} from "../auth/types/mongoose-schemas-models";
 
 export const app = express();
 const bodyMiddle = express.json();

@@ -1,5 +1,4 @@
-import {PostModel} from "../../main/types/mongoose-schemas-models";
-import {HDPostType} from "../../main/types/types";
+import {HDPostType, PostModel} from "../types/mongoose-schemas-models";
 
 export class PostsRepository{
     async savePost(newPost: HDPostType) {

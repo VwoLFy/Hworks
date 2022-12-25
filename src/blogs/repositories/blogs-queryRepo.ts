@@ -1,6 +1,6 @@
-import {BlogModel} from "../../main/types/mongoose-schemas-models";
-import {FindBlogsDtoType} from "../../main/types/types";
 import {ObjectId} from "mongodb";
+import {FindBlogsDtoType} from "../types/types";
+import {BlogModel} from "../types/mongoose-schemas-models";
 
 type BlogOutputModelType = {
     id: string

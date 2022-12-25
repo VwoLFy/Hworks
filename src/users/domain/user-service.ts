@@ -1,7 +1,7 @@
 import {UsersRepository} from "../repositories/users-repository";
 import bcrypt from "bcrypt"
-import {CreateUserDtoType, EmailConfirmationClass, UserAccountClass, UserClass} from "../../main/types/types";
 import {ObjectId} from "mongodb";
+import {CreateUserDtoType, EmailConfirmationClass, UserAccountClass, UserClass} from "../types/types";
 
 export class UsersService {
     constructor(protected usersRepository: UsersRepository) {}

@@ -1,5 +1,4 @@
-import {BlogModel} from "../../main/types/mongoose-schemas-models";
-import {HDBlogType} from "../../main/types/types";
+import {BlogModel, HDBlogType} from "../types/mongoose-schemas-models";
 
 export class BlogsRepository {
     async saveBlog(blog: HDBlogType) {

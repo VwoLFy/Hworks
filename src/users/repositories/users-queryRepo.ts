@@ -1,5 +1,5 @@
-import {FindUsersDtoType, UserClass} from "../../main/types/types";
-import {UserModel} from "../../main/types/mongoose-schemas-models";
+import {FindUsersDtoType, UserClass} from "../types/types";
+import {UserModel} from "../types/mongoose-schemas-models";
 
 type UserOutputModelType = {
     id: string

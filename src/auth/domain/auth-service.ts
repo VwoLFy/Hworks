@@ -3,14 +3,11 @@ import bcrypt from "bcrypt";
 import {v4 as uuidv4} from 'uuid'
 import add from "date-fns/add";
 import {EmailManager} from "../managers/email-manager";
-import {
-    CreateUserDtoType,
-    EmailConfirmationClass, PasswordRecoveryClass,
-    UserAccountClass, UserClass,
-} from "../../main/types/types";
 import {JwtService} from "../application/jwt-service";
 import {SecurityService} from "../../security/domain/security-service";
-import {PasswordRecoveryModel} from "../../main/types/mongoose-schemas-models";
+import {PasswordRecoveryClass} from "../types/types";
+import {CreateUserDtoType, EmailConfirmationClass, UserAccountClass, UserClass} from "../../users/types/types";
+import {PasswordRecoveryModel} from "../types/mongoose-schemas-models";
 
 export class AuthService{
     constructor(protected jwtService: JwtService,

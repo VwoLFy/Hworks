@@ -1,5 +1,5 @@
 import {SecurityRepository} from "../repositories/security-repository";
-import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../../main/types/types";
+import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../types/types";
 
 export class SecurityService {
     constructor(protected securityRepository: SecurityRepository) {}

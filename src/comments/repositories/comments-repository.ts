@@ -1,6 +1,6 @@
-import {CommentClass, LikeClass, LikeCommentDtoType} from "../../main/types/types";
-import {CommentModel, LikeModel} from "../../main/types/mongoose-schemas-models";
 import {LikeStatus} from "../../main/types/enums";
+import {CommentClass, LikeClass, LikeCommentDtoType} from "../types/types";
+import {CommentModel, LikeModel} from "../types/mongoose-schemas-models";
 
 export class CommentsRepository {
     async findUserIdByCommentId(id: string): Promise<string | null> {

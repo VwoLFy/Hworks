@@ -1,5 +1,5 @@
-import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../../main/types/types";
-import {SessionModel} from "../../main/types/mongoose-schemas-models";
+import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../types/types";
+import {SessionModel} from "../types/mongoose-schemas-models";
 
 export class SecurityRepository {
     async findUserIdByDeviceId(deviceId: string): Promise<{ userId: string } | null> {

@@ -1,6 +1,7 @@
 import {PostsRepository} from "../repositories/posts-repository";
-import {CreatePostDtoType, HDPostType, PostClass, UpdatePostDto} from "../../main/types/types";
-import {BlogModel, PostModel} from "../../main/types/mongoose-schemas-models";
+import {CreatePostDtoType, PostClass, UpdatePostDto} from "../types/types";
+import {BlogModel} from "../../blogs/types/mongoose-schemas-models";
+import {HDPostType, PostModel} from "../types/mongoose-schemas-models";
 
 export class PostsService{
     constructor(protected postsRepository: PostsRepository) {}

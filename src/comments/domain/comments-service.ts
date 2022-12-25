@@ -2,13 +2,12 @@ import {UsersRepository} from "../../users/repositories/users-repository";
 import {CommentsRepository} from "../repositories/comments-repository";
 import {
     CommentClass,
-    CreateCommentDtoType,
-    LikeClass,
+    CreateCommentDtoType, LikeClass,
     LikeCommentDtoType,
     LikesInfoClass,
     UpdateCommentDtoType
-} from "../../main/types/types";
-import {PostModel} from "../../main/types/mongoose-schemas-models";
+} from "../types/types";
+import {PostModel} from "../../posts/types/mongoose-schemas-models";
 
 export class CommentsService {
     constructor(protected usersRepository: UsersRepository,

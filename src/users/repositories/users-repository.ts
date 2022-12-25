@@ -1,8 +1,6 @@
-import {
-    UserClass, EmailConfirmationClass
-} from "../../main/types/types";
-import {UserModel} from "../../main/types/mongoose-schemas-models";
 import {ObjectId} from "mongodb";
+import {EmailConfirmationClass, UserClass} from "../types/types";
+import {UserModel} from "../types/mongoose-schemas-models";
 
 export class UsersRepository{
     async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserClass| null> {

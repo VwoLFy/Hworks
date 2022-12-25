@@ -1,5 +1,5 @@
-import {SessionClass} from "../../main/types/types";
-import {SessionModel} from "../../main/types/mongoose-schemas-models";
+import {SessionClass} from "../types/types";
+import {SessionModel} from "../types/mongoose-schemas-models";
 
 type DeviceOutputModelType = {
     ip: string

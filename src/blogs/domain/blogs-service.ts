@@ -1,7 +1,7 @@
 import {BlogsRepository} from "../repositories/blogs-repository";
 import {PostsRepository} from "../../posts/repositories/posts-repository";
-import {BlogModel} from "../../main/types/mongoose-schemas-models";
-import {BlogClass, CreateBlogDtoType, HDBlogType, UpdateBlogDtoType} from "../../main/types/types";
+import {BlogClass, CreateBlogDtoType, UpdateBlogDtoType} from "../types/types";
+import {BlogModel, HDBlogType} from "../types/mongoose-schemas-models";
 
 export class BlogsService {
     constructor(protected blogsRepository: BlogsRepository,
