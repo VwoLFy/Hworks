@@ -1,15 +1,15 @@
 import request from "supertest"
-import {BlogViewModelType} from "../../src/models/BlogViewModel";
-import {PostViewModelType} from "../../src/models/PostViewModel";
-import {UserViewModelType} from "../../src/models/UserViewModel";
-import {LoginSuccessViewModelType} from "../../src/models/LoginSuccessViewModel";
-import {CommentViewModelType} from "../../src/models/CommentViewModel";
-import {ErrorResultType} from "../../src/middlewares/input-validation-middleware";
-import {app} from "../../src/app_config";
-import {HTTP_Status} from "../../src/types/enums";
-import {DeviceViewModelType} from "../../src/models/DeviceViewModel";
+import {BlogViewModelType} from "../../src/blogs/models/BlogViewModel";
+import {PostViewModelType} from "../../src/posts/models/PostViewModel";
+import {UserViewModelType} from "../../src/users/models/UserViewModel";
+import {LoginSuccessViewModelType} from "../../src/auth/models/LoginSuccessViewModel";
+import {CommentViewModelType} from "../../src/comments/models/CommentViewModel";
+import {ErrorResultType} from "../../src/main/middlewares/input-validation-middleware";
+import {app} from "../../src/main/app";
+import {HTTP_Status} from "../../src/main/types/enums";
+import {DeviceViewModelType} from "../../src/security/models/DeviceViewModel";
 import mongoose from "mongoose";
-import {runDb} from "../../src/repositories/db";
+import {runDb} from "../../src/main/repositories/db";
 
 const checkError = (apiErrorResult: ErrorResultType, field: string) => {
     expect(apiErrorResult).toEqual({

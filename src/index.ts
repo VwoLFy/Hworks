@@ -1,5 +1,6 @@
-import {runDb} from "./repositories/db";
-import {app} from "./app_config";
+import {runDb} from "./main/repositories/db";
+import {app} from "./main/app";
+
 const PORT = process.env.PORT || 5000;
 
 const startApp = async () => {
