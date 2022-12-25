@@ -8,7 +8,7 @@ import {
     FindBlogsDtoType, FindPostsByBlogIdDtoType,
     FindPostsDtoType, HDBlogType, HDPostType, PasswordRecoveryClass,
     PostMethodsType, PostModelType, PostClass, PostWithIdType, SessionClass,
-    UpdateBlogDtoType, UpdatePostDtoTypeM, UserAccountClass,
+    UpdateBlogDtoType, UpdatePostDto, UserAccountClass,
     UserClass, LikeClass, LikesInfoClass, PasswordRecoveryModelType
 } from "./types";
 import {SortDirection} from "./enums";
@@ -79,7 +79,7 @@ const PostSchema = new Schema<PostClass, PostModelType, PostMethodsType>({
     blogName: {type: String, required: true, maxlength: 15},
     createdAt: {type: String, required: true}
 })
-PostSchema.methods.updatePost = function (dto: UpdatePostDtoTypeM) {
+PostSchema.methods.updatePost = function (dto: UpdatePostDto) {
     this.title = dto.title
     this.shortDescription = dto.shortDescription
     this.content = dto.content

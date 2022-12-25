@@ -22,7 +22,10 @@ export class CommentsController {
     }
 
     async updateComment(req: RequestWithParamAndBody<CommentInputModelType>, res: Response) {
-        const updateStatus = await this.commentsService.updateComment(req.params.id, req.body.content, req.userId)
+        const updateStatus = await this.commentsService.updateComment({
+            commentId: req.params.id,
+            content: req.body.content,
+            userId: req.userId})
         if (!updateStatus) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {

@@ -1,4 +1,4 @@
-import {CommentClass, LikeClass, LikeCommentDto} from "../../main/types/types";
+import {CommentClass, LikeClass, LikeCommentDtoType} from "../../main/types/types";
 import {CommentModel, LikeModel} from "../../main/types/mongoose-schemas-models";
 import {LikeStatus} from "../../main/types/enums";
 
@@ -28,7 +28,7 @@ export class CommentsRepository {
     async newLikeStatus(like: LikeClass): Promise<void> {
         await LikeModel.create(like)
     }
-    async updateLikeStatus({commentId, userId, likeStatus}: LikeCommentDto): Promise<boolean> {
+    async updateLikeStatus({commentId, userId, likeStatus}: LikeCommentDtoType): Promise<boolean> {
         if (likeStatus === LikeStatus.None) {
             await LikeModel.deleteOne({commentId, userId})
             return true

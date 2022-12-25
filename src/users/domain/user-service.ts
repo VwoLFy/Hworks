@@ -1,12 +1,12 @@
 import {UsersRepository} from "../repositories/users-repository";
 import bcrypt from "bcrypt"
-import {EmailConfirmationClass, UserAccountClass, UserClass} from "../../main/types/types";
+import {CreateUserDtoType, EmailConfirmationClass, UserAccountClass, UserClass} from "../../main/types/types";
 import {ObjectId} from "mongodb";
 
 export class UsersService {
     constructor(protected usersRepository: UsersRepository) {}
 
-    async createUser(login: string, password: string, email: string): Promise<string | null> {
+    async createUser({login, password, email}: CreateUserDtoType): Promise<string | null> {
         const isFreeLoginAndEmail: boolean = await this.usersRepository.isFreeLoginAndEmail(login, email)
         if (!isFreeLoginAndEmail) return null
         const passwordSalt = await bcrypt.genSalt(10)

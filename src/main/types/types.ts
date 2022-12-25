@@ -132,7 +132,7 @@ export type HDBlogType = HydratedDocument<BlogClass, BlogMethodsType>
 //posts-----------------------------
 export type PostWithIdType = Omit<PostClass, '_id'> & { id: string }
 export interface PostMethodsType {
-    updatePost(dto: UpdatePostDtoTypeM): void
+    updatePost(dto: UpdatePostDto): void
 }
 export interface PostModelType extends Model<PostClass, {}, PostMethodsType> {
     findHDPost(id: string): Promise<HDPostType | null>
@@ -191,20 +191,14 @@ export type FindBlogsDtoType = {
     sortDirection: SortDirection
 }
 
-export type UpdatePostDtoTypeM = {
+export type UpdatePostDto = {
     title: string
     shortDescription: string
     content: string
     blogId: string
-    blogName: string
+    blogName?: string
 }
-export type CreatePostDtoTypeR = {
-    title: string
-    shortDescription: string
-    content: string
-    blogId: string
-}
-export type UpdatePostDtoTypeR = {
+export type CreatePostDtoType = {
     title: string
     shortDescription: string
     content: string
@@ -224,8 +218,40 @@ export type FindPostsByBlogIdDtoType = {
     sortDirection: SortDirection
 }
 
-export type LikeCommentDto = {
+export type LikeCommentDtoType = {
     commentId: string
     userId: string
     likeStatus: LikeStatus
+}
+export type CreateCommentDtoType = {
+    postId: string
+    content: string
+    userId: string
+}
+export type UpdateCommentDtoType = {
+    commentId: string
+    content: string
+    userId: string
+}
+export type FindCommentsDtoType = {
+    postId: string
+    page: number
+    pageSize: number
+    sortBy: string
+    sortDirection: SortDirection
+    userId: string | null
+}
+
+export type CreateUserDtoType = {
+    login: string
+    password: string
+    email: string
+}
+export type FindUsersDtoType = {
+    pageNumber: number,
+    pageSize: number,
+    sortBy: string,
+    sortDirection: SortDirection,
+    searchLoginTerm: string,
+    searchEmailTerm: string
 }

@@ -1,11 +1,11 @@
 import {PostsRepository} from "../repositories/posts-repository";
-import {CreatePostDtoTypeR, HDPostType, PostClass, UpdatePostDtoTypeR} from "../../main/types/types";
+import {CreatePostDtoType, HDPostType, PostClass, UpdatePostDto} from "../../main/types/types";
 import {BlogModel, PostModel} from "../../main/types/mongoose-schemas-models";
 
 export class PostsService{
     constructor(protected postsRepository: PostsRepository) {}
 
-    async createPost(dto: CreatePostDtoTypeR): Promise<string | null> {
+    async createPost(dto: CreatePostDtoType): Promise<string | null> {
         const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)
         if (!foundBlogName) return null
 
@@ -13,7 +13,7 @@ export class PostsService{
         await PostModel.create(newPost)
         return newPost._id.toString()
     }
-    async updatePost(id: string, dto: UpdatePostDtoTypeR): Promise<boolean> {
+    async updatePost(id: string, dto: UpdatePostDto): Promise<boolean> {
         const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)
         if (!foundBlogName) return false
 

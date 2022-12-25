@@ -56,7 +56,10 @@ export class AuthController {
     }
 
     async registration(req: RequestWithBody<UserInputModelType>, res: Response) {
-        const isRegistered = await this.authService.createUser(req.body.login, req.body.password, req.body.email)
+        const isRegistered = await this.authService.createUser({
+            login: req.body.login,
+            password: req.body.password,
+            email: req.body.email})
         if (!isRegistered) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
         return res.sendStatus(HTTP_Status.NO_CONTENT_204)
     }

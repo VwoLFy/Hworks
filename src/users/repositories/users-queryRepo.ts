@@ -1,5 +1,4 @@
-import {UserClass} from "../../main/types/types";
-import {SortDirection} from "../../main/types/enums";
+import {FindUsersDtoType, UserClass} from "../../main/types/types";
 import {UserModel} from "../../main/types/mongoose-schemas-models";
 
 type UserOutputModelType = {
@@ -17,7 +16,7 @@ type UserOutputPageType = {
 }
 
 export class UsersQueryRepo{
-    async findUsers(pageNumber: number, pageSize: number, sortBy: string, sortDirection: SortDirection, searchLoginTerm: string, searchEmailTerm: string): Promise<UserOutputPageType> {
+    async findUsers({pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm}: FindUsersDtoType): Promise<UserOutputPageType> {
         let filterFind = {}
 
         if (searchLoginTerm && searchEmailTerm) {

@@ -4,6 +4,7 @@ import {v4 as uuidv4} from 'uuid'
 import add from "date-fns/add";
 import {EmailManager} from "../managers/email-manager";
 import {
+    CreateUserDtoType,
     EmailConfirmationClass, PasswordRecoveryClass,
     UserAccountClass, UserClass,
 } from "../../main/types/types";
@@ -24,7 +25,7 @@ export class AuthService{
             !await bcrypt.compare(password, foundUser.accountData.passwordHash)) return null
         return foundUser._id.toString()
     }
-    async createUser(login: string, password: string, email: string): Promise<boolean> {
+    async createUser({login, password, email}: CreateUserDtoType): Promise<boolean> {
         const passwordHash = await this.getPasswordHash(password)
 
         const newUserAccount = new UserAccountClass(

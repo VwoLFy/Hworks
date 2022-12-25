@@ -15,11 +15,21 @@ export class UsersController {
 
     async getUsers(req: RequestWithQuery<UserQueryModelType>, res: Response<UserViewModelPageType>) {
         const {pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm} = req.query
-        res.json(await this.usersQueryRepo.findUsers(+pageNumber, +pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm))
+        res.json(await this.usersQueryRepo.findUsers({
+            pageNumber: +pageNumber,
+            pageSize: +pageSize,
+            sortBy,
+            sortDirection,
+            searchLoginTerm,
+            searchEmailTerm
+        }))
     }
 
     async createUser(req: RequestWithBody<UserInputModelType>, res: Response<UserViewModelType>) {
-        const createdUserId = await this.usersService.createUser(req.body.login, req.body.password, req.body.email)
+        const createdUserId = await this.usersService.createUser({
+            login: req.body.login,
+            password: req.body.password,
+            email: req.body.email})
         if (!createdUserId) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
         const createdUser = await this.usersQueryRepo.findUserById(createdUserId)
         if (createdUser) res.status(HTTP_Status.CREATED_201).json(createdUser)

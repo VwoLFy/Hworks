@@ -1,5 +1,5 @@
-import {LikeStatus, SortDirection} from "../../main/types/enums";
-import {CommentClass} from "../../main/types/types";
+import {LikeStatus} from "../../main/types/enums";
+import {CommentClass, FindCommentsDtoType} from "../../main/types/types";
 import {CommentModel, LikeModel} from "../../main/types/mongoose-schemas-models";
 
 type LikesInfoOutputModelType = {
@@ -30,7 +30,7 @@ export class CommentsQueryRepo {
         if (userId) foundComment = await this.commentWithUserLikeStatus(foundComment, userId)
         return this.commentWithReplaceId(foundComment)
     }
-    async findCommentsByPostId(postId: string, page: number, pageSize: number, sortBy: string, sortDirection: SortDirection, userId: string | null): Promise<CommentOutputPageType | null> {
+    async findCommentsByPostId({postId, page, pageSize, sortBy, sortDirection, userId}: FindCommentsDtoType): Promise<CommentOutputPageType | null> {
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const sortOptions = {[sortBy]: sortDirection}
         const totalCount = await CommentModel.countDocuments({postId})
