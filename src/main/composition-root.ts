@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import {SecurityRepository} from "../security/repositories/security-repository";
 import {SecurityService} from "../security/domain/security-service";
 import {SecurityQueryRepo} from "../security/repositories/security-queryRepo";
@@ -23,35 +24,37 @@ import {BlogsQueryRepo} from "../blogs/repositories/blogs-queryRepo";
 import {BlogsService} from "../blogs/domain/blogs-service";
 import {BlogsController} from "../blogs/routes/blogs-controller";
 import {EmailAdapter} from "../auth/adapters/email-adapter";
+import {Container} from "inversify";
 
-const securityRepository = new SecurityRepository()
-export const securityService = new SecurityService(securityRepository)
-const securityQueryRepo = new SecurityQueryRepo()
-export const securityController = new SecurityController(securityQueryRepo, securityService)
+export const container = new Container();
 
-export const jwtService = new JwtService(securityService)
-const usersRepository = new UsersRepository()
-const emailAdapter = new EmailAdapter()
-const emailManager = new EmailManager(emailAdapter)
-const authService = new AuthService(jwtService, usersRepository, emailManager, securityService)
-const usersQueryRepo = new UsersQueryRepo()
-export const authController = new AuthController(authService, jwtService, usersQueryRepo)
+container.bind(BlogsController).to(BlogsController);
+container.bind(BlogsService).to(BlogsService);
+container.bind(BlogsQueryRepo).to(BlogsQueryRepo);
+container.bind(BlogsRepository).to(BlogsRepository);
 
-export const usersService = new UsersService(usersRepository)
-export const usersController = new UsersController(usersQueryRepo, usersService)
+container.bind(PostController).to(PostController);
+container.bind(PostsService).to(PostsService);
+container.bind(PostsQueryRepo).to(PostsQueryRepo);
+container.bind(PostsRepository).to(PostsRepository);
 
-const commentsRepository = new CommentsRepository()
-const commentsQueryRepo = new CommentsQueryRepo()
-export const commentsService = new CommentsService(usersRepository, commentsRepository)
-export const commentsController = new CommentsController(commentsQueryRepo, commentsService)
+container.bind(CommentsController).to(CommentsController);
+container.bind(CommentsService).to(CommentsService);
+container.bind(CommentsQueryRepo).to(CommentsQueryRepo);
+container.bind(CommentsRepository).to(CommentsRepository);
 
-const postsRepository = new PostsRepository()
-const postsQueryRepo = new PostsQueryRepo()
-export const postsService = new PostsService(postsRepository)
-export const postController = new PostController(postsQueryRepo, postsService, commentsQueryRepo, commentsService)
+container.bind(UsersController).to(UsersController);
+container.bind(UsersService).to(UsersService);
 
-const blogsRepository = new BlogsRepository()
-const blogsQueryRepo = new BlogsQueryRepo()
-export const blogsService = new BlogsService(blogsRepository, postsRepository)
+container.bind(AuthController).to(AuthController);
+container.bind(UsersQueryRepo).to(UsersQueryRepo);
+container.bind(AuthService).to(AuthService);
+container.bind(EmailManager).to(EmailManager);
+container.bind(EmailAdapter).to(EmailAdapter);
+container.bind(UsersRepository).to(UsersRepository);
+container.bind(JwtService).to(JwtService);
 
-export const blogsController = new BlogsController(blogsQueryRepo, blogsService,postsQueryRepo, postsService)
+container.bind(SecurityController).to(SecurityController);
+container.bind(SecurityQueryRepo).to(SecurityQueryRepo);
+container.bind(SecurityService).to(SecurityService);
+container.bind(SecurityRepository).to(SecurityRepository);

@@ -12,11 +12,13 @@ import {UserInputModelType} from "../../users/models/UserInputModel";
 import {RegistrationConfirmationCodeModelType} from "../models/RegistrationConfirmationCodeModel";
 import {RegistrationEmailResendingType} from "../models/RegistrationEmailResending";
 import {MeViewModelType} from "../models/MeViewModel";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class AuthController {
-    constructor(protected authService: AuthService,
-                protected jwtService: JwtService,
-                protected usersQueryRepo: UsersQueryRepo) {
+    constructor(@inject(AuthService) protected authService: AuthService,
+                @inject(JwtService) protected jwtService: JwtService,
+                @inject(UsersQueryRepo)  protected usersQueryRepo: UsersQueryRepo) {
     }
 
     async loginUser(req: RequestWithBody<LoginInputModelType>, res: Response<LoginSuccessViewModelType>) {

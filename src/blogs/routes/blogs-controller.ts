@@ -19,12 +19,14 @@ import {BlogUpdateModelType} from "../models/BlogUpdateModel";
 import {TypePostViewModelPage} from "../../posts/models/PostViewModelPage";
 import {BlogPostInputModelType} from "../models/BlogPostInputModel";
 import {PostViewModelType} from "../../posts/models/PostViewModel";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class BlogsController {
-    constructor(protected blogsQueryRepo: BlogsQueryRepo,
-                protected blogsService: BlogsService,
-                protected postsQueryRepo: PostsQueryRepo,
-                protected postsService: PostsService) {
+    constructor(@inject(BlogsQueryRepo) protected blogsQueryRepo: BlogsQueryRepo,
+                @inject(BlogsService) protected blogsService: BlogsService,
+                @inject(PostsQueryRepo) protected postsQueryRepo: PostsQueryRepo,
+                @inject(PostsService) protected postsService: PostsService) {
     }
 
     async getBlogs(req: RequestWithQuery<BlogQueryModelType>, res: Response<TypeBlogViewModelPage>) {

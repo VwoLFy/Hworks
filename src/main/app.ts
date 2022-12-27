@@ -8,14 +8,13 @@ import {HTTP_Status} from "./types/enums";
 import cookieParser from "cookie-parser";
 import {securityRouter} from "../security/routes/security-router";
 import {AttemptsDataModel} from "./types/mongoose-schemas-models";
-import {
-    blogsService,
-    commentsService,
-    postsService,
-    securityService,
-    usersService
-} from "./composition-root";
+import {container} from "./composition-root";
 import {PasswordRecoveryModel} from "../auth/types/mongoose-schemas-models";
+import {BlogsService} from "../blogs/domain/blogs-service";
+import {PostsService} from "../posts/domain/posts-service";
+import {UsersService} from "../users/domain/user-service";
+import {CommentsService} from "../comments/domain/comments-service";
+import {SecurityService} from "../security/domain/security-service";
 
 export const app = express();
 const bodyMiddle = express.json();
@@ -31,11 +30,11 @@ app.use('/comments', commentsRouter)
 app.use('/security', securityRouter)
 
 app.delete('/testing/all-data', async (req: Request, res: Response) => {
-    await blogsService.deleteAll();
-    await postsService.deleteAll();
-    await usersService.deleteAll();
-    await commentsService.deleteAll();
-    await securityService.deleteAll();
+    await container.resolve(BlogsService).deleteAll();
+    await container.resolve(PostsService).deleteAll();
+    await container.resolve(UsersService).deleteAll();
+    await container.resolve(CommentsService).deleteAll();
+    await container.resolve(SecurityService).deleteAll();
     await PasswordRecoveryModel.deleteMany();
     await AttemptsDataModel.deleteMany();
     res.sendStatus(HTTP_Status.NO_CONTENT_204)

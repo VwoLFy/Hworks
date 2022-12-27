@@ -8,12 +8,14 @@ import {SecurityService} from "../../security/domain/security-service";
 import {PasswordRecoveryClass} from "../types/types";
 import {CreateUserDtoType, EmailConfirmationClass, UserAccountClass, UserClass} from "../../users/types/types";
 import {PasswordRecoveryModel} from "../types/mongoose-schemas-models";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class AuthService{
-    constructor(protected jwtService: JwtService,
-                protected usersRepository: UsersRepository,
-                protected emailManager: EmailManager,
-                protected securityService: SecurityService) {}
+    constructor(@inject(JwtService) protected jwtService: JwtService,
+                @inject(UsersRepository) protected usersRepository: UsersRepository,
+                @inject(EmailManager) protected emailManager: EmailManager,
+                @inject(SecurityService) protected securityService: SecurityService) {}
 
     async checkCredentials(loginOrEmail: string, password: string): Promise<string | null> {
         const foundUser: UserClass | null = await this.usersRepository.findUserByLoginOrEmail(loginOrEmail)

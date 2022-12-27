@@ -1,6 +1,8 @@
 import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../types/types";
 import {SessionModel} from "../types/mongoose-schemas-models";
+import {injectable} from "inversify";
 
+@injectable()
 export class SecurityRepository {
     async findUserIdByDeviceId(deviceId: string): Promise<{ userId: string } | null> {
         return await SessionModel.findOne({deviceId})

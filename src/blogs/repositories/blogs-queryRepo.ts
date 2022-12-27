@@ -1,6 +1,7 @@
 import {ObjectId} from "mongodb";
 import {FindBlogsDtoType} from "../types/types";
 import {BlogModel} from "../types/mongoose-schemas-models";
+import {injectable} from "inversify";
 
 type BlogOutputModelType = {
     id: string
@@ -17,6 +18,7 @@ type BlogOutputPageType = {
     items: BlogOutputModelType[]
 };
 
+@injectable()
 export class BlogsQueryRepo {
     async findBlogs(dto: FindBlogsDtoType): Promise<BlogOutputPageType> {
         const {searchNameTerm, pageNumber, pageSize} = dto

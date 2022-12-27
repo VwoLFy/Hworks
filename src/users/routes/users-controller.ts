@@ -7,10 +7,12 @@ import {UserViewModelPageType} from "../models/UserViewModelPage";
 import {UserInputModelType} from "../models/UserInputModel";
 import {UserViewModelType} from "../models/UserViewModel";
 import {HTTP_Status} from "../../main/types/enums";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class UsersController {
-    constructor(protected usersQueryRepo: UsersQueryRepo,
-                protected usersService: UsersService) {
+    constructor(@inject(UsersQueryRepo) protected usersQueryRepo: UsersQueryRepo,
+                @inject(UsersService) protected usersService: UsersService) {
     }
 
     async getUsers(req: RequestWithQuery<UserQueryModelType>, res: Response<UserViewModelPageType>) {

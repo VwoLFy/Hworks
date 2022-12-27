@@ -4,10 +4,12 @@ import {Request, Response} from "express";
 import {DeviceViewModelType} from "../models/DeviceViewModel";
 import {HTTP_Status} from "../../main/types/enums";
 import {RequestWithParam} from "../../main/types/types";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class SecurityController {
-    constructor(protected securityQueryRepo: SecurityQueryRepo,
-                protected securityService: SecurityService) {
+    constructor(@inject(SecurityQueryRepo) protected securityQueryRepo: SecurityQueryRepo,
+                @inject(SecurityService) protected securityService: SecurityService) {
     }
 
     async getDevices(req: Request, res: Response<DeviceViewModelType[]>) {

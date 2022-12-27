@@ -8,7 +8,10 @@ import {
     getPostsByBlogIdValidation,
     updateBlogValidation
 } from "../../main/middlewares/blog-validators";
-import {blogsController} from "../../main/composition-root";
+import {container} from "../../main/composition-root";
+import {BlogsController} from "./blogs-controller";
+
+const blogsController = container.resolve(BlogsController)
 
 export const blogsRouter = Router({});
 

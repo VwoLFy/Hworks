@@ -1,6 +1,9 @@
 import {Router} from "express";
 import {createUserValidation, deleteUserValidation, getUsersValidation} from "../../main/middlewares/user-auth-validators";
-import {usersController} from "../../main/composition-root";
+import {container} from "../../main/composition-root";
+import {UsersController} from "./users-controller";
+
+const usersController = container.resolve(UsersController)
 
 export const usersRouter = Router({})
 

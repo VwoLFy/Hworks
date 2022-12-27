@@ -1,5 +1,6 @@
 import {SessionClass} from "../types/types";
 import {SessionModel} from "../types/mongoose-schemas-models";
+import {injectable} from "inversify";
 
 type DeviceOutputModelType = {
     ip: string
@@ -8,6 +9,7 @@ type DeviceOutputModelType = {
     deviceId: string
 }
 
+@injectable()
 export class SecurityQueryRepo {
     async findUserSessions(userId: string): Promise<DeviceOutputModelType[]> {
         return (await SessionModel.find({userId}).lean()).map(s => this.getOutputModel(s))

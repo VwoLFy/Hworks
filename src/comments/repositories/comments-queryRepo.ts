@@ -1,6 +1,7 @@
 import {LikeStatus} from "../../main/types/enums";
 import {CommentClass, FindCommentsDtoType} from "../types/types";
 import {CommentModel, LikeModel} from "../types/mongoose-schemas-models";
+import {injectable} from "inversify";
 
 type LikesInfoOutputModelType = {
     likesCount: number
@@ -23,6 +24,7 @@ type CommentOutputPageType = {
     items:  CommentOutputModelType[]
 }
 
+@injectable()
 export class CommentsQueryRepo {
     async findCommentById(commentId: string, userId: string | null): Promise<CommentOutputModelType | null> {
         let foundComment: CommentClass | null = await CommentModel.findById({_id: commentId}).lean()

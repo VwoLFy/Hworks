@@ -8,10 +8,12 @@ import {
     UpdateCommentDtoType
 } from "../types/types";
 import {PostModel} from "../../posts/types/mongoose-schemas-models";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class CommentsService {
-    constructor(protected usersRepository: UsersRepository,
-                protected commentsRepository: CommentsRepository) {}
+    constructor(@inject(UsersRepository) protected usersRepository: UsersRepository,
+                @inject(CommentsRepository) protected commentsRepository: CommentsRepository) {}
 
     async createComment({postId, content, userId}: CreateCommentDtoType): Promise<string | null> {
         const isPostExist = await PostModel.isPostExist(postId)

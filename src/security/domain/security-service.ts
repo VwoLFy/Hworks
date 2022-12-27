@@ -1,8 +1,10 @@
 import {SecurityRepository} from "../repositories/security-repository";
 import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../types/types";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class SecurityService {
-    constructor(protected securityRepository: SecurityRepository) {}
+    constructor(@inject(SecurityRepository) protected securityRepository: SecurityRepository) {}
 
     async saveSession(sessionData: SessionDtoType): Promise<void> {
         const {userId, exp, ip, title, iat, deviceId} = sessionData

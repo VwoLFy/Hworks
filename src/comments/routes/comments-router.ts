@@ -4,7 +4,10 @@ import {
     getCommentByIdValidation, likeCommentValidation,
     updateCommentByIdValidation
 } from "../../main/middlewares/comment-validators";
-import {commentsController} from "../../main/composition-root";
+import {container} from "../../main/composition-root";
+import {CommentsController} from "./comments-controller";
+
+const commentsController = container.resolve(CommentsController)
 
 export const commentsRouter = Router({})
 

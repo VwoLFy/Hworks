@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import {settings} from "../../main/settings";
 import {SecurityService} from "../../security/domain/security-service";
+import {inject, injectable} from "inversify";
 
 type AccessTokenDataType = { userId: string }
 export type RefreshTokenDataType = {
@@ -14,8 +15,9 @@ type TokensType = {
     refreshToken: string
 }
 
+@injectable()
 export class JwtService{
-    constructor(protected securityService: SecurityService) {}
+    constructor(@inject(SecurityService) protected securityService: SecurityService) {}
 
     async createJWT(userId: string, deviceId: string | null): Promise<TokensType> {
         const accessToken = jwt.sign({userId}, settings.JWT_SECRET, {expiresIn: '10m'})

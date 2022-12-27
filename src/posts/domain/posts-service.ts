@@ -2,9 +2,11 @@ import {PostsRepository} from "../repositories/posts-repository";
 import {CreatePostDtoType, PostClass, UpdatePostDto} from "../types/types";
 import {BlogModel} from "../../blogs/types/mongoose-schemas-models";
 import {HDPostType, PostModel} from "../types/mongoose-schemas-models";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class PostsService{
-    constructor(protected postsRepository: PostsRepository) {}
+    constructor(@inject(PostsRepository) protected postsRepository: PostsRepository) {}
 
     async createPost(dto: CreatePostDtoType): Promise<string | null> {
         const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)

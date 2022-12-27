@@ -9,7 +9,10 @@ import {
     registrationAuthValidation
 } from "../../main/middlewares/user-auth-validators";
 import {refreshTokenValidationMiddleware} from "../../main/middlewares/refreshToken-validation-middleware";
-import {authController} from "../../main/composition-root";
+import {container} from "../../main/composition-root";
+import {AuthController} from "./auth-controller";
+
+const authController = container.resolve(AuthController)
 
 export const authRouter = Router({})
 

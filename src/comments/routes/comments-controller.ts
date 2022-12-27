@@ -6,10 +6,12 @@ import {CommentViewModelType} from "../models/CommentViewModel";
 import {HTTP_Status} from "../../main/types/enums";
 import {CommentInputModelType} from "../models/CommentInputModel";
 import {LikeInputModelType} from "../models/LikeInputModel";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class CommentsController {
-    constructor(protected commentsQueryRepo: CommentsQueryRepo,
-                protected commentsService: CommentsService) { }
+    constructor(@inject(CommentsQueryRepo) protected commentsQueryRepo: CommentsQueryRepo,
+                @inject(CommentsService) protected commentsService: CommentsService) { }
 
     async getComment(req: RequestWithParam, res: Response<CommentViewModelType>) {
         const userId = req.userId ? req.userId : null

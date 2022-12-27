@@ -1,7 +1,9 @@
 import {LikeStatus} from "../../main/types/enums";
 import {CommentClass, LikeClass, LikeCommentDtoType} from "../types/types";
 import {CommentModel, LikeModel} from "../types/mongoose-schemas-models";
+import {injectable} from "inversify";
 
+@injectable()
 export class CommentsRepository {
     async findUserIdByCommentId(id: string): Promise<string | null> {
         const foundComment: CommentClass | null = await CommentModel.findById({_id: id})

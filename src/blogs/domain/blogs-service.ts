@@ -2,10 +2,12 @@ import {BlogsRepository} from "../repositories/blogs-repository";
 import {PostsRepository} from "../../posts/repositories/posts-repository";
 import {BlogClass, CreateBlogDtoType, UpdateBlogDtoType} from "../types/types";
 import {BlogModel, HDBlogType} from "../types/mongoose-schemas-models";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class BlogsService {
-    constructor(protected blogsRepository: BlogsRepository,
-                protected postsRepository: PostsRepository) {}
+    constructor(@inject(BlogsRepository) protected blogsRepository: BlogsRepository,
+                @inject(PostsRepository) protected postsRepository: PostsRepository) {}
 
     async createBlog(dto: CreateBlogDtoType): Promise<string> {
         const newBlog = new BlogClass(dto.name, dto.description, dto.websiteUrl)

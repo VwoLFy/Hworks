@@ -1,7 +1,9 @@
 import {ObjectId} from "mongodb";
 import {EmailConfirmationClass, UserClass} from "../types/types";
 import {UserModel} from "../types/mongoose-schemas-models";
+import {injectable} from "inversify";
 
+@injectable()
 export class UsersRepository{
     async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserClass| null> {
         const foundUser = await UserModel.findOne({

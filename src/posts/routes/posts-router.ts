@@ -7,7 +7,10 @@ import {
     updatePostValidation
 } from "../../main/middlewares/post-validators";
 import {createCommentValidation, getCommentsByPostIdValidation} from "../../main/middlewares/comment-validators";
-import {postController} from "../../main/composition-root";
+import {container} from "../../main/composition-root";
+import {PostController} from "./posts-controller";
+
+const postController = container.resolve(PostController)
 
 export const postsRouter = Router({});
 

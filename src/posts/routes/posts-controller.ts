@@ -19,12 +19,14 @@ import {PostUpdateModelType} from "../models/PostUpdateModel";
 import {TypeCommentViewModelPage} from "../../comments/models/CommentViewModelPage";
 import {CommentInputModelType} from "../../comments/models/CommentInputModel";
 import {CommentViewModelType} from "../../comments/models/CommentViewModel";
+import {inject, injectable} from "inversify";
 
+@injectable()
 export class PostController {
-    constructor(protected postsQueryRepo: PostsQueryRepo,
-                protected postsService: PostsService,
-                protected commentsQueryRepo: CommentsQueryRepo,
-                protected commentsService: CommentsService) {
+    constructor(@inject(PostsQueryRepo) protected postsQueryRepo: PostsQueryRepo,
+                @inject(PostsService) protected postsService: PostsService,
+                @inject(CommentsQueryRepo) protected commentsQueryRepo: CommentsQueryRepo,
+                @inject(CommentsService) protected commentsService: CommentsService) {
     }
 
     async getPosts(req: RequestWithQuery<PostQueryModelType>, res: Response<TypePostViewModelPage>) {

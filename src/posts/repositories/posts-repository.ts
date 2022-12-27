@@ -1,5 +1,7 @@
 import {HDPostType, PostModel} from "../types/mongoose-schemas-models";
+import {injectable} from "inversify";
 
+@injectable()
 export class PostsRepository{
     async savePost(newPost: HDPostType) {
         await newPost.save()

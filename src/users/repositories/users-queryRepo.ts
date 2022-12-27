@@ -1,5 +1,6 @@
 import {FindUsersDtoType, UserClass} from "../types/types";
 import {UserModel} from "../types/mongoose-schemas-models";
+import {injectable} from "inversify";
 
 type UserOutputModelType = {
     id: string
@@ -15,6 +16,7 @@ type UserOutputPageType = {
     items: UserOutputModelType[]
 }
 
+@injectable()
 export class UsersQueryRepo{
     async findUsers({pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm}: FindUsersDtoType): Promise<UserOutputPageType> {
         let filterFind = {}
