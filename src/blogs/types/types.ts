@@ -13,8 +13,6 @@ export class BlogClass {
     }
 }
 
-export type BlogWithIdType = Omit<BlogClass, '_id'> & { id: string }
-
 export type UpdateBlogDtoType = {
     name: string
     description: string

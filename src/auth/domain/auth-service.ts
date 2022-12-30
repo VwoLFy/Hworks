@@ -1,8 +1,8 @@
-import {UsersRepository} from "../../users/repositories/users-repository";
+import {UsersRepository} from "../../users/infrastructure/users-repository";
 import bcrypt from "bcrypt";
 import {v4 as uuidv4} from 'uuid'
 import add from "date-fns/add";
-import {EmailManager} from "../managers/email-manager";
+import {EmailManager} from "../application/email-manager";
 import {JwtService} from "../application/jwt-service";
 import {SecurityService} from "../../security/domain/security-service";
 import {PasswordRecoveryClass} from "../types/types";

@@ -1,13 +1,13 @@
 import request from "supertest"
-import {BlogViewModelType} from "../../src/blogs/models/BlogViewModel";
-import {PostViewModelType} from "../../src/posts/models/PostViewModel";
-import {UserViewModelType} from "../../src/users/models/UserViewModel";
-import {LoginSuccessViewModelType} from "../../src/auth/models/LoginSuccessViewModel";
-import {CommentViewModelType} from "../../src/comments/models/CommentViewModel";
+import {BlogViewModel} from "../../src/blogs/api/models/BlogViewModel";
+import {PostViewModel} from "../../src/posts/api/models/PostViewModel";
+import {UserViewModel} from "../../src/users/api/models/UserViewModel";
+import {LoginSuccessViewModel} from "../../src/auth/api/models/LoginSuccessViewModel";
+import {CommentViewModel} from "../../src/comments/api/models/CommentViewModel";
 import {ErrorResultType} from "../../src/main/middlewares/input-validation-middleware";
 import {app} from "../../src/main/app";
 import {HTTP_Status} from "../../src/main/types/enums";
-import {DeviceViewModelType} from "../../src/security/models/DeviceViewModel";
+import {DeviceViewModel} from "../../src/security/api/models/DeviceViewModel";
 import mongoose from "mongoose";
 import {runDb} from "../../src/main/repositories/db";
 
@@ -42,8 +42,8 @@ describe('Test of the Homework', () => {
             await request(app)
                 .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
-        let blog1: BlogViewModelType
-        let blog2: BlogViewModelType
+        let blog1: BlogViewModel
+        let blog2: BlogViewModel
         it('GET should return 200', async function () {
             await request(app)
                 .get('/blogs')
@@ -213,9 +213,9 @@ describe('Test of the Homework', () => {
             await request(app)
                 .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
-        let post1: PostViewModelType
-        let post2: PostViewModelType
-        let blog1: BlogViewModelType
+        let post1: PostViewModel
+        let post2: PostViewModel
+        let blog1: BlogViewModel
         it('GET should return 200', async function () {
             await request(app)
                 .get('/posts')
@@ -479,7 +479,7 @@ describe('Test of the Homework', () => {
             await request(app)
                 .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
-        let user1: UserViewModelType
+        let user1: UserViewModel
         it('GET should return 200', async function () {
             await request(app)
                 .get('/users')
@@ -653,8 +653,8 @@ describe('Test of the Homework', () => {
             await request(app)
                 .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
-        let user: UserViewModelType
-        let validAccessToken: LoginSuccessViewModelType, oldAccessToken: LoginSuccessViewModelType
+        let user: UserViewModel
+        let validAccessToken: LoginSuccessViewModel, oldAccessToken: LoginSuccessViewModel
         let refreshTokenKey: string, validRefreshToken: string, oldRefreshToken: string
         it('POST shouldn`t authenticate user with incorrect data', async () => {
             const result = await request(app)
@@ -887,13 +887,13 @@ describe('Test of the Homework', () => {
             await request(app)
                 .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
-        let token: LoginSuccessViewModelType
-        let user: UserViewModelType
-        let comment: CommentViewModelType
-        let post: PostViewModelType
-        let blog: BlogViewModelType
-        let user2: UserViewModelType
-        let token2: LoginSuccessViewModelType
+        let token: LoginSuccessViewModel
+        let user: UserViewModel
+        let comment: CommentViewModel
+        let post: PostViewModel
+        let blog: BlogViewModel
+        let user2: UserViewModel
+        let token2: LoginSuccessViewModel
         it('POST shouldn`t create comment with incorrect data', async () => {
             const resultBlog = await request(app)
                 .post('/blogs')
@@ -1135,10 +1135,10 @@ describe('Test of the Homework', () => {
             await request(app)
                 .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
-        let user: UserViewModelType
-        let validAccessToken: LoginSuccessViewModelType
+        let user: UserViewModel
+        let validAccessToken: LoginSuccessViewModel
         let refreshTokenKey: string, validRefreshToken: string, oldRefreshToken: string, validRefreshToken0: string
-        let devices: DeviceViewModelType[]
+        let devices: DeviceViewModel[]
         it('POST should authenticate user with correct data', async () => {
             const resultUser = await request(app)
                 .post('/users')
@@ -1313,7 +1313,7 @@ describe('Test of the Homework', () => {
                 .set("Cookie", `refreshToken=${validRefreshToken}`)
                 .expect(HTTP_Status.OK_200)
 
-            const newDeviceList: DeviceViewModelType[] = resultDeviceList.body
+            const newDeviceList: DeviceViewModel[] = resultDeviceList.body
             expect(newDeviceList).toEqual([
                 {
                     ip: expect.any(String),
@@ -1347,7 +1347,7 @@ describe('Test of the Homework', () => {
                 .set("Cookie", `refreshToken=${validRefreshToken}`)
                 .expect(HTTP_Status.OK_200)
 
-            const newDeviceList: DeviceViewModelType[] = resultDeviceList.body
+            const newDeviceList: DeviceViewModel[] = resultDeviceList.body
             expect(newDeviceList).toEqual([
                 {
                     ip: expect.any(String),
@@ -1376,7 +1376,7 @@ describe('Test of the Homework', () => {
                 .set("Cookie", `refreshToken=${validRefreshToken}`)
                 .expect(HTTP_Status.OK_200)
 
-            const newDeviceList: DeviceViewModelType[] = resultDeviceList.body
+            const newDeviceList: DeviceViewModel[] = resultDeviceList.body
             expect(newDeviceList).toEqual([
                 {
                     ip: expect.any(String),
@@ -1413,7 +1413,7 @@ describe('Test of the Homework', () => {
                 .set("Cookie", `refreshToken=${validRefreshToken}`)
                 .expect(HTTP_Status.OK_200)
 
-            const newDeviceList: DeviceViewModelType[] = resultDeviceList.body
+            const newDeviceList: DeviceViewModel[] = resultDeviceList.body
             expect(newDeviceList).toEqual([
                 {
                     ip: expect.any(String),
@@ -1643,17 +1643,17 @@ describe('Test of the Homework', () => {
             await request(app)
                 .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
         })
-        let token: LoginSuccessViewModelType
-        let user: UserViewModelType
-        let comment: CommentViewModelType
-        let post: PostViewModelType
-        let blog: BlogViewModelType
-        let user2: UserViewModelType
-        let token2: LoginSuccessViewModelType
-        let user3: UserViewModelType
-        let token3: LoginSuccessViewModelType
-        let user4: UserViewModelType
-        let token4: LoginSuccessViewModelType
+        let token: LoginSuccessViewModel
+        let user: UserViewModel
+        let comment: CommentViewModel
+        let post: PostViewModel
+        let blog: BlogViewModel
+        let user2: UserViewModel
+        let token2: LoginSuccessViewModel
+        let user3: UserViewModel
+        let token3: LoginSuccessViewModel
+        let user4: UserViewModel
+        let token4: LoginSuccessViewModel
         it('POST should create blog, post, comment and 4 auth users', async () => {
             const resultBlog = await request(app)
                 .post('/blogs')

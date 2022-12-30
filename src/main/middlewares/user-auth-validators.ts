@@ -3,7 +3,7 @@ import {checkIdValidForMongodb} from "./check-id-valid-for-mongodb";
 import {checkAuthorizationMiddleware} from "./check-authorization-middleware";
 import {inputValidationMiddleware} from "./input-validation-middleware";
 import {SortDirection} from "../types/enums";
-import {UsersRepository} from "../../users/repositories/users-repository";
+import {UsersRepository} from "../../users/infrastructure/users-repository";
 import {attemptsValidationMiddleware} from "./attempts-validation-middleware";
 import {PasswordRecoveryModel} from "../../auth/types/mongoose-schemas-models";
 

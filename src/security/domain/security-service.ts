@@ -1,4 +1,4 @@
-import {SecurityRepository} from "../repositories/security-repository";
+import {SecurityRepository} from "../infrastructure/security-repository";
 import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../types/types";
 import {inject, injectable} from "inversify";
 

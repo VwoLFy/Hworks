@@ -1,3 +1,3 @@
-export type URIParamsModelType = {
+export type URIParamsModel = {
     id: string
 }

@@ -1,30 +1,24 @@
 import {HydratedDocument, Model, model, Schema} from "mongoose";
-import {BlogClass, BlogWithIdType, FindBlogsDtoType, UpdateBlogDtoType} from "./types";
-import {ObjectId} from "mongodb";
+import {BlogClass, FindBlogsDtoType, UpdateBlogDtoType} from "./types";
 import {SortDirection} from "../../main/types/enums";
 
-export interface BlogMethodsType {
+interface IBlogMethods {
     updateBlog(dto: UpdateBlogDtoType): void
 }
-export interface BlogModelType extends Model<BlogClass, {}, BlogMethodsType> {
-    findBlogWithId(_id: ObjectId): Promise<BlogWithIdType | null>
-
-    findBlogsWithId(dto: FindBlogsDtoType): Promise<BlogWithIdType[]>
-
+interface BlogModelType extends Model<BlogClass, {}, IBlogMethods> {
+    findBlogs(dto: FindBlogsDtoType): Promise<BlogClass[]>
     findBlogNameById(id: string): Promise<string | null>
-
-    findHDBlog(id: string): Promise<HDBlogType | null>
+    countBlogs(searchNameTerm: string): Promise<number>
 }
-export type HDBlogType = HydratedDocument<BlogClass, BlogMethodsType>
+export type BlogHDType = HydratedDocument<BlogClass, IBlogMethods>
 
-export const BlogSchema = new Schema<BlogClass, BlogModelType, BlogMethodsType>({
+const BlogSchema = new Schema<BlogClass, BlogModelType, IBlogMethods>({
     _id: {type: Schema.Types.ObjectId, required: true},
     name: {type: String, required: true, maxlength: 15},
     description: {type: String, required: true, maxlength: 500},
     websiteUrl: {
-        type: String, required: true, maxlength: 100, validate: (val: string) => {
-            return val.match("^https://([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$")
-        }
+        type: String, required: true, maxlength: 100,
+        validate: (val: string) => val.match("^https://([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$")
     },
     createdAt: {type: String, required: true}
 })
@@ -33,42 +27,24 @@ BlogSchema.methods.updateBlog = function (dto: UpdateBlogDtoType) {
     this.description = dto.description
     this.websiteUrl = dto.websiteUrl
 }
-BlogSchema.statics.findBlogWithId = async function (_id: ObjectId): Promise<BlogWithIdType | null> {
-    const foundBlog = await BlogModel.findById({_id})
-    if (!foundBlog) return null
-    return {
-        id: foundBlog.id,
-        name: foundBlog.name,
-        description: foundBlog.description,
-        websiteUrl: foundBlog.websiteUrl,
-        createdAt: foundBlog.createdAt
-    }
-}
-BlogSchema.statics.findBlogsWithId = async function (dto: FindBlogsDtoType): Promise<BlogWithIdType[]> {
+BlogSchema.statics.findBlogs = async function (dto: FindBlogsDtoType): Promise<BlogClass[]> {
     let {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = dto
 
     sortBy = sortBy === 'id' ? '_id' : sortBy
     const optionsSort: { [key: string]: SortDirection } = {[sortBy]: sortDirection}
 
-    return (await BlogModel.find()
+    return BlogModel.find()
         .where('name').regex(RegExp(searchNameTerm, 'i'))
         .skip((pageNumber - 1) * pageSize)
         .limit(pageSize)
-        .sort(optionsSort))
-        .map(foundBlog => ({
-            id: foundBlog.id,
-            name: foundBlog.name,
-            description: foundBlog.description,
-            websiteUrl: foundBlog.websiteUrl,
-            createdAt: foundBlog.createdAt
-        }))
+        .sort(optionsSort)
+        .lean()
 }
 BlogSchema.statics.findBlogNameById = async function (id: string): Promise<string | null> {
     const foundBlog = await BlogModel.findById({_id: id}).lean()
     return foundBlog ? foundBlog.name : null
 }
-BlogSchema.statics.findHDBlog = async function (id: string): Promise<HDBlogType | null> {
-    return BlogModel.findById(id)
+BlogSchema.statics.countBlogs = async function (searchNameTerm: string): Promise<number> {
+    return BlogModel.countDocuments().where('name').regex(new RegExp(searchNameTerm, 'i'))
 }
-
 export const BlogModel = model<BlogClass, BlogModelType>('blogs', BlogSchema)
