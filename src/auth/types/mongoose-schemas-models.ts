@@ -3,7 +3,6 @@ import {PasswordRecoveryClass} from "./types";
 
 export interface PasswordRecoveryModelType extends Model<PasswordRecoveryClass> {
     findPassRecovery(recoveryCode: string): Promise<PasswordRecoveryClass | null>
-
     deletePassRecovery(recoveryCode: string): Promise<void>
 }
 

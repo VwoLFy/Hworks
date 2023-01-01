@@ -2,14 +2,15 @@ import {UsersRepository} from "../../users/infrastructure/users-repository";
 import {CommentsRepository} from "../infrastructure/comments-repository";
 import {
     CommentClass,
-    CreateCommentDtoType, LikeClass,
+    CreateCommentDtoType,
+    LikeClass,
     LikeCommentDtoType,
     LikesInfoClass,
     UpdateCommentDtoType
 } from "../types/types";
 import {PostModel} from "../../posts/types/mongoose-schemas-models";
 import {inject, injectable} from "inversify";
-import {LikeHDType, LikeModel} from "../types/mongoose-schemas-models";
+import {CommentModel, LikeHDType, LikeModel} from "../types/mongoose-schemas-models";
 import {LikeStatus} from "../../main/types/enums";
 
 @injectable()
@@ -29,16 +30,20 @@ export class CommentsService {
             postId,
             likesInfo
         )
-        return this.commentsRepository.createComment(newComment)
+        const comment = new CommentModel(newComment)
+        await this.commentsRepository.saveComment(comment)
+        return comment.id
     }
     async updateComment({commentId, content, userId}: UpdateCommentDtoType): Promise<number | null> {
-        const userIdFromDB = await this.commentsRepository.findUserIdByCommentId(commentId)
-        if (!userIdFromDB) {
+        const foundComment = await this.commentsRepository.findComment(commentId)
+        if (!foundComment) {
             return 404
-        } else if (userIdFromDB !== userId) {
+        } else if (foundComment.userId !== userId) {
             return 403
         }
-        return await this.commentsRepository.updateComment(commentId, content)
+        foundComment.updateComment(content)
+        await this.commentsRepository.saveComment(foundComment)
+        return 204
     }
     async likeComment({commentId, userId, likeStatus}: LikeCommentDtoType): Promise<boolean> {
         const foundComment = await this.commentsRepository.findComment(commentId)
@@ -57,18 +62,25 @@ export class CommentsService {
             const newLike = new LikeClass(commentId, userId, likeStatus)
             like = new LikeModel(newLike)
         }
+
         foundComment.updateLikesCount(likeStatus, oldLikeStatus)
-        await this.commentsRepository.saveCommentAndLike(foundComment, like)
+        await this.commentsRepository.saveComment(foundComment)
+
+        if (likeStatus === LikeStatus.None) {
+            await this.commentsRepository.deleteLike(like._id)
+        } else {
+            await this.commentsRepository.saveLike(like)
+        }
         return true
     }
     async deleteComment(commentId: string, userId: string): Promise<number | null> {
-        const userIdFromDB = await this.commentsRepository.findUserIdByCommentId(commentId)
-        if (!userIdFromDB) {
+        const foundComment = await this.commentsRepository.findComment(commentId)
+        if (!foundComment) {
             return 404
-        } else if (userIdFromDB !== userId) {
+        } else if (foundComment.userId !== userId) {
             return 403
         }
-        return await this.commentsRepository.deleteComment(commentId)
+        return await this.commentsRepository.deleteComment(foundComment._id)
     }
     async deleteAll() {
         await this.commentsRepository.deleteAll()

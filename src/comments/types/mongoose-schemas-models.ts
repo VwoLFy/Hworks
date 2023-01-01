@@ -22,6 +22,7 @@ export const LikeModel = model<LikeClass, LikeModelType>('likes', LikeSchema)
 
 interface ICommentMethods {
     updateLikesCount(likeStatus: LikeStatus, oldLikeStatus: LikeStatus): void
+    updateComment(content: string): void
 }
 type CommentModelType = Model<CommentClass, {}, ICommentMethods>
 export type CommentHDType = HydratedDocument<CommentClass, ICommentMethods>
@@ -53,5 +54,7 @@ CommentSchema.methods.updateLikesCount = function (likeStatus: LikeStatus, oldLi
     }
 
 }
+CommentSchema.methods.updateComment = function (content: string): void {
+    this.content = content
+}
 export const CommentModel = model<CommentClass, CommentModelType>('comments', CommentSchema)
-

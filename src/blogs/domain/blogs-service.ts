@@ -12,7 +12,7 @@ export class BlogsService {
     async createBlog(dto: CreateBlogDtoType): Promise<string> {
         const newBlog = new BlogClass(dto.name, dto.description, dto.websiteUrl)
 
-        const blog: BlogHDType = new BlogModel(newBlog)
+        const blog = new BlogModel(newBlog)
         await this.blogsRepository.saveBlog(blog)
         return blog.id
     }

@@ -3,10 +3,12 @@ import {CreatePostDtoType, PostClass, UpdatePostDto} from "../types/types";
 import {BlogModel} from "../../blogs/types/mongoose-schemas-models";
 import {PostHDType, PostModel} from "../types/mongoose-schemas-models";
 import {inject, injectable} from "inversify";
+import {CommentsRepository} from "../../comments/infrastructure/comments-repository";
 
 @injectable()
 export class PostsService{
-    constructor(@inject(PostsRepository) protected postsRepository: PostsRepository) {}
+    constructor(@inject(PostsRepository) protected postsRepository: PostsRepository,
+                @inject(CommentsRepository) protected commentsRepository: CommentsRepository) {}
 
     async createPost(dto: CreatePostDtoType): Promise<string | null> {
         const {title, shortDescription, content, blogId} = dto
@@ -31,7 +33,11 @@ export class PostsService{
         return true
     }
     async deletePost(id: string): Promise<boolean> {
-        return await this.postsRepository.deletePost(id)
+        const isDeletedPost = await this.postsRepository.deletePost(id)
+        if (!isDeletedPost) return false
+
+        await this.commentsRepository.deleteAllCommentsOfPost(id)
+        return true
     }
     async deleteAll() {
         await this.postsRepository.deleteAll()

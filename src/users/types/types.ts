@@ -1,5 +1,7 @@
 import {ObjectId} from "mongodb";
 import {SortDirection} from "../../main/types/enums";
+import {v4 as uuidv4} from "uuid";
+import add from "date-fns/add";
 
 export class UserAccountClass {
     createdAt: string
@@ -10,10 +12,14 @@ export class UserAccountClass {
         this.createdAt = new Date().toISOString()
     }
 }
+
 export class EmailConfirmationClass {
-    constructor(public isConfirmed: boolean,
-                public confirmationCode: string,
-                public expirationDate: Date) {
+    confirmationCode: string
+    expirationDate: Date
+
+    constructor(public isConfirmed: boolean) {
+        this.confirmationCode = uuidv4()
+        this.expirationDate = add(new Date(), {hours: 1})
     }
 }
 export class UserClass {

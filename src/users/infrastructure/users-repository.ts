@@ -1,30 +1,25 @@
 import {ObjectId} from "mongodb";
-import {EmailConfirmationClass, UserClass} from "../types/types";
-import {UserModel} from "../types/mongoose-schemas-models";
+import {UserHDType, UserModel} from "../types/mongoose-schemas-models";
 import {injectable} from "inversify";
 
 @injectable()
 export class UsersRepository{
-    async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserClass| null> {
+    async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserHDType| null> {
         const foundUser = await UserModel.findOne({
             $or: [
-                {'accountData.login': loginOrEmail},
-                {'accountData.email': loginOrEmail}
+                {'accountData.login': {$regex: loginOrEmail, $options: 'i'}},
+                {'accountData.email': {$regex: loginOrEmail, $options: 'i'}}
             ]
-        }).lean()
-
-        if (!foundUser) return null
-        return foundUser
+        })
+        return foundUser ? foundUser : null
     }
     async findUserLoginById(id: string): Promise<string | null> {
         const result = await UserModel.findOne({_id: id})
         if (!result) return null
         return result.accountData.login
     }
-    async findEmailConfirmationByCode(confirmationCode: string): Promise<EmailConfirmationClass | null> {
-        const result = await UserModel.findOne({'emailConfirmation.confirmationCode': confirmationCode})
-        if (!result) return null
-        return result.emailConfirmation
+    async findUserByConfirmationCode(confirmationCode: string): Promise<UserHDType | null> {
+        return UserModel.findOne({'emailConfirmation.confirmationCode': confirmationCode})
     }
     async isFreeLoginAndEmail(login: string, email: string): Promise<boolean> {
         return !(
@@ -35,34 +30,8 @@ export class UsersRepository{
                 ]
             }))
     }
-    async createUserAdm(newUser: UserClass): Promise<string> {
-        const result = await UserModel.create(newUser)
-        return result.id
-    }
-    async createUser(newUser: UserClass): Promise<ObjectId> {
-        const result = await UserModel.create(newUser)
-        return result._id
-    }
-    async updateConfirmation(confirmationCode: string): Promise<boolean> {
-        const result = await UserModel.updateOne(
-            {'emailConfirmation.confirmationCode': confirmationCode},
-            {$set: {'emailConfirmation.isConfirmed': true}}
-        )
-        return result.modifiedCount === 1
-    }
-    async updateEmailConfirmation(user: UserClass) {
-        await UserModel.updateOne(
-            {_id: user._id},
-            {
-                $set: {
-                    'emailConfirmation.confirmationCode': user.emailConfirmation.confirmationCode,
-                    'emailConfirmation.expirationDate': user.emailConfirmation.expirationDate
-                }
-            }
-        )
-    }
-    async updatePassword(email: string, passwordHash: string) {
-        await UserModel.updateOne({'accountData.email': email}, {'accountData.passwordHash': passwordHash})
+    async saveUser(user: UserHDType): Promise<void> {
+        await user.save()
     }
     async deleteUser(_id: ObjectId): Promise<boolean> {
         const result = await UserModel.deleteOne({_id})

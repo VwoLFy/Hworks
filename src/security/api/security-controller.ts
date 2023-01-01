@@ -19,7 +19,7 @@ export class SecurityController {
     }
 
     async deleteDevices(req: Request, res: Response) {
-        const isDeletedSessions = await this.securityService.deleteSessions(req.refreshTokenData.userId, req.refreshTokenData.deviceId)
+        const isDeletedSessions = await this.securityService.deleteSessionsOfUser(req.refreshTokenData.userId, req.refreshTokenData.deviceId)
         if (!isDeletedSessions) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
         return res.sendStatus(HTTP_Status.NO_CONTENT_204)
     }

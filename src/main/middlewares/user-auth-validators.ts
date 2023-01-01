@@ -48,8 +48,9 @@ const authEmailRegValidation = body("email", "'email' must be a email or already
     .isString().trim().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$").custom(freeLoginOrEmail);
 
 const codeValid: CustomValidator = async (value) => {
-    const emailConfirmation = await new UsersRepository().findEmailConfirmationByCode(value)
-    if (!emailConfirmation) throw new Error()
+    const foundUser = await new UsersRepository().findUserByConfirmationCode(value)
+    if (!foundUser) throw new Error()
+    const {emailConfirmation} = foundUser
     if (emailConfirmation.isConfirmed) throw new Error()
     if (emailConfirmation.expirationDate! < new Date()) throw new Error()
     if (emailConfirmation.confirmationCode !== value) throw new Error()

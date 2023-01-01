@@ -1,7 +1,13 @@
-import {model, Schema} from "mongoose";
-import {SessionClass} from "./types";
+import {HydratedDocument, Model, model, Schema} from "mongoose";
+import {SessionClass, SessionDtoType} from "./types";
 
-const SessionSchema = new Schema<SessionClass>({
+interface ISessionMethods {
+    updateSessionData(dto: SessionDtoType): void
+}
+interface ISessionModel extends Model<SessionClass, {}, ISessionMethods> {}
+export type SessionHDType = HydratedDocument<SessionClass, ISessionMethods>
+
+const SessionSchema = new Schema<SessionClass, ISessionModel, ISessionMethods>({
     _id: {type: Schema.Types.ObjectId, required: true},
     userId: {type: String, required: true},
     exp: {type: Number, required: true},
@@ -10,4 +16,10 @@ const SessionSchema = new Schema<SessionClass>({
     iat: {type: Number, required: true},
     deviceId: {type: String, required: true},
 })
-export const SessionModel = model('sessions', SessionSchema)
+SessionSchema.methods.updateSessionData = function (dto) {
+        this.ip = dto.ip
+        this.title = dto.title
+        this.exp = dto.exp
+        this.iat = dto.iat
+}
+export const SessionModel = model<SessionClass, ISessionModel>('sessions', SessionSchema)

@@ -1,33 +1,41 @@
 import {SecurityRepository} from "../infrastructure/security-repository";
 import {SessionClass, SessionDtoType, ShortSessionDtoType} from "../types/types";
 import {inject, injectable} from "inversify";
+import {SessionModel} from "../types/mongoose-schemas-models";
 
 @injectable()
 export class SecurityService {
     constructor(@inject(SecurityRepository) protected securityRepository: SecurityRepository) {}
 
-    async saveSession(sessionData: SessionDtoType): Promise<void> {
-        const {userId, exp, ip, title, iat, deviceId} = sessionData
+    async saveSession(dto: SessionDtoType): Promise<void> {
+        const {userId, exp, ip, title, iat, deviceId} = dto
         const newSession = new SessionClass(userId, exp, ip, title, iat, deviceId)
-        await this.securityRepository.saveSession(newSession)
+        const session = new SessionModel(newSession)
+        await this.securityRepository.saveSession(session)
     }
-    async updateSessionData(sessionData: SessionDtoType) {
-        await this.securityRepository.updateSessionData(sessionData)
+    async updateSessionData(dto: SessionDtoType) {
+        const foundSession = await this.securityRepository.findSessionByDeviceId(dto.deviceId)
+        if (!foundSession) return
+
+        foundSession.updateSessionData(dto)
+        await this.securityRepository.saveSession(foundSession)
     }
-    async isValidSession(shortSessionData: ShortSessionDtoType): Promise<boolean> {
-        return await this.securityRepository.isValidSession(shortSessionData)
+    async isValidSession(dto: ShortSessionDtoType): Promise<boolean> {
+        const foundSession = await this.securityRepository.findSessionByDeviceId(dto.deviceId)
+        return !(!foundSession || dto.iat !== foundSession.iat || dto.userId !== foundSession.userId)
     }
     async newDeviceId(): Promise<string> {
         return String((await this.securityRepository.maxValueActiveDeviceId()) + 1);
     }
-    async deleteSessions(userId: string, deviceId: string): Promise<boolean> {
-        return await this.securityRepository.deleteSessions(userId, deviceId)
+    async deleteSessionsOfUser(userId: string, deviceId: string): Promise<boolean> {
+        return await this.securityRepository.deleteSessionsOfUser(userId, deviceId)
     }
     async deleteSessionByDeviceId(userId: string, deviceId: string): Promise<number> {
-        const foundUserId = await this.securityRepository.findUserIdByDeviceId(deviceId)
-        if (!foundUserId) return 404
-        if (foundUserId.userId !== userId) return 403
-        return await this.securityRepository.deleteSessionByDeviceId(userId, deviceId)
+        const foundSession = await this.securityRepository.findSessionByDeviceId(deviceId)
+        if (!foundSession) return 404
+        if (foundSession.userId !== userId) return 403
+
+        return await this.securityRepository.deleteSessionByDeviceId(deviceId)
     }
     async deleteAll() {
         await this.securityRepository.deleteAll()
