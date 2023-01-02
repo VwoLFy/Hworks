@@ -1,7 +1,7 @@
 import {UsersRepository} from "../infrastructure/users-repository";
 import bcrypt from "bcrypt"
 import {ObjectId} from "mongodb";
-import {CreateUserDtoType, EmailConfirmationClass, UserAccountClass, UserClass} from "../types/types";
+import {CreateUserDTO, EmailConfirmationClass, UserAccountClass, UserClass} from "../types/types";
 import {inject, injectable} from "inversify";
 import {UserModel} from "../types/mongoose-schemas-models";
 
@@ -9,7 +9,7 @@ import {UserModel} from "../types/mongoose-schemas-models";
 export class UsersService {
     constructor(@inject(UsersRepository) protected usersRepository: UsersRepository) {}
 
-    async createUser({login, password, email}: CreateUserDtoType): Promise<string | null> {
+    async createUser({login, password, email}: CreateUserDTO): Promise<string | null> {
         const isFreeLoginAndEmail: boolean = await this.usersRepository.isFreeLoginAndEmail(login, email)
         if (!isFreeLoginAndEmail) return null
 

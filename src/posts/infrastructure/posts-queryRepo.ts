@@ -1,4 +1,4 @@
-import {FindPostsByBlogIdDtoType, FindPostsDtoType, PostClass} from "../types/types";
+import {FindPostsByBlogIdDTO, FindPostsDTO, PostClass} from "../types/types";
 import {PostModel} from "../types/mongoose-schemas-models";
 import {injectable} from "inversify";
 
@@ -21,7 +21,7 @@ type PostOutputPageType = {
 
 @injectable()
 export class PostsQueryRepo{
-    async findPosts(dto: FindPostsDtoType): Promise<PostOutputPageType> {
+    async findPosts(dto: FindPostsDTO): Promise<PostOutputPageType> {
         let {pageNumber, pageSize} = dto;
         const totalCount = await PostModel.countDocuments()
         const pagesCount = Math.ceil(totalCount / pageSize)
@@ -41,7 +41,7 @@ export class PostsQueryRepo{
 
         return this.postWithReplaceId(foundPost)
     }
-    async findPostsByBlogId(dto: FindPostsByBlogIdDtoType): Promise<PostOutputPageType | null> {
+    async findPostsByBlogId(dto: FindPostsByBlogIdDTO): Promise<PostOutputPageType | null> {
         let {blogId, pageNumber, pageSize} = dto
 
         const totalCount = await PostModel.countPostsByBlogId(blogId)

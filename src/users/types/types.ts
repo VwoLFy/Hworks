@@ -12,7 +12,6 @@ export class UserAccountClass {
         this.createdAt = new Date().toISOString()
     }
 }
-
 export class EmailConfirmationClass {
     confirmationCode: string
     expirationDate: Date
@@ -31,12 +30,12 @@ export class UserClass {
     }
 }
 
-export type CreateUserDtoType = {
+export type CreateUserDTO = {
     login: string
     password: string
     email: string
 }
-export type FindUsersDtoType = {
+export type FindUsersDTO = {
     pageNumber: number,
     pageSize: number,
     sortBy: string,

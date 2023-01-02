@@ -35,22 +35,22 @@ export class CommentClass {
     }
 }
 
-export type LikeCommentDtoType = {
+export type LikeCommentDTO = {
     commentId: string
     userId: string
     likeStatus: LikeStatus
 }
-export type CreateCommentDtoType = {
+export type CreateCommentDTO = {
     postId: string
     content: string
     userId: string
 }
-export type UpdateCommentDtoType = {
+export type UpdateCommentDTO = {
     commentId: string
     content: string
     userId: string
 }
-export type FindCommentsDtoType = {
+export type FindCommentsDTO = {
     postId: string
     page: number
     pageSize: number

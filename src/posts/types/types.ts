@@ -15,28 +15,26 @@ export class PostClass {
     }
 }
 
-export type PostWithIdType = Omit<PostClass, '_id'> & { id: string }
-
-export type UpdatePostDto = {
+export type UpdatePostDTO = {
     title: string
     shortDescription: string
     content: string
     blogId: string
     blogName?: string
 }
-export type CreatePostDtoType = {
+export type CreatePostDTO = {
     title: string
     shortDescription: string
     content: string
     blogId: string
 }
-export type FindPostsDtoType = {
+export type FindPostsDTO = {
     pageNumber: number
     pageSize: number
     sortBy: string
     sortDirection: SortDirection
 }
-export type FindPostsByBlogIdDtoType = {
+export type FindPostsByBlogIdDTO = {
     blogId: string
     pageNumber: number
     pageSize: number

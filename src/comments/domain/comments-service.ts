@@ -2,11 +2,11 @@ import {UsersRepository} from "../../users/infrastructure/users-repository";
 import {CommentsRepository} from "../infrastructure/comments-repository";
 import {
     CommentClass,
-    CreateCommentDtoType,
+    CreateCommentDTO,
     LikeClass,
-    LikeCommentDtoType,
+    LikeCommentDTO,
     LikesInfoClass,
-    UpdateCommentDtoType
+    UpdateCommentDTO
 } from "../types/types";
 import {PostModel} from "../../posts/types/mongoose-schemas-models";
 import {inject, injectable} from "inversify";
@@ -18,7 +18,7 @@ export class CommentsService {
     constructor(@inject(UsersRepository) protected usersRepository: UsersRepository,
                 @inject(CommentsRepository) protected commentsRepository: CommentsRepository) {}
 
-    async createComment({postId, content, userId}: CreateCommentDtoType): Promise<string | null> {
+    async createComment({postId, content, userId}: CreateCommentDTO): Promise<string | null> {
         const isPostExist = await PostModel.isPostExist(postId)
         const userLogin = await this.usersRepository.findUserLoginById(userId)
         if (!isPostExist || !userLogin) return null
@@ -34,7 +34,7 @@ export class CommentsService {
         await this.commentsRepository.saveComment(comment)
         return comment.id
     }
-    async updateComment({commentId, content, userId}: UpdateCommentDtoType): Promise<number | null> {
+    async updateComment({commentId, content, userId}: UpdateCommentDTO): Promise<number | null> {
         const foundComment = await this.commentsRepository.findComment(commentId)
         if (!foundComment) {
             return 404
@@ -45,7 +45,7 @@ export class CommentsService {
         await this.commentsRepository.saveComment(foundComment)
         return 204
     }
-    async likeComment({commentId, userId, likeStatus}: LikeCommentDtoType): Promise<boolean> {
+    async likeComment({commentId, userId, likeStatus}: LikeCommentDTO): Promise<boolean> {
         const foundComment = await this.commentsRepository.findComment(commentId)
         if (!foundComment) return false
 

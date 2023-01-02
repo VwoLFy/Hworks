@@ -13,17 +13,17 @@ export class BlogClass {
     }
 }
 
-export type UpdateBlogDtoType = {
+export type UpdateBlogDTO = {
     name: string
     description: string
     websiteUrl: string
 }
-export type CreateBlogDtoType = {
+export type CreateBlogDTO = {
     name: string
     description: string
     websiteUrl: string
 }
-export type FindBlogsDtoType = {
+export type FindBlogsDTO = {
     searchNameTerm: string
     pageNumber: number
     pageSize: number

@@ -1,5 +1,5 @@
 import {PostsRepository} from "../infrastructure/posts-repository";
-import {CreatePostDtoType, PostClass, UpdatePostDto} from "../types/types";
+import {CreatePostDTO, PostClass, UpdatePostDTO} from "../types/types";
 import {BlogModel} from "../../blogs/types/mongoose-schemas-models";
 import {PostHDType, PostModel} from "../types/mongoose-schemas-models";
 import {inject, injectable} from "inversify";
@@ -10,7 +10,7 @@ export class PostsService{
     constructor(@inject(PostsRepository) protected postsRepository: PostsRepository,
                 @inject(CommentsRepository) protected commentsRepository: CommentsRepository) {}
 
-    async createPost(dto: CreatePostDtoType): Promise<string | null> {
+    async createPost(dto: CreatePostDTO): Promise<string | null> {
         const {title, shortDescription, content, blogId} = dto
         const foundBlogName: string | null = await BlogModel.findBlogNameById(blogId)
         if (!foundBlogName) return null
@@ -21,7 +21,7 @@ export class PostsService{
         await this.postsRepository.savePost(post)
         return post.id
     }
-    async updatePost(id: string, dto: UpdatePostDto): Promise<boolean> {
+    async updatePost(id: string, dto: UpdatePostDTO): Promise<boolean> {
         const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)
         if (!foundBlogName) return false
 

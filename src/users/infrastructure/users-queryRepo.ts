@@ -1,4 +1,4 @@
-import {FindUsersDtoType, UserClass} from "../types/types";
+import {FindUsersDTO, UserClass} from "../types/types";
 import {UserModel} from "../types/mongoose-schemas-models";
 import {injectable} from "inversify";
 
@@ -18,7 +18,7 @@ type UserOutputPageType = {
 
 @injectable()
 export class UsersQueryRepo{
-    async findUsers({pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm}: FindUsersDtoType): Promise<UserOutputPageType> {
+    async findUsers({pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm}: FindUsersDTO): Promise<UserOutputPageType> {
         let filterFind = {}
 
         if (searchLoginTerm && searchEmailTerm) {

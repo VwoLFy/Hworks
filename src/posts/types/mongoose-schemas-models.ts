@@ -1,13 +1,13 @@
 import {HydratedDocument, Model, model, Schema} from "mongoose";
-import {FindPostsDtoType, PostClass, UpdatePostDto} from "./types";
+import {FindPostsDTO, PostClass, UpdatePostDTO} from "./types";
 import {SortDirection} from "../../main/types/enums";
 
 export interface PostMethodsType {
-    updatePost(dto: UpdatePostDto): void
+    updatePost(dto: UpdatePostDTO): void
 }
 export interface PostModelType extends Model<PostClass, {}, PostMethodsType> {
     isPostExist(_id: string): Promise<boolean>
-    findPosts(dto: FindPostsDtoType): Promise<PostClass[]>
+    findPosts(dto: FindPostsDTO): Promise<PostClass[]>
     countPostsByBlogId(blogId: string): Promise<number>
 }
 export type PostHDType = HydratedDocument<PostClass, PostMethodsType>
@@ -21,7 +21,7 @@ export const PostSchema = new Schema<PostClass, PostModelType, PostMethodsType>(
     blogName: {type: String, required: true, maxlength: 15},
     createdAt: {type: String, required: true}
 })
-PostSchema.methods.updatePost = function (dto: UpdatePostDto) {
+PostSchema.methods.updatePost = function (dto: UpdatePostDTO) {
     this.title = dto.title
     this.shortDescription = dto.shortDescription
     this.content = dto.content
@@ -31,7 +31,7 @@ PostSchema.methods.updatePost = function (dto: UpdatePostDto) {
 PostSchema.statics.isPostExist = async function (_id: string): Promise<boolean> {
     return !!(await PostModel.findById({_id}))
 }
-PostSchema.statics.findPosts = async function (dto: FindPostsDtoType): Promise<PostClass[]> {
+PostSchema.statics.findPosts = async function (dto: FindPostsDTO): Promise<PostClass[]> {
     let {pageNumber, pageSize, sortBy, sortDirection} = dto
 
     sortBy = sortBy === 'id' ? '_id' : sortBy

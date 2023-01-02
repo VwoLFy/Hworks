@@ -14,7 +14,7 @@ export class SessionClass {
     }
 }
 
-export type SessionDtoType = {
+export type SessionDTO = {
     userId: string
     exp: number
     ip: string
@@ -22,4 +22,4 @@ export type SessionDtoType = {
     iat: number
     deviceId: string
 }
-export type ShortSessionDtoType = RefreshTokenDataType
+export type ShortSessionDTO = RefreshTokenDataType

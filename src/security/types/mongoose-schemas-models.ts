@@ -1,8 +1,8 @@
 import {HydratedDocument, Model, model, Schema} from "mongoose";
-import {SessionClass, SessionDtoType} from "./types";
+import {SessionClass, SessionDTO} from "./types";
 
 interface ISessionMethods {
-    updateSessionData(dto: SessionDtoType): void
+    updateSessionData(dto: SessionDTO): void
 }
 interface ISessionModel extends Model<SessionClass, {}, ISessionMethods> {}
 export type SessionHDType = HydratedDocument<SessionClass, ISessionMethods>

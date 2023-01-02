@@ -4,7 +4,7 @@ import {EmailManager} from "../application/email-manager";
 import {JwtService} from "../application/jwt-service";
 import {SecurityService} from "../../security/domain/security-service";
 import {PasswordRecoveryClass} from "../types/types";
-import {CreateUserDtoType, EmailConfirmationClass, UserAccountClass, UserClass} from "../../users/types/types";
+import {CreateUserDTO, EmailConfirmationClass, UserAccountClass, UserClass} from "../../users/types/types";
 import {PasswordRecoveryModel} from "../types/mongoose-schemas-models";
 import {inject, injectable} from "inversify";
 import {UserModel} from "../../users/types/mongoose-schemas-models";
@@ -23,7 +23,7 @@ export class AuthService{
             !await bcrypt.compare(password, foundUser.accountData.passwordHash)) return null
         return foundUser.id
     }
-    async createUser({login, password, email}: CreateUserDtoType): Promise<boolean> {
+    async createUser({login, password, email}: CreateUserDTO): Promise<boolean> {
         const passwordHash = await this.getPasswordHash(password)
 
         const newUserAccount = new UserAccountClass(login, passwordHash, email)

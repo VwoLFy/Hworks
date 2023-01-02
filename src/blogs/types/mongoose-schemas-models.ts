@@ -1,12 +1,12 @@
 import {HydratedDocument, Model, model, Schema} from "mongoose";
-import {BlogClass, FindBlogsDtoType, UpdateBlogDtoType} from "./types";
+import {BlogClass, FindBlogsDTO, UpdateBlogDTO} from "./types";
 import {SortDirection} from "../../main/types/enums";
 
 interface IBlogMethods {
-    updateBlog(dto: UpdateBlogDtoType): void
+    updateBlog(dto: UpdateBlogDTO): void
 }
 interface BlogModelType extends Model<BlogClass, {}, IBlogMethods> {
-    findBlogs(dto: FindBlogsDtoType): Promise<BlogClass[]>
+    findBlogs(dto: FindBlogsDTO): Promise<BlogClass[]>
     findBlogNameById(id: string): Promise<string | null>
     countBlogs(searchNameTerm: string): Promise<number>
 }
@@ -22,12 +22,12 @@ const BlogSchema = new Schema<BlogClass, BlogModelType, IBlogMethods>({
     },
     createdAt: {type: String, required: true}
 })
-BlogSchema.methods.updateBlog = function (dto: UpdateBlogDtoType) {
+BlogSchema.methods.updateBlog = function (dto: UpdateBlogDTO) {
     this.name = dto.name
     this.description = dto.description
     this.websiteUrl = dto.websiteUrl
 }
-BlogSchema.statics.findBlogs = async function (dto: FindBlogsDtoType): Promise<BlogClass[]> {
+BlogSchema.statics.findBlogs = async function (dto: FindBlogsDTO): Promise<BlogClass[]> {
     let {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = dto
 
     sortBy = sortBy === 'id' ? '_id' : sortBy

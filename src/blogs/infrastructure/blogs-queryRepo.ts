@@ -1,4 +1,4 @@
-import {BlogClass, FindBlogsDtoType} from "../types/types";
+import {BlogClass, FindBlogsDTO} from "../types/types";
 import {BlogModel} from "../types/mongoose-schemas-models";
 import {injectable} from "inversify";
 
@@ -19,7 +19,7 @@ type BlogOutputPageType = {
 
 @injectable()
 export class BlogsQueryRepo {
-    async findBlogs(dto: FindBlogsDtoType): Promise<BlogOutputPageType> {
+    async findBlogs(dto: FindBlogsDTO): Promise<BlogOutputPageType> {
         const {searchNameTerm, pageNumber, pageSize} = dto
         const totalCount = await BlogModel.countBlogs(searchNameTerm)
         const pagesCount = Math.ceil(totalCount / pageSize)
