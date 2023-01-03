@@ -1,27 +1,27 @@
 import {UsersRepository} from "../../users/infrastructure/users-repository";
 import {CommentsRepository} from "../infrastructure/comments-repository";
 import {
-    CreateCommentDTO,
-    LikeCommentDTO,
-    UpdateCommentDTO
-} from "./dto";
+    UpdateCommentDto
+} from "./dto/UpdateCommentDto";
 import {PostModel} from "../../posts/domain/post.schema";
 import {inject, injectable} from "inversify";
-import {CommentClass, CommentModel, LikesInfoClass} from "../domain/comment.schema";
+import {Comment, CommentModel, LikesInfo} from "../domain/comment.schema";
 import {LikeStatus} from "../../main/types/enums";
-import {LikeClass, LikeDocument, LikeModel} from "../domain/like.schema";
+import {Like, LikeDocument, LikeModel} from "../domain/like.schema";
+import {CreateCommentDto} from "./dto/CreateCommentDto";
+import {LikeCommentDto} from "./dto/LikeCommentDto";
 
 @injectable()
 export class CommentsService {
     constructor(@inject(UsersRepository) protected usersRepository: UsersRepository,
                 @inject(CommentsRepository) protected commentsRepository: CommentsRepository) {}
 
-    async createComment({postId, content, userId}: CreateCommentDTO): Promise<string | null> {
+    async createComment({postId, content, userId}: CreateCommentDto): Promise<string | null> {
         const isPostExist = await PostModel.isPostExist(postId)
         const userLogin = await this.usersRepository.findUserLoginById(userId)
         if (!isPostExist || !userLogin) return null
-        const likesInfo = new LikesInfoClass()
-        const newComment = new CommentClass(
+        const likesInfo = new LikesInfo()
+        const newComment = new Comment(
             content,
             userId,
             userLogin,
@@ -32,7 +32,7 @@ export class CommentsService {
         await this.commentsRepository.saveComment(comment)
         return comment.id
     }
-    async updateComment({commentId, content, userId}: UpdateCommentDTO): Promise<number | null> {
+    async updateComment({commentId, content, userId}: UpdateCommentDto): Promise<number | null> {
         const foundComment = await this.commentsRepository.findComment(commentId)
         if (!foundComment) {
             return 404
@@ -43,7 +43,7 @@ export class CommentsService {
         await this.commentsRepository.saveComment(foundComment)
         return 204
     }
-    async likeComment({commentId, userId, likeStatus}: LikeCommentDTO): Promise<boolean> {
+    async likeComment({commentId, userId, likeStatus}: LikeCommentDto): Promise<boolean> {
         const foundComment = await this.commentsRepository.findComment(commentId)
         if (!foundComment) return false
 
@@ -57,7 +57,7 @@ export class CommentsService {
             like.updateLikeStatus(likeStatus)
         } else {
             oldLikeStatus = LikeStatus.None
-            const newLike = new LikeClass(commentId, userId, likeStatus)
+            const newLike = new Like(commentId, userId, likeStatus)
             like = new LikeModel(newLike)
         }
 

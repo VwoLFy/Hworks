@@ -1,6 +1,6 @@
 import {PostViewModel} from "./PostViewModel";
 
-export type PostViewModelPage = {
+export type PostsViewModelPage = {
     pagesCount: number
     page: number
     pageSize: number

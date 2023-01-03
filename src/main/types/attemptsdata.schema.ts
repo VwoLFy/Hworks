@@ -1,40 +1,39 @@
 import {Model, model, Schema} from "mongoose";
 import add from "date-fns/add";
 
-export interface AttemptsDTO {
+export interface AttemptsDto {
     ip: string
     url: string
     date: Date
 }
-export interface AttemptsDataMethodsType {
-}
-export interface AttemptsDataModelType extends Model<AttemptsDTO, {}, AttemptsDataMethodsType> {
+interface IAttemptsData extends Model<AttemptsDto> {
     findAttempts(ip: string, url: string): Promise<number>
-
     addAttemptToList(ip: string, url: string): Promise<void>
 }
 
-const AttemptsDataSchema = new Schema<AttemptsDTO, AttemptsDataModelType, AttemptsDataMethodsType>({
+const AttemptsDataSchema = new Schema<AttemptsDto, IAttemptsData>({
     ip: {type: String, required: true},
     url: {type: String, required: true},
     date: {type: Date, required: true}
 })
-AttemptsDataSchema.statics.findAttempts = async function (ip: string, url: string): Promise<number> {
-    const fromDate = +add(new Date(), {seconds: -10})
-    let query = AttemptsDataModel.countDocuments()
-        .where('ip').equals(ip)
-        .where('url').equals(url)
-        .where('date').gte(fromDate)
-    return query.exec()
-}
-AttemptsDataSchema.statics.addAttemptToList = async function (ip: string, url: string): Promise<void> {
-    await AttemptsDataModel.create(
-        {
-            ip,
-            url,
-            date: new Date()
-        }
-    )
+AttemptsDataSchema.statics = {
+    async findAttempts(ip: string, url: string): Promise<number> {
+        const fromDate = +add(new Date(), {seconds: -10})
+        let query = AttemptsDataModel.countDocuments()
+            .where('ip').equals(ip)
+            .where('url').equals(url)
+            .where('date').gte(fromDate)
+        return query.exec()
+    },
+    async addAttemptToList(ip: string, url: string): Promise<void> {
+        await AttemptsDataModel.create(
+            {
+                ip,
+                url,
+                date: new Date()
+            }
+        )
+    }
 }
 
-export const AttemptsDataModel = model<AttemptsDTO, AttemptsDataModelType>('attempts_data', AttemptsDataSchema)
+export const AttemptsDataModel = model<AttemptsDto, IAttemptsData>('attempts_data', AttemptsDataSchema)

@@ -9,17 +9,18 @@ import {
     RequestWithParamAndQuery,
     RequestWithQuery
 } from "../../main/types/types";
-import {BlogQueryModel} from "./models/BlogQueryModel";
+import {FindBlogsQueryModel} from "./models/FindBlogsQueryModel";
 import {Response} from "express";
-import {BlogViewModelPage} from "./models/BlogViewModelPage";
+import {BlogsViewModelPage} from "./models/BlogsViewModelPage";
 import {BlogViewModel} from "./models/BlogViewModel";
 import {HTTP_Status} from "../../main/types/enums";
-import {BlogInputModel} from "./models/BlogInputModel";
-import {BlogUpdateModel} from "./models/BlogUpdateModel";
-import {PostViewModelPage} from "../../posts/api/models/PostViewModelPage";
+import {PostsViewModelPage} from "../../posts/api/models/PostsViewModelPage";
 import {BlogPostInputModel} from "./models/BlogPostInputModel";
 import {PostViewModel} from "../../posts/api/models/PostViewModel";
 import {inject, injectable} from "inversify";
+import {CreateBlogDto} from "../application/dto/CreateBlogDto";
+import {UpdateBlogDto} from "../application/dto/UpdateBlogDto";
+import {FindPostsQueryModel} from "../../posts/api/models/FindPostsQueryModel";
 
 @injectable()
 export class BlogsController {
@@ -29,11 +30,11 @@ export class BlogsController {
                 @inject(PostsService) protected postsService: PostsService) {
     }
 
-    async getBlogs(req: RequestWithQuery<BlogQueryModel>, res: Response<BlogViewModelPage>) {
+    async getBlogs(req: RequestWithQuery<FindBlogsQueryModel>, res: Response<BlogsViewModelPage>) {
         res.json(await this.blogsQueryRepo.findBlogs({
             searchNameTerm: req.query.searchNameTerm,
-            pageNumber: +req.query.pageNumber,
-            pageSize: +req.query.pageSize,
+            pageNumber: req.query.pageNumber,
+            pageSize: req.query.pageSize,
             sortBy: req.query.sortBy,
             sortDirection: req.query.sortDirection
         }))
@@ -48,7 +49,7 @@ export class BlogsController {
         }
     }
 
-    async createBlog(req: RequestWithBody<BlogInputModel>, res: Response<BlogViewModel>) {
+    async createBlog(req: RequestWithBody<CreateBlogDto>, res: Response<BlogViewModel>) {
         const createdBlogId = await this.blogsService.createBlog({
             name: req.body.name,
             description: req.body.description,
@@ -58,7 +59,7 @@ export class BlogsController {
         if (createdBlog) res.status(HTTP_Status.CREATED_201).json(createdBlog)
     }
 
-    async updateBlog(req: RequestWithParamAndBody<BlogUpdateModel>, res: Response) {
+    async updateBlog(req: RequestWithParamAndBody<UpdateBlogDto>, res: Response) {
         const isUpdatedBlog = await this.blogsService.updateBlog(req.params.id, {
             name: req.body.name,
             description: req.body.description,
@@ -71,11 +72,10 @@ export class BlogsController {
         }
     }
 
-    async getPostsForBlog(req: RequestWithParamAndQuery<BlogQueryModel>, res: Response<PostViewModelPage>) {
-        const foundBlog = await this.postsQueryRepo.findPostsByBlogId({
-            blogId: req.params.id,
-            pageNumber: +req.query.pageNumber,
-            pageSize: +req.query.pageSize,
+    async getPostsForBlog(req: RequestWithParamAndQuery<FindPostsQueryModel>, res: Response<PostsViewModelPage>) {
+        const foundBlog = await this.postsQueryRepo.findPostsByBlogId(req.params.id, {
+            pageNumber: req.query.pageNumber,
+            pageSize: req.query.pageSize,
             sortBy: req.query.sortBy,
             sortDirection: req.query.sortDirection
         })

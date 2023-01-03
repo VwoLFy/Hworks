@@ -9,11 +9,13 @@ import {getUserIdAuthMiddleware} from "./get-user-id-auth-middleware";
 const commentContentValidation = body('content', "'content' must be a string  in range from 20 to 300 symbols")
     .isString().trim().isLength({min: 20, max: 300});
 const commentQueryValidation = [
-    query("pageNumber").toInt().default("1").customSanitizer((value) => {
-        return Number(value) < 1 ? "1" : value
+    query("pageNumber").toInt().default(1).customSanitizer((value) => {
+        const pageNumber = Number(value)
+        return pageNumber < 1 ? 1 : pageNumber
     }),
-    query("pageSize").toInt().default("10").customSanitizer((value) => {
-        return Number(value) < 1 ? "10" : value
+    query("pageSize").toInt().default(10).customSanitizer((value) => {
+        const pageSize = Number(value)
+        return pageSize < 1 ? 10 : pageSize
     }),
     query("sortBy").customSanitizer(value => {
         const isInArray = ['id', 'content', 'userId', 'userLogin', 'createdAt'].includes(value)

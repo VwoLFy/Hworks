@@ -9,17 +9,18 @@ import {
     RequestWithParamAndQuery,
     RequestWithQuery
 } from "../../main/types/types";
-import {PostQueryModel} from "./models/PostQueryModel";
+import {FindPostsQueryModel} from "./models/FindPostsQueryModel";
 import {Response} from "express";
-import {PostViewModelPage} from "./models/PostViewModelPage";
+import {PostsViewModelPage} from "./models/PostsViewModelPage";
 import {PostViewModel} from "./models/PostViewModel";
 import {HTTP_Status} from "../../main/types/enums";
-import {PostInputModel} from "./models/PostInputModel";
-import {PostUpdateModel} from "./models/PostUpdateModel";
 import {CommentViewModelPage} from "../../comments/api/models/CommentViewModelPage";
 import {CommentInputModel} from "../../comments/api/models/CommentInputModel";
 import {CommentViewModel} from "../../comments/api/models/CommentViewModel";
 import {inject, injectable} from "inversify";
+import {CreatePostDto} from "../application/dto/CreatePostDto";
+import {UpdatePostDto} from "../application/dto/UpdatePostDto";
+import {FindCommentsQueryModel} from "./models/FindCommentsQueryModel";
 
 @injectable()
 export class PostController {
@@ -29,10 +30,10 @@ export class PostController {
                 @inject(CommentsService) protected commentsService: CommentsService) {
     }
 
-    async getPosts(req: RequestWithQuery<PostQueryModel>, res: Response<PostViewModelPage>) {
+    async getPosts(req: RequestWithQuery<FindPostsQueryModel>, res: Response<PostsViewModelPage>) {
         res.json(await this.postsQueryRepo.findPosts({
-            pageNumber: +req.query.pageNumber,
-            pageSize: +req.query.pageSize,
+            pageNumber: req.query.pageNumber,
+            pageSize: req.query.pageSize,
             sortBy: req.query.sortBy,
             sortDirection: req.query.sortDirection
         }))
@@ -47,7 +48,7 @@ export class PostController {
         }
     }
 
-    async createPost(req: RequestWithBody<PostInputModel>, res: Response<PostViewModel>) {
+    async createPost(req: RequestWithBody<CreatePostDto>, res: Response<PostViewModel>) {
         const createdPostId = await this.postsService.createPost({
             title: req.body.title,
             shortDescription: req.body.shortDescription,
@@ -62,7 +63,7 @@ export class PostController {
         }
     }
 
-    async updatePost(req: RequestWithParamAndBody<PostUpdateModel>, res: Response) {
+    async updatePost(req: RequestWithParamAndBody<UpdatePostDto>, res: Response) {
         const isUpdatedPost = await this.postsService.updatePost(req.params.id, {
             title: req.body.title,
             shortDescription: req.body.shortDescription,
@@ -76,12 +77,12 @@ export class PostController {
         }
     }
 
-    async getCommentsForPost(req: RequestWithParamAndQuery<PostQueryModel>, res: Response<CommentViewModelPage>) {
+    async getCommentsForPost(req: RequestWithParamAndQuery<FindCommentsQueryModel>, res: Response<CommentViewModelPage>) {
         const userId = req.userId ? req.userId : null
         const foundComments = await this.commentsQueryRepo.findCommentsByPostId({
             postId: req.params.id,
-            page: +req.query.pageNumber,
-            pageSize: +req.query.pageSize,
+            page: req.query.pageNumber,
+            pageSize: req.query.pageSize,
             sortBy: req.query.sortBy,
             sortDirection: req.query.sortDirection,
             userId

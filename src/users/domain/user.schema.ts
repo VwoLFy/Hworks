@@ -1,15 +1,9 @@
-import {HydratedDocument, Model, model, Schema} from "mongoose";
+import {HydratedDocument, model, Schema} from "mongoose";
 import add from "date-fns/add";
 import {v4 as uuidv4} from "uuid";
 import {ObjectId} from "mongodb";
 
-interface IUserMethods {
-    confirmUser(): void
-    updateEmailConfirmation(): void
-    updatePassword(passwordHash: string): void
-}
-
-export class UserAccountClass {
+export class UserAccount {
     createdAt: string
 
     constructor(public login: string,
@@ -18,8 +12,7 @@ export class UserAccountClass {
         this.createdAt = new Date().toISOString()
     }
 }
-
-export class EmailConfirmationClass {
+export class EmailConfirmation {
     confirmationCode: string
     expirationDate: Date
 
@@ -29,19 +22,29 @@ export class EmailConfirmationClass {
     }
 }
 
-export class UserClass {
+export class User {
     _id: ObjectId
 
-    constructor(public accountData: UserAccountClass,
-                public emailConfirmation: EmailConfirmationClass) {
+    constructor(public accountData: UserAccount,
+                public emailConfirmation: EmailConfirmation) {
         this._id = new ObjectId()
+    }
+
+    confirmUser() {
+        this.emailConfirmation.isConfirmed = true
+    }
+    updateEmailConfirmation() {
+        this.emailConfirmation.confirmationCode = uuidv4()
+        this.emailConfirmation.expirationDate = add(new Date(), {hours: 1})
+    }
+    updatePassword(passwordHash: string) {
+        this.accountData.passwordHash = passwordHash
     }
 }
 
-interface UserModelType extends Model<UserClass, {}, IUserMethods> {}
-export type UserDocument = HydratedDocument<UserClass, IUserMethods>
+export type UserDocument = HydratedDocument<User>
 
-const UserAccountSchema = new Schema<UserAccountClass>({
+const UserAccountSchema = new Schema<UserAccount>({
     login: {
         type: String, required: true, minlength: 3, maxlength: 30, validate: (val: string) => {
             return val.match("^[a-zA-Z0-9_-]*$")
@@ -55,25 +58,20 @@ const UserAccountSchema = new Schema<UserAccountClass>({
     },
     createdAt: {type: String, required: true}
 }, {_id: false})
-const EmailConfirmationSchema = new Schema<EmailConfirmationClass>({
+const EmailConfirmationSchema = new Schema<EmailConfirmation>({
     isConfirmed: {type: Boolean, required: true},
     confirmationCode: {type: String, required: true},
     expirationDate: {type: Date, required: true}
 }, {_id: false})
-const UserSchema = new Schema<UserClass, UserModelType, IUserMethods>({
+const UserSchema = new Schema<User>({
     _id: {type: Schema.Types.ObjectId, required: true},
     accountData: {type: UserAccountSchema, required: true},
     emailConfirmation: {type: EmailConfirmationSchema, required: true}
 })
-UserSchema.methods.confirmUser = function (): void {
-    this.emailConfirmation.isConfirmed = true
-}
-UserSchema.methods.updateEmailConfirmation = function (): void {
-    this.emailConfirmation.confirmationCode = uuidv4()
-    this.emailConfirmation.expirationDate = add(new Date(), {hours: 1})
-}
-UserSchema.methods.updatePassword = function (passwordHash): void {
-    this.accountData.passwordHash = passwordHash
+UserSchema.methods = {
+    confirmUser: User.prototype.confirmUser,
+    updateEmailConfirmation: User.prototype.updateEmailConfirmation,
+    updatePassword: User.prototype.updatePassword
 }
 
-export const UserModel = model<UserClass, UserModelType>('users', UserSchema)
+export const UserModel = model<UserDocument>('users', UserSchema)

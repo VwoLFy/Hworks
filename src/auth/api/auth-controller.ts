@@ -2,17 +2,17 @@ import {AuthService} from "../application/auth-service";
 import {JwtService} from "../application/jwt-service";
 import {UsersQueryRepo} from "../../users/infrastructure/users-queryRepo";
 import {RequestWithBody} from "../../main/types/types";
-import {LoginInputModel} from "./models/LoginInputModel";
+import {LoginUserDto} from "../application/dto/LoginUserDto";
 import {Request, Response} from "express";
 import {LoginSuccessViewModel} from "./models/LoginSuccessViewModel";
 import {HTTP_Status} from "../../main/types/enums";
 import {PasswordRecoveryInputModel} from "./models/PasswordRecoveryInputModel";
-import {NewPasswordRecoveryInputModel} from "./models/NewPasswordRecoveryInputModel";
-import {UserInputModel} from "../../users/api/models/UserInputModel";
+import {NewPasswordRecoveryDto} from "../application/dto/NewPasswordRecoveryDto";
 import {RegistrationConfirmationCodeModel} from "./models/RegistrationConfirmationCodeModel";
 import {RegistrationEmailResendingModel} from "./models/RegistrationEmailResendingModel";
 import {MeViewModel} from "./models/MeViewModel";
 import {inject, injectable} from "inversify";
+import {CreateUserDto} from "../../users/application/dto/CreateUserDto";
 
 @injectable()
 export class AuthController {
@@ -21,11 +21,14 @@ export class AuthController {
                 @inject(UsersQueryRepo)  protected usersQueryRepo: UsersQueryRepo) {
     }
 
-    async loginUser(req: RequestWithBody<LoginInputModel>, res: Response<LoginSuccessViewModel>) {
+    async loginUser(req: RequestWithBody<LoginUserDto>, res: Response<LoginSuccessViewModel>) {
         const ip = req.ip
         const title = req.headers["user-agent"] || 'unknown'
 
-        const userId = await this.authService.checkCredentials(req.body.loginOrEmail, req.body.password)
+        const userId = await this.authService.checkCredentials({
+            loginOrEmail: req.body.loginOrEmail,
+            password: req.body.password
+        })
         if (!userId) return res.sendStatus(HTTP_Status.UNAUTHORIZED_401)
 
         const {accessToken, refreshToken} = await this.authService.loginUser(userId, ip, title)
@@ -39,10 +42,13 @@ export class AuthController {
         return res.sendStatus(HTTP_Status.NO_CONTENT_204)
     }
 
-    async newPassword(req: RequestWithBody<NewPasswordRecoveryInputModel>, res: Response) {
+    async newPassword(req: RequestWithBody<NewPasswordRecoveryDto>, res: Response) {
         if (!req.body.newPassword || !req.body.recoveryCode) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
 
-        const isChangedPassword = await this.authService.changePassword(req.body.newPassword, req.body.recoveryCode)
+        const isChangedPassword = await this.authService.changePassword({
+            newPassword: req.body.newPassword,
+            recoveryCode: req.body.recoveryCode
+        })
         if (!isChangedPassword) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
         return res.sendStatus(HTTP_Status.NO_CONTENT_204)
     }
@@ -57,7 +63,7 @@ export class AuthController {
         return res.status(HTTP_Status.OK_200).json({accessToken})
     }
 
-    async registration(req: RequestWithBody<UserInputModel>, res: Response) {
+    async registration(req: RequestWithBody<CreateUserDto>, res: Response) {
         const isRegistered = await this.authService.createUser({
             login: req.body.login,
             password: req.body.password,

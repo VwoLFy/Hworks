@@ -3,10 +3,12 @@ import bcrypt from "bcrypt";
 import {EmailManager} from "./email-manager";
 import {JwtService} from "./jwt-service";
 import {SecurityService} from "../../security/application/security-service";
-import {CreateUserDTO} from "../../users/application/dto";
-import {PasswordRecoveryClass, PasswordRecoveryModel} from "../domain/passwordrecovery.schema";
+import {CreateUserDto} from "../../users/application/dto/CreateUserDto";
+import {PasswordRecovery, PasswordRecoveryModel} from "../domain/passwordrecovery.schema";
 import {inject, injectable} from "inversify";
-import {EmailConfirmationClass, UserAccountClass, UserClass, UserModel} from "../../users/domain/user.schema";
+import {EmailConfirmation, UserAccount, User, UserModel} from "../../users/domain/user.schema";
+import {LoginUserDto} from "./dto/LoginUserDto";
+import {NewPasswordRecoveryDto} from "./dto/NewPasswordRecoveryDto";
 
 @injectable()
 export class AuthService{
@@ -15,19 +17,19 @@ export class AuthService{
                 @inject(EmailManager) protected emailManager: EmailManager,
                 @inject(SecurityService) protected securityService: SecurityService) {}
 
-    async checkCredentials(loginOrEmail: string, password: string): Promise<string | null> {
-        const foundUser = await this.usersRepository.findUserByLoginOrEmail(loginOrEmail)
+    async checkCredentials(dto: LoginUserDto): Promise<string | null> {
+        const foundUser = await this.usersRepository.findUserByLoginOrEmail(dto.loginOrEmail)
         if (!foundUser ||
             !foundUser.emailConfirmation.isConfirmed ||
-            !await bcrypt.compare(password, foundUser.accountData.passwordHash)) return null
+            !await bcrypt.compare(dto.password, foundUser.accountData.passwordHash)) return null
         return foundUser.id
     }
-    async createUser({login, password, email}: CreateUserDTO): Promise<boolean> {
+    async createUser({login, password, email}: CreateUserDto): Promise<boolean> {
         const passwordHash = await this.getPasswordHash(password)
 
-        const newUserAccount = new UserAccountClass(login, passwordHash, email)
-        const newEmailConfirmation = new EmailConfirmationClass(false)
-        const newUser = new UserClass( newUserAccount, newEmailConfirmation)
+        const newUserAccount = new UserAccount(login, passwordHash, email)
+        const newEmailConfirmation = new EmailConfirmation(false)
+        const newUser = new User( newUserAccount, newEmailConfirmation)
 
         const user = new UserModel(newUser)
 
@@ -79,7 +81,7 @@ export class AuthService{
         const isUserExist = await this.usersRepository.findUserByLoginOrEmail(email)
         if (!isUserExist) return
 
-        const passwordRecovery = new PasswordRecoveryClass(email)
+        const passwordRecovery = new PasswordRecovery(email)
         await PasswordRecoveryModel.create(passwordRecovery)
 
         try {
@@ -89,8 +91,9 @@ export class AuthService{
             return
         }
     }
-    async changePassword(newPassword: string, recoveryCode: string): Promise<boolean> {
-        const passwordRecovery: PasswordRecoveryClass | null = await PasswordRecoveryModel.findPassRecovery(recoveryCode)
+    async changePassword(dto: NewPasswordRecoveryDto): Promise<boolean> {
+        const {newPassword, recoveryCode} = dto
+        const passwordRecovery: PasswordRecovery | null = await PasswordRecoveryModel.findPassRecovery(recoveryCode)
         if (!passwordRecovery) return false
         if (new Date() > passwordRecovery.expirationDate) {
             await PasswordRecoveryModel.deletePassRecovery(recoveryCode)

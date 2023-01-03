@@ -1,13 +1,13 @@
 import {UsersQueryRepo} from "../infrastructure/users-queryRepo";
 import {UsersService} from "../application/user-service";
 import {RequestWithBody, RequestWithParam, RequestWithQuery} from "../../main/types/types";
-import {UserQueryModel} from "./models/UserQueryModel";
+import {FindUsersQueryModel} from "./models/FindUsersQueryModel";
 import {Response} from "express";
 import {UserViewModelPage} from "./models/UserViewModelPage";
-import {UserInputModel} from "./models/UserInputModel";
 import {UserViewModel} from "./models/UserViewModel";
 import {HTTP_Status} from "../../main/types/enums";
 import {inject, injectable} from "inversify";
+import {CreateUserDto} from "../application/dto/CreateUserDto";
 
 @injectable()
 export class UsersController {
@@ -15,11 +15,11 @@ export class UsersController {
                 @inject(UsersService) protected usersService: UsersService) {
     }
 
-    async getUsers(req: RequestWithQuery<UserQueryModel>, res: Response<UserViewModelPage>) {
+    async getUsers(req: RequestWithQuery<FindUsersQueryModel>, res: Response<UserViewModelPage>) {
         const {pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm} = req.query
         res.json(await this.usersQueryRepo.findUsers({
-            pageNumber: +pageNumber,
-            pageSize: +pageSize,
+            pageNumber,
+            pageSize,
             sortBy,
             sortDirection,
             searchLoginTerm,
@@ -27,7 +27,7 @@ export class UsersController {
         }))
     }
 
-    async createUser(req: RequestWithBody<UserInputModel>, res: Response<UserViewModel>) {
+    async createUser(req: RequestWithBody<CreateUserDto>, res: Response<UserViewModel>) {
         const createdUserId = await this.usersService.createUser({
             login: req.body.login,
             password: req.body.password,

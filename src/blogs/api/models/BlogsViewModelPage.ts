@@ -1,6 +1,6 @@
 import {BlogViewModel} from "./BlogViewModel";
 
-export type BlogViewModelPage = {
+export type BlogsViewModelPage = {
     pagesCount: number
     page: number
     pageSize: number

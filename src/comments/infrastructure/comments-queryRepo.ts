@@ -1,39 +1,20 @@
-import {LikeStatus} from "../../main/types/enums";
-import {FindCommentsDTO} from "../application/dto";
-import {CommentClass, CommentModel} from "../domain/comment.schema";
+import {Comment, CommentModel} from "../domain/comment.schema";
 import {injectable} from "inversify";
 import {LikeModel} from "../domain/like.schema";
+import {FindCommentsByPostIdDto} from "./dto/FindCommentsByPostIdDto";
+import {CommentViewModel} from "../api/models/CommentViewModel";
+import {CommentViewModelPage} from "../api/models/CommentViewModelPage";
 
-type LikesInfoOutputModelType = {
-    likesCount: number
-    dislikesCount: number
-    myStatus: LikeStatus
-}
-type CommentOutputModelType = {
-    id: string
-    content: string
-    userId: string
-    userLogin: string
-    createdAt: string
-    likesInfo: LikesInfoOutputModelType
-}
-type CommentOutputPageType = {
-    pagesCount: number
-    page: number
-    pageSize: number
-    totalCount: number
-    items:  CommentOutputModelType[]
-}
 
 @injectable()
 export class CommentsQueryRepo {
-    async findCommentById(commentId: string, userId: string | null): Promise<CommentOutputModelType | null> {
-        let foundComment: CommentClass | null = await CommentModel.findById({_id: commentId}).lean()
+    async findCommentById(commentId: string, userId: string | null): Promise<CommentViewModel | null> {
+        let foundComment: Comment | null = await CommentModel.findById({_id: commentId}).lean()
         if (!foundComment) return null
         if (userId) foundComment = await this.commentWithUserLikeStatus(foundComment, userId)
         return this.commentWithReplaceId(foundComment)
     }
-    async findCommentsByPostId({postId, page, pageSize, sortBy, sortDirection, userId}: FindCommentsDTO): Promise<CommentOutputPageType | null> {
+    async findCommentsByPostId({postId, page, pageSize, sortBy, sortDirection, userId}: FindCommentsByPostIdDto): Promise<CommentViewModelPage | null> {
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const sortOptions = {[sortBy]: sortDirection}
         const totalCount = await CommentModel.countDocuments({postId})
@@ -47,7 +28,7 @@ export class CommentsQueryRepo {
             .sort(sortOptions)
             .lean())
 
-        let items: CommentOutputModelType[] = []
+        let items: CommentViewModel[] = []
         for (let commentWith_id of commentsWith_id) {
             if (userId) commentWith_id = await this.commentWithUserLikeStatus(commentWith_id, userId)
 
@@ -63,7 +44,7 @@ export class CommentsQueryRepo {
             items
         }
     }
-    commentWithReplaceId(comment: CommentClass): CommentOutputModelType {
+    commentWithReplaceId(comment: Comment): CommentViewModel {
         return {
             id: comment._id.toString(),
             content: comment.content,
@@ -74,9 +55,9 @@ export class CommentsQueryRepo {
         }
     }
 
-    async commentWithUserLikeStatus(comment: CommentClass, userId: string): Promise<CommentClass> {
+    async commentWithUserLikeStatus(comment: Comment, userId: string): Promise<Comment> {
         const status = await LikeModel.findOne({commentId: comment._id, userId}).lean()
-        if (status) return {...comment, likesInfo: {...comment.likesInfo, myStatus: status.likeStatus}}
+        if (status) comment.likesInfo.myStatus = status.likeStatus
         return comment
     }
 }

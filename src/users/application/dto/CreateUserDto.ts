@@ -1,4 +1,4 @@
-export type UserInputModel = {
+export type CreateUserDto = {
     login: string
     password: string
     email: string

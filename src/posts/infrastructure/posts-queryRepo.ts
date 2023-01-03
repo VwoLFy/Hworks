@@ -1,32 +1,18 @@
-import {FindPostsByBlogIdDTO, FindPostsDTO} from "../application/dto";
 import {Post, PostModel} from "../domain/post.schema";
 import {injectable} from "inversify";
+import {FindPostsQueryModel} from "../api/models/FindPostsQueryModel";
+import {PostViewModel} from "../api/models/PostViewModel";
+import {PostsViewModelPage} from "../api/models/PostsViewModelPage";
 
-type PostOutputModelType = {
-    id: string
-    title: string
-    shortDescription: string
-    content: string
-    blogId: string
-    blogName: string
-    createdAt: string
-}
-type PostOutputPageType = {
-    pagesCount: number
-    page: number
-    pageSize: number
-    totalCount: number
-    items: PostOutputModelType[]
-};
 
 @injectable()
 export class PostsQueryRepo{
-    async findPosts(dto: FindPostsDTO): Promise<PostOutputPageType> {
+    async findPosts(dto: FindPostsQueryModel): Promise<PostsViewModelPage> {
         let {pageNumber, pageSize} = dto;
         const totalCount = await PostModel.countDocuments()
         const pagesCount = Math.ceil(totalCount / pageSize)
 
-        const items: PostOutputModelType[] = (await PostModel.findPosts(dto)).map(p => this.postWithReplaceId(p))
+        const items: PostViewModel[] = (await PostModel.findPosts(dto)).map(p => this.postWithReplaceId(p))
         return {
             pagesCount,
             page: pageNumber,
@@ -35,21 +21,21 @@ export class PostsQueryRepo{
             items
         }
     }
-    async findPostById(_id: string): Promise<PostOutputModelType | null> {
+    async findPostById(_id: string): Promise<PostViewModel | null> {
         const foundPost = await PostModel.findById({_id}).lean()
         if (!foundPost) return null
 
         return this.postWithReplaceId(foundPost)
     }
-    async findPostsByBlogId(dto: FindPostsByBlogIdDTO): Promise<PostOutputPageType | null> {
-        let {blogId, pageNumber, pageSize} = dto
+    async findPostsByBlogId(blogId: string, dto: FindPostsQueryModel): Promise<PostsViewModelPage | null> {
+        let {pageNumber, pageSize} = dto
 
         const totalCount = await PostModel.countPostsByBlogId(blogId)
         if (totalCount == 0) return null
 
         const pagesCount = Math.ceil(totalCount / pageSize)
 
-        const items: PostOutputModelType[] = (await PostModel.findPosts(dto)).map(p => this.postWithReplaceId(p))
+        const items: PostViewModel[] = (await PostModel.findPosts(dto)).map(p => this.postWithReplaceId(p))
         return {
             pagesCount,
             page: pageNumber,
@@ -58,7 +44,7 @@ export class PostsQueryRepo{
             items
         }
     }
-    postWithReplaceId (object: Post ): PostOutputModelType {
+    postWithReplaceId (object: Post ): PostViewModel {
         return {
             id: object._id.toString(),
             title: object.title,

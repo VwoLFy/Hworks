@@ -1,4 +1,5 @@
-export type BlogUpdateModel = {
+//BlogInputModel
+export type CreateBlogDto = {
     name: string
     description: string
     websiteUrl: string

@@ -1,7 +1,8 @@
 import {HydratedDocument, Model, model, Schema} from "mongoose";
-import {FindPostsDTO, UpdatePostDTO} from "../application/dto";
+import {UpdatePostDto} from "../application/dto/UpdatePostDto";
 import {SortDirection} from "../../main/types/enums";
 import {ObjectId} from "mongodb";
+import {FindPostsQueryModel} from "../api/models/FindPostsQueryModel";
 
 export class Post {
     _id: ObjectId
@@ -16,7 +17,7 @@ export class Post {
         this.createdAt = new Date().toISOString()
     }
 
-    updatePost(dto: UpdatePostDTO, blogName: string) {
+    updatePost(dto: UpdatePostDto, blogName: string) {
         this.title = dto.title
         this.shortDescription = dto.shortDescription
         this.content = dto.content
@@ -27,7 +28,7 @@ export class Post {
 
 interface IPostModel extends Model<Post> {
     isPostExist(_id: string): Promise<boolean>
-    findPosts(dto: FindPostsDTO): Promise<Post[]>
+    findPosts(dto: FindPostsQueryModel): Promise<Post[]>
     countPostsByBlogId(blogId: string): Promise<number>
 }
 export type PostDocument = HydratedDocument<Post>
@@ -48,7 +49,7 @@ PostSchema.statics = {
     async isPostExist(_id: string): Promise<boolean> {
         return !!(await PostModel.findById({_id}))
     },
-    async findPosts(dto: FindPostsDTO): Promise<Post[]> {
+    async findPosts(dto: FindPostsQueryModel): Promise<Post[]> {
         let {pageNumber, pageSize, sortBy, sortDirection} = dto
 
         sortBy = sortBy === 'id' ? '_id' : sortBy

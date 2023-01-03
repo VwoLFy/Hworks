@@ -1,23 +1,23 @@
 import {UsersRepository} from "../infrastructure/users-repository";
 import bcrypt from "bcrypt"
 import {ObjectId} from "mongodb";
-import {CreateUserDTO} from "./dto";
+import {CreateUserDto} from "./dto/CreateUserDto";
 import {inject, injectable} from "inversify";
-import {EmailConfirmationClass, UserAccountClass, UserClass, UserModel} from "../domain/user.schema";
+import {EmailConfirmation, UserAccount, User, UserModel} from "../domain/user.schema";
 
 @injectable()
 export class UsersService {
     constructor(@inject(UsersRepository) protected usersRepository: UsersRepository) {}
 
-    async createUser({login, password, email}: CreateUserDTO): Promise<string | null> {
+    async createUser({login, password, email}: CreateUserDto): Promise<string | null> {
         const isFreeLoginAndEmail: boolean = await this.usersRepository.isFreeLoginAndEmail(login, email)
         if (!isFreeLoginAndEmail) return null
 
         const passwordHash = await this.getPasswordHash(password)
 
-        const newUserAccount = new UserAccountClass(login, passwordHash, email)
-        const newEmailConfirmation = new EmailConfirmationClass(true)
-        const newUser = new UserClass(newUserAccount, newEmailConfirmation)
+        const newUserAccount = new UserAccount(login, passwordHash, email)
+        const newEmailConfirmation = new EmailConfirmation(true)
+        const newUser = new User(newUserAccount, newEmailConfirmation)
 
         const user = new UserModel(newUser)
         await this.usersRepository.saveUser(user)

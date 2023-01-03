@@ -1,16 +1,17 @@
 import {PostsRepository} from "../infrastructure/posts-repository";
-import {CreatePostDTO, UpdatePostDTO} from "./dto";
+import {UpdatePostDto} from "./dto/UpdatePostDto";
 import {BlogModel} from "../../blogs/domain/blog.schema";
 import {Post, PostDocument, PostModel} from "../domain/post.schema";
 import {inject, injectable} from "inversify";
 import {CommentsRepository} from "../../comments/infrastructure/comments-repository";
+import {CreatePostDto} from "./dto/CreatePostDto";
 
 @injectable()
 export class PostsService{
     constructor(@inject(PostsRepository) protected postsRepository: PostsRepository,
                 @inject(CommentsRepository) protected commentsRepository: CommentsRepository) {}
 
-    async createPost(dto: CreatePostDTO): Promise<string | null> {
+    async createPost(dto: CreatePostDto): Promise<string | null> {
         const {title, shortDescription, content, blogId} = dto
         const foundBlogName: string | null = await BlogModel.findBlogNameById(blogId)
         if (!foundBlogName) return null
@@ -21,7 +22,7 @@ export class PostsService{
         await this.postsRepository.savePost(post)
         return post.id
     }
-    async updatePost(id: string, dto: UpdatePostDTO): Promise<boolean> {
+    async updatePost(id: string, dto: UpdatePostDto): Promise<boolean> {
         const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)
         if (!foundBlogName) return false
 

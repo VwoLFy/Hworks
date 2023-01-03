@@ -1,19 +1,13 @@
-import {SessionClass, SessionModel} from "../domain/session.schema";
+import {Session, SessionModel} from "../domain/session.schema";
 import {injectable} from "inversify";
-
-type DeviceOutputModelType = {
-    ip: string
-    title: string
-    lastActiveDate: string
-    deviceId: string
-}
+import {DeviceViewModel} from "../api/models/DeviceViewModel";
 
 @injectable()
 export class SecurityQueryRepo {
-    async findUserSessions(userId: string): Promise<DeviceOutputModelType[]> {
+    async findUserSessions(userId: string): Promise<DeviceViewModel[]> {
         return (await SessionModel.find({userId}).lean()).map(s => this.getOutputModel(s))
     }
-    getOutputModel(session: SessionClass): DeviceOutputModelType {
+    getOutputModel(session: Session): DeviceViewModel {
         return {
             ip: session.ip,
             title: session.title,

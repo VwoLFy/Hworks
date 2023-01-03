@@ -9,11 +9,13 @@ import {PasswordRecoveryModel} from "../../auth/domain/passwordrecovery.schema";
 
 //user
 const userQueryValidation = [
-    query('pageNumber').toInt().default("1").customSanitizer(value => {
-        return Number(value) < 1 ? "1" : value
+    query('pageNumber').toInt().default(1).customSanitizer(value => {
+        const pageNumber = Number(value)
+        return pageNumber < 1 ? 1 : pageNumber
     }),
-    query('pageSize').toInt().default("10").customSanitizer(value => {
-        return Number(value) < 1 ? "10" : value
+    query('pageSize').toInt().default(10).customSanitizer(value => {
+        const pageSize = Number(value)
+        return pageSize < 1 ? 10 : pageSize
     }),
     query('sortBy').customSanitizer(value => {
         const fields = ['id', 'login', 'email', 'createdAt'];

@@ -1,7 +1,8 @@
 import {HydratedDocument, Model, model, Schema} from "mongoose";
-import {FindBlogsDTO, UpdateBlogDTO} from "../application/dto";
+import {UpdateBlogDto} from "../application/dto/UpdateBlogDto";
 import {SortDirection} from "../../main/types/enums";
 import {ObjectId} from "mongodb";
+import {FindBlogsQueryModel} from "../api/models/FindBlogsQueryModel";
 
 export class Blog {
     _id: ObjectId
@@ -14,7 +15,7 @@ export class Blog {
         this.createdAt = new Date().toISOString()
     }
 
-    updateBlog(dto: UpdateBlogDTO) {
+    updateBlog(dto: UpdateBlogDto) {
         this.name = dto.name
         this.description = dto.description
         this.websiteUrl = dto.websiteUrl
@@ -22,7 +23,7 @@ export class Blog {
 }
 
 interface IBlogModel extends Model<Blog> {
-    findBlogs(dto: FindBlogsDTO): Promise<Blog[]>
+    findBlogs(dto: FindBlogsQueryModel): Promise<Blog[]>
     findBlogNameById(id: string): Promise<string | null>
     countBlogs(searchNameTerm: string): Promise<number>
 }
@@ -42,14 +43,14 @@ BlogSchema.methods = {
     updateBlog: Blog.prototype.updateBlog
 }
 BlogSchema.statics = {
-    async findBlogs(dto: FindBlogsDTO): Promise<Blog[]> {
+    async findBlogs(dto: FindBlogsQueryModel): Promise<Blog[]> {
         let {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = dto
 
         sortBy = sortBy === 'id' ? '_id' : sortBy
         const optionsSort: { [key: string]: SortDirection } = {[sortBy]: sortDirection}
 
         return BlogModel.find()
-            .where('name').regex(RegExp(searchNameTerm, 'i'))
+            .where('name').regex(new RegExp(searchNameTerm, 'i'))
             .skip((pageNumber - 1) * pageSize)
             .limit(pageSize)
             .sort(optionsSort)

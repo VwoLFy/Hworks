@@ -1,24 +1,13 @@
-import {FindUsersDTO} from "../application/dto";
-import {UserClass, UserModel} from "../domain/user.schema";
+import {User, UserModel} from "../domain/user.schema";
 import {injectable} from "inversify";
+import {UserViewModel} from "../api/models/UserViewModel";
+import {UserViewModelPage} from "../api/models/UserViewModelPage";
+import {FindUsersQueryModel} from "../api/models/FindUsersQueryModel";
 
-type UserOutputModelType = {
-    id: string
-    login: string
-    email: string
-    createdAt: string
-}
-type UserOutputPageType = {
-    pagesCount: number
-    page: number
-    pageSize: number
-    totalCount: number
-    items: UserOutputModelType[]
-}
 
 @injectable()
 export class UsersQueryRepo{
-    async findUsers({pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm}: FindUsersDTO): Promise<UserOutputPageType> {
+    async findUsers({pageNumber, pageSize, sortBy, sortDirection, searchLoginTerm, searchEmailTerm}: FindUsersQueryModel): Promise<UserViewModelPage> {
         let filterFind = {}
 
         if (searchLoginTerm && searchEmailTerm) {
@@ -55,15 +44,15 @@ export class UsersQueryRepo{
             items
         }
     }
-    async findUserById(id: string): Promise<UserOutputModelType | null> {
-        const foundUser: UserClass | null = await UserModel.findById({_id: id}).lean()
+    async findUserById(id: string): Promise<UserViewModel | null> {
+        const foundUser: User | null = await UserModel.findById({_id: id}).lean()
         if (!foundUser) {
             return null
         } else {
             return this.userWithReplaceId(foundUser)
         }
     }
-    userWithReplaceId(object: UserClass): UserOutputModelType {
+    userWithReplaceId(object: User): UserViewModel {
         return {
             id: object._id.toString(),
             login: object.accountData.login,
