@@ -1,15 +1,45 @@
 import {HydratedDocument, Model, model, Schema} from "mongoose";
-import {EmailConfirmationClass, UserAccountClass, UserClass} from "./types";
 import add from "date-fns/add";
 import {v4 as uuidv4} from "uuid";
+import {ObjectId} from "mongodb";
 
 interface IUserMethods {
     confirmUser(): void
     updateEmailConfirmation(): void
     updatePassword(passwordHash: string): void
 }
+
+export class UserAccountClass {
+    createdAt: string
+
+    constructor(public login: string,
+                public passwordHash: string,
+                public email: string) {
+        this.createdAt = new Date().toISOString()
+    }
+}
+
+export class EmailConfirmationClass {
+    confirmationCode: string
+    expirationDate: Date
+
+    constructor(public isConfirmed: boolean) {
+        this.confirmationCode = uuidv4()
+        this.expirationDate = add(new Date(), {hours: 1})
+    }
+}
+
+export class UserClass {
+    _id: ObjectId
+
+    constructor(public accountData: UserAccountClass,
+                public emailConfirmation: EmailConfirmationClass) {
+        this._id = new ObjectId()
+    }
+}
+
 interface UserModelType extends Model<UserClass, {}, IUserMethods> {}
-export type UserHDType = HydratedDocument<UserClass, IUserMethods>
+export type UserDocument = HydratedDocument<UserClass, IUserMethods>
 
 const UserAccountSchema = new Schema<UserAccountClass>({
     login: {

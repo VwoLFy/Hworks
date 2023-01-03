@@ -1,12 +1,12 @@
-import {SessionHDType, SessionModel} from "../domain/session.schema";
+import {SessionDocument, SessionModel} from "../domain/session.schema";
 import {injectable} from "inversify";
 
 @injectable()
 export class SecurityRepository {
-    async findSessionByDeviceId(deviceId: string): Promise<SessionHDType | null> {
+    async findSessionByDeviceId(deviceId: string): Promise<SessionDocument | null> {
         return SessionModel.findOne({deviceId})
     }
-    async saveSession(session: SessionHDType): Promise<void> {
+    async saveSession(session: SessionDocument): Promise<void> {
         await session.save()
     }
     async maxValueActiveDeviceId(): Promise<number> {

@@ -3,11 +3,10 @@ import bcrypt from "bcrypt";
 import {EmailManager} from "./email-manager";
 import {JwtService} from "./jwt-service";
 import {SecurityService} from "../../security/application/security-service";
-import {PasswordRecoveryClass} from "../domain/types";
-import {CreateUserDTO, EmailConfirmationClass, UserAccountClass, UserClass} from "../../users/domain/types";
-import {PasswordRecoveryModel} from "../domain/passwordrecovery.schema";
+import {CreateUserDTO} from "../../users/application/dto";
+import {PasswordRecoveryClass, PasswordRecoveryModel} from "../domain/passwordrecovery.schema";
 import {inject, injectable} from "inversify";
-import {UserModel} from "../../users/domain/user.schema";
+import {EmailConfirmationClass, UserAccountClass, UserClass, UserModel} from "../../users/domain/user.schema";
 
 @injectable()
 export class AuthService{

@@ -1,12 +1,12 @@
-import {BlogModel, BlogHDType} from "../domain/blog.schema";
+import {BlogModel, BlogDocument} from "../domain/blog.schema";
 import {injectable} from "inversify";
 
 @injectable()
 export class BlogsRepository {
-    async findBlogById(_id: string): Promise<BlogHDType | null> {
+    async findBlogById(_id: string): Promise<BlogDocument | null> {
         return BlogModel.findById({_id})
     }
-    async saveBlog(blog: BlogHDType) {
+    async saveBlog(blog: BlogDocument) {
         await blog.save()
     }
     async deleteBlog(_id: string): Promise<boolean> {

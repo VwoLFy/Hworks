@@ -1,7 +1,7 @@
 import {PostsRepository} from "../infrastructure/posts-repository";
-import {CreatePostDTO, PostClass, UpdatePostDTO} from "../domain/types";
+import {CreatePostDTO, UpdatePostDTO} from "./dto";
 import {BlogModel} from "../../blogs/domain/blog.schema";
-import {PostHDType, PostModel} from "../domain/post.schema";
+import {Post, PostDocument, PostModel} from "../domain/post.schema";
 import {inject, injectable} from "inversify";
 import {CommentsRepository} from "../../comments/infrastructure/comments-repository";
 
@@ -15,9 +15,9 @@ export class PostsService{
         const foundBlogName: string | null = await BlogModel.findBlogNameById(blogId)
         if (!foundBlogName) return null
 
-        const newPost = new PostClass(title, shortDescription, content, blogId, foundBlogName)
+        const newPost = new Post(title, shortDescription, content, blogId, foundBlogName)
 
-        const post: PostHDType = new PostModel(newPost)
+        const post: PostDocument = new PostModel(newPost)
         await this.postsRepository.savePost(post)
         return post.id
     }
@@ -25,10 +25,10 @@ export class PostsService{
         const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)
         if (!foundBlogName) return false
 
-        const post: PostHDType | null = await this.postsRepository.findPostById(id)
+        const post: PostDocument | null = await this.postsRepository.findPostById(id)
         if (!post) return false
 
-        post.updatePost({...dto, blogName: foundBlogName})
+        post.updatePost(dto, foundBlogName)
         await this.postsRepository.savePost(post)
         return true
     }

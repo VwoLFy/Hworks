@@ -1,20 +1,20 @@
-import {CommentHDType, CommentModel} from "../domain/comment.schema";
+import {CommentDocument, CommentModel} from "../domain/comment.schema";
 import {injectable} from "inversify";
 import {ObjectId} from "mongodb";
-import {LikeHDType, LikeModel} from "../domain/like.schema";
+import {LikeDocument, LikeModel} from "../domain/like.schema";
 
 @injectable()
 export class CommentsRepository {
-    async findComment(id: string): Promise<CommentHDType | null> {
+    async findComment(id: string): Promise<CommentDocument | null> {
         return CommentModel.findById({_id: id})
     }
-    async saveComment(comment: CommentHDType): Promise<void> {
+    async saveComment(comment: CommentDocument): Promise<void> {
         await comment.save()
     }
-    async findLikeStatus(commentId: string, userId: string): Promise<LikeHDType | null> {
+    async findLikeStatus(commentId: string, userId: string): Promise<LikeDocument | null> {
         return LikeModel.findOne({commentId, userId})
     }
-    async saveLike(like: LikeHDType): Promise<void> {
+    async saveLike(like: LikeDocument): Promise<void> {
         await like.save()
     }
     async deleteAllCommentsOfPost(postId: string): Promise<boolean> {

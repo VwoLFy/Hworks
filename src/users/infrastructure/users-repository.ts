@@ -1,10 +1,10 @@
 import {ObjectId} from "mongodb";
-import {UserHDType, UserModel} from "../domain/user.schema";
+import {UserDocument, UserModel} from "../domain/user.schema";
 import {injectable} from "inversify";
 
 @injectable()
 export class UsersRepository{
-    async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserHDType| null> {
+    async findUserByLoginOrEmail(loginOrEmail: string): Promise<UserDocument| null> {
         const foundUser = await UserModel.findOne({
             $or: [
                 {'accountData.login': {$regex: loginOrEmail, $options: 'i'}},
@@ -18,7 +18,7 @@ export class UsersRepository{
         if (!result) return null
         return result.accountData.login
     }
-    async findUserByConfirmationCode(confirmationCode: string): Promise<UserHDType | null> {
+    async findUserByConfirmationCode(confirmationCode: string): Promise<UserDocument | null> {
         return UserModel.findOne({'emailConfirmation.confirmationCode': confirmationCode})
     }
     async isFreeLoginAndEmail(login: string, email: string): Promise<boolean> {
@@ -30,7 +30,7 @@ export class UsersRepository{
                 ]
             }))
     }
-    async saveUser(user: UserHDType): Promise<void> {
+    async saveUser(user: UserDocument): Promise<void> {
         await user.save()
     }
     async deleteUser(_id: ObjectId): Promise<boolean> {

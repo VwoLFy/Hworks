@@ -1,5 +1,5 @@
-import {FindUsersDTO, UserClass} from "../domain/types";
-import {UserModel} from "../domain/user.schema";
+import {FindUsersDTO} from "../application/dto";
+import {UserClass, UserModel} from "../domain/user.schema";
 import {injectable} from "inversify";
 
 type UserOutputModelType = {

@@ -1,18 +1,38 @@
 import {HydratedDocument, Model, model, Schema} from "mongoose";
-import {FindPostsDTO, PostClass, UpdatePostDTO} from "./types";
+import {FindPostsDTO, UpdatePostDTO} from "../application/dto";
 import {SortDirection} from "../../main/types/enums";
+import {ObjectId} from "mongodb";
 
-export interface PostMethodsType {
-    updatePost(dto: UpdatePostDTO): void
+export class Post {
+    _id: ObjectId
+    createdAt: string
+
+    constructor(public title: string,
+                public shortDescription: string,
+                public content: string,
+                public blogId: string,
+                public blogName: string) {
+        this._id = new ObjectId()
+        this.createdAt = new Date().toISOString()
+    }
+
+    updatePost(dto: UpdatePostDTO, blogName: string) {
+        this.title = dto.title
+        this.shortDescription = dto.shortDescription
+        this.content = dto.content
+        this.blogId = dto.blogId
+        this.blogName = blogName
+    }
 }
-export interface PostModelType extends Model<PostClass, {}, PostMethodsType> {
+
+interface IPostModel extends Model<Post> {
     isPostExist(_id: string): Promise<boolean>
-    findPosts(dto: FindPostsDTO): Promise<PostClass[]>
+    findPosts(dto: FindPostsDTO): Promise<Post[]>
     countPostsByBlogId(blogId: string): Promise<number>
 }
-export type PostHDType = HydratedDocument<PostClass, PostMethodsType>
+export type PostDocument = HydratedDocument<Post>
 
-export const PostSchema = new Schema<PostClass, PostModelType, PostMethodsType>({
+const PostSchema = new Schema<Post, IPostModel>({
     _id: {type: Schema.Types.ObjectId, required: true},
     title: {type: String, required: true, maxlength: 30},
     shortDescription: {type: String, required: true, maxlength: 100},
@@ -21,30 +41,28 @@ export const PostSchema = new Schema<PostClass, PostModelType, PostMethodsType>(
     blogName: {type: String, required: true, maxlength: 15},
     createdAt: {type: String, required: true}
 })
-PostSchema.methods.updatePost = function (dto: UpdatePostDTO) {
-    this.title = dto.title
-    this.shortDescription = dto.shortDescription
-    this.content = dto.content
-    this.blogId = dto.blogId
-    this.blogName = dto.blogName
+PostSchema.methods = {
+    updatePost: Post.prototype.updatePost
 }
-PostSchema.statics.isPostExist = async function (_id: string): Promise<boolean> {
-    return !!(await PostModel.findById({_id}))
-}
-PostSchema.statics.findPosts = async function (dto: FindPostsDTO): Promise<PostClass[]> {
-    let {pageNumber, pageSize, sortBy, sortDirection} = dto
+PostSchema.statics = {
+    async isPostExist(_id: string): Promise<boolean> {
+        return !!(await PostModel.findById({_id}))
+    },
+    async findPosts(dto: FindPostsDTO): Promise<Post[]> {
+        let {pageNumber, pageSize, sortBy, sortDirection} = dto
 
-    sortBy = sortBy === 'id' ? '_id' : sortBy
-    const optionsSort: { [key: string]: SortDirection } = {[sortBy]: sortDirection}
+        sortBy = sortBy === 'id' ? '_id' : sortBy
+        const optionsSort: { [key: string]: SortDirection } = {[sortBy]: sortDirection}
 
-    return PostModel.find()
-        .skip((pageNumber - 1) * pageSize)
-        .limit(pageSize)
-        .sort(optionsSort)
-        .lean()
-}
-PostSchema.statics.countPostsByBlogId = async function (blogId: string): Promise<number> {
-    return PostModel.countDocuments().where('blogId').equals(blogId)
+        return PostModel.find()
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .sort(optionsSort)
+            .lean()
+    },
+    async countPostsByBlogId(blogId: string): Promise<number> {
+        return PostModel.countDocuments().where('blogId').equals(blogId)
+    }
 }
 
-export const PostModel = model<PostClass, PostModelType>('posts', PostSchema)
+export const PostModel = model<PostDocument, IPostModel>('posts', PostSchema)

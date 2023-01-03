@@ -1,12 +1,12 @@
-import {PostHDType, PostModel} from "../domain/post.schema";
+import {PostDocument, PostModel} from "../domain/post.schema";
 import {injectable} from "inversify";
 
 @injectable()
 export class PostsRepository{
-    async findPostById (_id: string): Promise<PostHDType | null> {
+    async findPostById (_id: string): Promise<PostDocument | null> {
         return PostModel.findById(_id)
     }
-    async savePost(newPost: PostHDType) {
+    async savePost(newPost: PostDocument) {
         await newPost.save()
     }
     async deletePost(_id: string): Promise<boolean> {

@@ -1,13 +1,40 @@
 import {HydratedDocument, Model, model, Schema} from "mongoose";
-import {CommentClass, LikesInfoClass} from "./types";
 import {LikeStatus} from "../../main/types/enums";
+import {ObjectId} from "mongodb";
 
 interface ICommentMethods {
     updateLikesCount(likeStatus: LikeStatus, oldLikeStatus: LikeStatus): void
     updateComment(content: string): void
 }
+
+export class LikesInfoClass {
+    likesCount: number
+    dislikesCount: number
+    myStatus: LikeStatus
+
+    constructor() {
+        this.likesCount = 0
+        this.dislikesCount = 0
+        this.myStatus = LikeStatus.None
+    }
+}
+
+export class CommentClass {
+    _id: ObjectId
+    createdAt: string
+
+    constructor(public content: string,
+                public userId: string,
+                public userLogin: string,
+                public postId: string,
+                public likesInfo: LikesInfoClass) {
+        this._id = new ObjectId()
+        this.createdAt = new Date().toISOString()
+    }
+}
+
 type CommentModelType = Model<CommentClass, {}, ICommentMethods>
-export type CommentHDType = HydratedDocument<CommentClass, ICommentMethods>
+export type CommentDocument = HydratedDocument<CommentClass, ICommentMethods>
 
 const LikeInfoSchema = new Schema<LikesInfoClass>({
     likesCount: {type: Number, required: true},

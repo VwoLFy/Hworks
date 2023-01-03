@@ -1,18 +1,34 @@
 import {HydratedDocument, Model, model, Schema} from "mongoose";
-import {BlogClass, FindBlogsDTO, UpdateBlogDTO} from "./types";
+import {FindBlogsDTO, UpdateBlogDTO} from "../application/dto";
 import {SortDirection} from "../../main/types/enums";
+import {ObjectId} from "mongodb";
 
-interface IBlogMethods {
-    updateBlog(dto: UpdateBlogDTO): void
+export class Blog {
+    _id: ObjectId
+    createdAt: string
+
+    constructor(public name: string,
+                public description: string,
+                public websiteUrl: string) {
+        this._id = new ObjectId()
+        this.createdAt = new Date().toISOString()
+    }
+
+    updateBlog(dto: UpdateBlogDTO) {
+        this.name = dto.name
+        this.description = dto.description
+        this.websiteUrl = dto.websiteUrl
+    }
 }
-interface BlogModelType extends Model<BlogClass, {}, IBlogMethods> {
-    findBlogs(dto: FindBlogsDTO): Promise<BlogClass[]>
+
+interface IBlogModel extends Model<Blog> {
+    findBlogs(dto: FindBlogsDTO): Promise<Blog[]>
     findBlogNameById(id: string): Promise<string | null>
     countBlogs(searchNameTerm: string): Promise<number>
 }
-export type BlogHDType = HydratedDocument<BlogClass, IBlogMethods>
+export type BlogDocument = HydratedDocument<Blog>
 
-const BlogSchema = new Schema<BlogClass, BlogModelType, IBlogMethods>({
+const BlogSchema = new Schema<Blog, IBlogModel>({
     _id: {type: Schema.Types.ObjectId, required: true},
     name: {type: String, required: true, maxlength: 15},
     description: {type: String, required: true, maxlength: 500},
@@ -22,29 +38,30 @@ const BlogSchema = new Schema<BlogClass, BlogModelType, IBlogMethods>({
     },
     createdAt: {type: String, required: true}
 })
-BlogSchema.methods.updateBlog = function (dto: UpdateBlogDTO) {
-    this.name = dto.name
-    this.description = dto.description
-    this.websiteUrl = dto.websiteUrl
+BlogSchema.methods = {
+    updateBlog: Blog.prototype.updateBlog
 }
-BlogSchema.statics.findBlogs = async function (dto: FindBlogsDTO): Promise<BlogClass[]> {
-    let {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = dto
+BlogSchema.statics = {
+    async findBlogs(dto: FindBlogsDTO): Promise<Blog[]> {
+        let {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = dto
 
-    sortBy = sortBy === 'id' ? '_id' : sortBy
-    const optionsSort: { [key: string]: SortDirection } = {[sortBy]: sortDirection}
+        sortBy = sortBy === 'id' ? '_id' : sortBy
+        const optionsSort: { [key: string]: SortDirection } = {[sortBy]: sortDirection}
 
-    return BlogModel.find()
-        .where('name').regex(RegExp(searchNameTerm, 'i'))
-        .skip((pageNumber - 1) * pageSize)
-        .limit(pageSize)
-        .sort(optionsSort)
-        .lean()
+        return BlogModel.find()
+            .where('name').regex(RegExp(searchNameTerm, 'i'))
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .sort(optionsSort)
+            .lean()
+    },
+    async findBlogNameById(id: string): Promise<string | null> {
+        const foundBlog = await BlogModel.findById({_id: id}).lean()
+        return foundBlog ? foundBlog.name : null
+    },
+    async countBlogs(searchNameTerm: string): Promise<number> {
+        return BlogModel.countDocuments().where('name').regex(new RegExp(searchNameTerm, 'i'))
+    }
 }
-BlogSchema.statics.findBlogNameById = async function (id: string): Promise<string | null> {
-    const foundBlog = await BlogModel.findById({_id: id}).lean()
-    return foundBlog ? foundBlog.name : null
-}
-BlogSchema.statics.countBlogs = async function (searchNameTerm: string): Promise<number> {
-    return BlogModel.countDocuments().where('name').regex(new RegExp(searchNameTerm, 'i'))
-}
-export const BlogModel = model<BlogClass, BlogModelType>('blogs', BlogSchema)
+
+export const BlogModel = model<BlogDocument, IBlogModel>('blogs', BlogSchema)

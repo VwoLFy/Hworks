@@ -1,5 +1,5 @@
-import {FindPostsByBlogIdDTO, FindPostsDTO, PostClass} from "../domain/types";
-import {PostModel} from "../domain/post.schema";
+import {FindPostsByBlogIdDTO, FindPostsDTO} from "../application/dto";
+import {Post, PostModel} from "../domain/post.schema";
 import {injectable} from "inversify";
 
 type PostOutputModelType = {
@@ -58,7 +58,7 @@ export class PostsQueryRepo{
             items
         }
     }
-    postWithReplaceId (object: PostClass ): PostOutputModelType {
+    postWithReplaceId (object: Post ): PostOutputModelType {
         return {
             id: object._id.toString(),
             title: object.title,

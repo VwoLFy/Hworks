@@ -1,5 +1,5 @@
-import {BlogClass, FindBlogsDTO} from "../domain/types";
-import {BlogModel} from "../domain/blog.schema";
+import {FindBlogsDTO} from "../application/dto";
+import {Blog, BlogModel} from "../domain/blog.schema";
 import {injectable} from "inversify";
 
 type BlogOutputModelType = {
@@ -39,7 +39,7 @@ export class BlogsQueryRepo {
 
         return this.blogWithReplaceId(foundBlog)
     }
-    blogWithReplaceId(object: BlogClass): BlogOutputModelType {
+    blogWithReplaceId(object: Blog): BlogOutputModelType {
         return {
             id: object._id.toString(),
             name: object.name,

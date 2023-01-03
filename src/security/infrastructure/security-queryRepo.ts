@@ -1,5 +1,4 @@
-import {SessionClass} from "../domain/types";
-import {SessionModel} from "../domain/session.schema";
+import {SessionClass, SessionModel} from "../domain/session.schema";
 import {injectable} from "inversify";
 
 type DeviceOutputModelType = {

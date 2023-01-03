@@ -1,7 +1,7 @@
 import {BlogsRepository} from "../infrastructure/blogs-repository";
 import {PostsRepository} from "../../posts/infrastructure/posts-repository";
-import {BlogClass, CreateBlogDTO, UpdateBlogDTO} from "../domain/types";
-import {BlogModel, BlogHDType} from "../domain/blog.schema";
+import {CreateBlogDTO, UpdateBlogDTO} from "./dto";
+import {BlogModel, BlogDocument, Blog} from "../domain/blog.schema";
 import {inject, injectable} from "inversify";
 
 @injectable()
@@ -10,14 +10,14 @@ export class BlogsService {
                 @inject(PostsRepository) protected postsRepository: PostsRepository) {}
 
     async createBlog(dto: CreateBlogDTO): Promise<string> {
-        const newBlog = new BlogClass(dto.name, dto.description, dto.websiteUrl)
+        const newBlog = new Blog(dto.name, dto.description, dto.websiteUrl)
 
         const blog = new BlogModel(newBlog)
         await this.blogsRepository.saveBlog(blog)
         return blog.id
     }
     async updateBlog(id: string, dto: UpdateBlogDTO): Promise<boolean> {
-        const blog: BlogHDType | null = await this.blogsRepository.findBlogById(id)
+        const blog: BlogDocument | null = await this.blogsRepository.findBlogById(id)
         if (!blog) return false
 
         blog.updateBlog(dto)

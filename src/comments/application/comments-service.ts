@@ -1,18 +1,15 @@
 import {UsersRepository} from "../../users/infrastructure/users-repository";
 import {CommentsRepository} from "../infrastructure/comments-repository";
 import {
-    CommentClass,
     CreateCommentDTO,
-    LikeClass,
     LikeCommentDTO,
-    LikesInfoClass,
     UpdateCommentDTO
-} from "../domain/types";
+} from "./dto";
 import {PostModel} from "../../posts/domain/post.schema";
 import {inject, injectable} from "inversify";
-import {CommentModel} from "../domain/comment.schema";
+import {CommentClass, CommentModel, LikesInfoClass} from "../domain/comment.schema";
 import {LikeStatus} from "../../main/types/enums";
-import {LikeHDType, LikeModel} from "../domain/like.schema";
+import {LikeClass, LikeDocument, LikeModel} from "../domain/like.schema";
 
 @injectable()
 export class CommentsService {
@@ -51,7 +48,7 @@ export class CommentsService {
         if (!foundComment) return false
 
         let oldLikeStatus: LikeStatus
-        let like: LikeHDType
+        let like: LikeDocument
         const foundLike = await this.commentsRepository.findLikeStatus(commentId, userId)
 
         if (foundLike) {

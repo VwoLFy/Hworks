@@ -1,11 +1,26 @@
 import {HydratedDocument, Model, model, Schema} from "mongoose";
-import {SessionClass, SessionDTO} from "./types";
+import {SessionDTO} from "../application/dto";
+import {ObjectId} from "mongodb";
 
 interface ISessionMethods {
     updateSessionData(dto: SessionDTO): void
 }
+
+export class SessionClass {
+    _id: ObjectId
+
+    constructor(public userId: string,
+                public exp: number,
+                public ip: string,
+                public title: string,
+                public iat: number,
+                public deviceId: string) {
+        this._id = new ObjectId()
+    }
+}
+
 interface ISessionModel extends Model<SessionClass, {}, ISessionMethods> {}
-export type SessionHDType = HydratedDocument<SessionClass, ISessionMethods>
+export type SessionDocument = HydratedDocument<SessionClass, ISessionMethods>
 
 const SessionSchema = new Schema<SessionClass, ISessionModel, ISessionMethods>({
     _id: {type: Schema.Types.ObjectId, required: true},
