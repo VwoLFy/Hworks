@@ -1,4 +1,4 @@
-import {BlogModel, BlogHDType} from "../types/mongoose-schemas-models";
+import {BlogModel, BlogHDType} from "../domain/blog.schema";
 import {injectable} from "inversify";
 
 @injectable()

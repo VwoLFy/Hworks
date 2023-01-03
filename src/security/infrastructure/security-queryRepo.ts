@@ -1,5 +1,5 @@
-import {SessionClass} from "../types/types";
-import {SessionModel} from "../types/mongoose-schemas-models";
+import {SessionClass} from "../domain/types";
+import {SessionModel} from "../domain/session.schema";
 import {injectable} from "inversify";
 
 type DeviceOutputModelType = {

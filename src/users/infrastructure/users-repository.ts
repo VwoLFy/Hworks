@@ -1,5 +1,5 @@
 import {ObjectId} from "mongodb";
-import {UserHDType, UserModel} from "../types/mongoose-schemas-models";
+import {UserHDType, UserModel} from "../domain/user.schema";
 import {injectable} from "inversify";
 
 @injectable()

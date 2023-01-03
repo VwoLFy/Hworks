@@ -1,7 +1,7 @@
 import {BlogsQueryRepo} from "../infrastructure/blogs-queryRepo";
-import {BlogsService} from "../domain/blogs-service";
+import {BlogsService} from "../application/blogs-service";
 import {PostsQueryRepo} from "../../posts/infrastructure/posts-queryRepo";
-import {PostsService} from "../../posts/domain/posts-service";
+import {PostsService} from "../../posts/application/posts-service";
 import {
     RequestWithBody,
     RequestWithParam,

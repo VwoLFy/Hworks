@@ -1,5 +1,5 @@
 import {CommentsQueryRepo} from "../infrastructure/comments-queryRepo";
-import {CommentsService} from "../domain/comments-service";
+import {CommentsService} from "../application/comments-service";
 import {RequestWithParam, RequestWithParamAndBody} from "../../main/types/types";
 import {Response} from "express";
 import {CommentViewModel} from "./models/CommentViewModel";

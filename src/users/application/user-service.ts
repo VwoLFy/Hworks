@@ -1,9 +1,9 @@
 import {UsersRepository} from "../infrastructure/users-repository";
 import bcrypt from "bcrypt"
 import {ObjectId} from "mongodb";
-import {CreateUserDTO, EmailConfirmationClass, UserAccountClass, UserClass} from "../types/types";
+import {CreateUserDTO, EmailConfirmationClass, UserAccountClass, UserClass} from "../domain/types";
 import {inject, injectable} from "inversify";
-import {UserModel} from "../types/mongoose-schemas-models";
+import {UserModel} from "../domain/user.schema";
 
 @injectable()
 export class UsersService {

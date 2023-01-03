@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
 import {settings} from "../../main/settings";
-import {SecurityService} from "../../security/domain/security-service";
+import {SecurityService} from "../../security/application/security-service";
 import {inject, injectable} from "inversify";
 
 type AccessTokenDataType = { userId: string }

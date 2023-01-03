@@ -1,5 +1,5 @@
-import {FindPostsByBlogIdDTO, FindPostsDTO, PostClass} from "../types/types";
-import {PostModel} from "../types/mongoose-schemas-models";
+import {FindPostsByBlogIdDTO, FindPostsDTO, PostClass} from "../domain/types";
+import {PostModel} from "../domain/post.schema";
 import {injectable} from "inversify";
 
 type PostOutputModelType = {

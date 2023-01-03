@@ -1,7 +1,7 @@
 import {PostsRepository} from "../infrastructure/posts-repository";
-import {CreatePostDTO, PostClass, UpdatePostDTO} from "../types/types";
-import {BlogModel} from "../../blogs/types/mongoose-schemas-models";
-import {PostHDType, PostModel} from "../types/mongoose-schemas-models";
+import {CreatePostDTO, PostClass, UpdatePostDTO} from "../domain/types";
+import {BlogModel} from "../../blogs/domain/blog.schema";
+import {PostHDType, PostModel} from "../domain/post.schema";
 import {inject, injectable} from "inversify";
 import {CommentsRepository} from "../../comments/infrastructure/comments-repository";
 

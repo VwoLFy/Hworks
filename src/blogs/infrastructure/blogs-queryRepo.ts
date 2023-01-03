@@ -1,5 +1,5 @@
-import {BlogClass, FindBlogsDTO} from "../types/types";
-import {BlogModel} from "../types/mongoose-schemas-models";
+import {BlogClass, FindBlogsDTO} from "../domain/types";
+import {BlogModel} from "../domain/blog.schema";
 import {injectable} from "inversify";
 
 type BlogOutputModelType = {

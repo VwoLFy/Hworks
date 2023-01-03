@@ -1,6 +1,7 @@
-import {CommentHDType, CommentModel, LikeHDType, LikeModel} from "../types/mongoose-schemas-models";
+import {CommentHDType, CommentModel} from "../domain/comment.schema";
 import {injectable} from "inversify";
 import {ObjectId} from "mongodb";
+import {LikeHDType, LikeModel} from "../domain/like.schema";
 
 @injectable()
 export class CommentsRepository {

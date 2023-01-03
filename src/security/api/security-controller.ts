@@ -1,5 +1,5 @@
 import {SecurityQueryRepo} from "../infrastructure/security-queryRepo";
-import {SecurityService} from "../domain/security-service";
+import {SecurityService} from "../application/security-service";
 import {Request, Response} from "express";
 import {DeviceViewModel} from "./models/DeviceViewModel";
 import {HTTP_Status} from "../../main/types/enums";

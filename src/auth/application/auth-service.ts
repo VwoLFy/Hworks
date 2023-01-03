@@ -1,13 +1,13 @@
 import {UsersRepository} from "../../users/infrastructure/users-repository";
 import bcrypt from "bcrypt";
-import {EmailManager} from "../application/email-manager";
-import {JwtService} from "../application/jwt-service";
-import {SecurityService} from "../../security/domain/security-service";
-import {PasswordRecoveryClass} from "../types/types";
-import {CreateUserDTO, EmailConfirmationClass, UserAccountClass, UserClass} from "../../users/types/types";
-import {PasswordRecoveryModel} from "../types/mongoose-schemas-models";
+import {EmailManager} from "./email-manager";
+import {JwtService} from "./jwt-service";
+import {SecurityService} from "../../security/application/security-service";
+import {PasswordRecoveryClass} from "../domain/types";
+import {CreateUserDTO, EmailConfirmationClass, UserAccountClass, UserClass} from "../../users/domain/types";
+import {PasswordRecoveryModel} from "../domain/passwordrecovery.schema";
 import {inject, injectable} from "inversify";
-import {UserModel} from "../../users/types/mongoose-schemas-models";
+import {UserModel} from "../../users/domain/user.schema";
 
 @injectable()
 export class AuthService{

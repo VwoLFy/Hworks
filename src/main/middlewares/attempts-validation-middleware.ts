@@ -1,6 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import {HTTP_Status} from "../types/enums";
-import {AttemptsDataModel} from "../types/mongoose-schemas-models";
+import {AttemptsDataModel} from "../types/attemptsdata.schema";
 
 export const attemptsValidationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     await AttemptsDataModel.addAttemptToList(req.ip, req.url)

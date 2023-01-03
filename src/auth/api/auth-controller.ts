@@ -1,4 +1,4 @@
-import {AuthService} from "../domain/auth-service";
+import {AuthService} from "../application/auth-service";
 import {JwtService} from "../application/jwt-service";
 import {UsersQueryRepo} from "../../users/infrastructure/users-queryRepo";
 import {RequestWithBody} from "../../main/types/types";

@@ -7,11 +7,12 @@ import {
     LikeCommentDTO,
     LikesInfoClass,
     UpdateCommentDTO
-} from "../types/types";
-import {PostModel} from "../../posts/types/mongoose-schemas-models";
+} from "../domain/types";
+import {PostModel} from "../../posts/domain/post.schema";
 import {inject, injectable} from "inversify";
-import {CommentModel, LikeHDType, LikeModel} from "../types/mongoose-schemas-models";
+import {CommentModel} from "../domain/comment.schema";
 import {LikeStatus} from "../../main/types/enums";
+import {LikeHDType, LikeModel} from "../domain/like.schema";
 
 @injectable()
 export class CommentsService {

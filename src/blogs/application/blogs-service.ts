@@ -1,7 +1,7 @@
 import {BlogsRepository} from "../infrastructure/blogs-repository";
 import {PostsRepository} from "../../posts/infrastructure/posts-repository";
-import {BlogClass, CreateBlogDTO, UpdateBlogDTO} from "../types/types";
-import {BlogModel, BlogHDType} from "../types/mongoose-schemas-models";
+import {BlogClass, CreateBlogDTO, UpdateBlogDTO} from "../domain/types";
+import {BlogModel, BlogHDType} from "../domain/blog.schema";
 import {inject, injectable} from "inversify";
 
 @injectable()

@@ -1,7 +1,8 @@
 import {LikeStatus} from "../../main/types/enums";
-import {CommentClass, FindCommentsDTO} from "../types/types";
-import {CommentModel, LikeModel} from "../types/mongoose-schemas-models";
+import {CommentClass, FindCommentsDTO} from "../domain/types";
+import {CommentModel} from "../domain/comment.schema";
 import {injectable} from "inversify";
+import {LikeModel} from "../domain/like.schema";
 
 type LikesInfoOutputModelType = {
     likesCount: number

@@ -1,4 +1,4 @@
-import {PostHDType, PostModel} from "../types/mongoose-schemas-models";
+import {PostHDType, PostModel} from "../domain/post.schema";
 import {injectable} from "inversify";
 
 @injectable()

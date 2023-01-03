@@ -1,7 +1,7 @@
 import {SecurityRepository} from "../infrastructure/security-repository";
-import {SessionClass, SessionDTO, ShortSessionDTO} from "../types/types";
+import {SessionClass, SessionDTO, ShortSessionDTO} from "../domain/types";
 import {inject, injectable} from "inversify";
-import {SessionModel} from "../types/mongoose-schemas-models";
+import {SessionModel} from "../domain/session.schema";
 
 @injectable()
 export class SecurityService {

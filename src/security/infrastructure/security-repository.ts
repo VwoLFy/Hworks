@@ -1,4 +1,4 @@
-import {SessionHDType, SessionModel} from "../types/mongoose-schemas-models";
+import {SessionHDType, SessionModel} from "../domain/session.schema";
 import {injectable} from "inversify";
 
 @injectable()

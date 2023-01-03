@@ -1,5 +1,5 @@
-import {FindUsersDTO, UserClass} from "../types/types";
-import {UserModel} from "../types/mongoose-schemas-models";
+import {FindUsersDTO, UserClass} from "../domain/types";
+import {UserModel} from "../domain/user.schema";
 import {injectable} from "inversify";
 
 type UserOutputModelType = {
