@@ -24,7 +24,6 @@ export class Blog {
 
 interface IBlogModel extends Model<Blog> {
     findBlogs(dto: FindBlogsQueryModel): Promise<Blog[]>
-    findBlogNameById(id: string): Promise<string | null>
     countBlogs(searchNameTerm: string): Promise<number>
 }
 export type BlogDocument = HydratedDocument<Blog>
@@ -55,10 +54,6 @@ BlogSchema.statics = {
             .limit(pageSize)
             .sort(optionsSort)
             .lean()
-    },
-    async findBlogNameById(id: string): Promise<string | null> {
-        const foundBlog = await BlogModel.findById({_id: id}).lean()
-        return foundBlog ? foundBlog.name : null
     },
     async countBlogs(searchNameTerm: string): Promise<number> {
         return BlogModel.countDocuments().where('name').regex(new RegExp(searchNameTerm, 'i'))

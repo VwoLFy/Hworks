@@ -7,14 +7,14 @@ import {commentsRouter} from "../comments/api/comments-router";
 import {HTTP_Status} from "./types/enums";
 import cookieParser from "cookie-parser";
 import {securityRouter} from "../security/api/security-router";
-import {AttemptsDataModel} from "./types/attemptsdata.schema";
 import {container} from "./composition-root";
-import {PasswordRecoveryModel} from "../auth/domain/passwordrecovery.schema";
 import {BlogsService} from "../blogs/application/blogs-service";
 import {PostsService} from "../posts/application/posts-service";
 import {UsersService} from "../users/application/user-service";
 import {CommentsService} from "../comments/application/comments-service";
 import {SecurityService} from "../security/application/security-service";
+import {AttemptsService} from "../auth/application/attempts-service";
+import {PasswordRecoveryRepository} from "../auth/infrastructure/password-recovery-repository";
 
 export const app = express();
 const bodyMiddle = express.json();
@@ -35,7 +35,7 @@ app.delete('/testing/all-data', async (req: Request, res: Response) => {
     await container.resolve(UsersService).deleteAll();
     await container.resolve(CommentsService).deleteAll();
     await container.resolve(SecurityService).deleteAll();
-    await PasswordRecoveryModel.deleteMany();
-    await AttemptsDataModel.deleteMany();
+    await container.resolve(PasswordRecoveryRepository).deleteAll();
+    await container.resolve(AttemptsService).deleteAll();
     res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })

@@ -5,7 +5,8 @@ import {inputValidationMiddleware} from "./input-validation-middleware";
 import {SortDirection} from "../types/enums";
 import {UsersRepository} from "../../users/infrastructure/users-repository";
 import {attemptsValidationMiddleware} from "./attempts-validation-middleware";
-import {PasswordRecoveryModel} from "../../auth/domain/passwordrecovery.schema";
+import {container} from "../composition-root";
+import {PasswordRecoveryRepository} from "../../auth/infrastructure/password-recovery-repository";
 
 //user
 const userQueryValidation = [
@@ -72,7 +73,7 @@ const authEmailPasswordRecoveryValidation = body("email", "'email' must be a ema
 const authNewPasswordValidation = body("newPassword", "'newPassword' must be a string")
     .isString().trim().isLength({min: 6, max: 20})
 const recoveryCodeValid: CustomValidator = async (value) => {
-    const passwordRecovery = await PasswordRecoveryModel.findPassRecovery(value)
+    const passwordRecovery = await container.resolve(PasswordRecoveryRepository).findPassRecovery(value)
     if (!passwordRecovery) throw new Error()
     return true
 }

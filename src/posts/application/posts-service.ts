@@ -1,32 +1,33 @@
 import {PostsRepository} from "../infrastructure/posts-repository";
 import {UpdatePostDto} from "./dto/UpdatePostDto";
-import {BlogModel} from "../../blogs/domain/blog.schema";
-import {Post, PostDocument, PostModel} from "../domain/post.schema";
+import {Post, PostModel} from "../domain/post.schema";
 import {inject, injectable} from "inversify";
 import {CommentsRepository} from "../../comments/infrastructure/comments-repository";
 import {CreatePostDto} from "./dto/CreatePostDto";
+import {BlogsRepository} from "../../blogs/infrastructure/blogs-repository";
 
 @injectable()
 export class PostsService{
     constructor(@inject(PostsRepository) protected postsRepository: PostsRepository,
+                @inject(BlogsRepository) protected blogsRepository: BlogsRepository,
                 @inject(CommentsRepository) protected commentsRepository: CommentsRepository) {}
 
     async createPost(dto: CreatePostDto): Promise<string | null> {
         const {title, shortDescription, content, blogId} = dto
-        const foundBlogName: string | null = await BlogModel.findBlogNameById(blogId)
+        const foundBlogName = await this.blogsRepository.findBlogNameById(blogId)
         if (!foundBlogName) return null
 
         const newPost = new Post(title, shortDescription, content, blogId, foundBlogName)
 
-        const post: PostDocument = new PostModel(newPost)
+        const post = new PostModel(newPost)
         await this.postsRepository.savePost(post)
         return post.id
     }
     async updatePost(id: string, dto: UpdatePostDto): Promise<boolean> {
-        const foundBlogName: string | null = await BlogModel.findBlogNameById(dto.blogId)
+        const foundBlogName = await this.blogsRepository.findBlogNameById(dto.blogId)
         if (!foundBlogName) return false
 
-        const post: PostDocument | null = await this.postsRepository.findPostById(id)
+        const post = await this.postsRepository.findPostById(id)
         if (!post) return false
 
         post.updatePost(dto, foundBlogName)

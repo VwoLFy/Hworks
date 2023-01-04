@@ -1,7 +1,7 @@
 import {BlogsRepository} from "../infrastructure/blogs-repository";
 import {PostsRepository} from "../../posts/infrastructure/posts-repository";
 import {UpdateBlogDto} from "./dto/UpdateBlogDto";
-import {BlogModel, BlogDocument, Blog} from "../domain/blog.schema";
+import {BlogModel, Blog} from "../domain/blog.schema";
 import {inject, injectable} from "inversify";
 import {CreateBlogDto} from "./dto/CreateBlogDto";
 
@@ -18,7 +18,7 @@ export class BlogsService {
         return blog.id
     }
     async updateBlog(id: string, dto: UpdateBlogDto): Promise<boolean> {
-        const blog: BlogDocument | null = await this.blogsRepository.findBlogById(id)
+        const blog = await this.blogsRepository.findBlogById(id)
         if (!blog) return false
 
         blog.updateBlog(dto)

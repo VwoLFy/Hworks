@@ -1,4 +1,4 @@
-import {settings} from "../settings";
+import {settings} from "./settings";
 import mongoose from "mongoose";
 
 const mongoUri = process.env.NODE_ENV === "test" ? settings.MONGO_URI_LOC : settings.MONGO_URI;

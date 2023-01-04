@@ -25,6 +25,9 @@ import {BlogsService} from "../blogs/application/blogs-service";
 import {BlogsController} from "../blogs/api/blogs-controller";
 import {EmailAdapter} from "../auth/infrastructure/email-adapter";
 import {Container} from "inversify";
+import {AttemptsRepository} from "../auth/infrastructure/attempts-repository";
+import {AttemptsService} from "../auth/application/attempts-service";
+import {PasswordRecoveryRepository} from "../auth/infrastructure/password-recovery-repository";
 
 export const container = new Container();
 
@@ -58,3 +61,8 @@ container.bind(SecurityController).to(SecurityController);
 container.bind(SecurityQueryRepo).to(SecurityQueryRepo);
 container.bind(SecurityService).to(SecurityService);
 container.bind(SecurityRepository).to(SecurityRepository);
+
+container.bind(AttemptsRepository).to(AttemptsRepository);
+container.bind(AttemptsService).to(AttemptsService);
+
+container.bind(PasswordRecoveryRepository).to(PasswordRecoveryRepository);

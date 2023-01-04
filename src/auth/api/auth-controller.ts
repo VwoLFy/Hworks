@@ -2,7 +2,7 @@ import {AuthService} from "../application/auth-service";
 import {JwtService} from "../application/jwt-service";
 import {UsersQueryRepo} from "../../users/infrastructure/users-queryRepo";
 import {RequestWithBody} from "../../main/types/types";
-import {LoginUserDto} from "../application/dto/LoginUserDto";
+import {CredentialsDto} from "../application/dto/CredentialsDto";
 import {Request, Response} from "express";
 import {LoginSuccessViewModel} from "./models/LoginSuccessViewModel";
 import {HTTP_Status} from "../../main/types/enums";
@@ -21,7 +21,7 @@ export class AuthController {
                 @inject(UsersQueryRepo)  protected usersQueryRepo: UsersQueryRepo) {
     }
 
-    async loginUser(req: RequestWithBody<LoginUserDto>, res: Response<LoginSuccessViewModel>) {
+    async loginUser(req: RequestWithBody<CredentialsDto>, res: Response<LoginSuccessViewModel>) {
         const ip = req.ip
         const title = req.headers["user-agent"] || 'unknown'
 

@@ -27,7 +27,6 @@ export class Post {
 }
 
 interface IPostModel extends Model<Post> {
-    isPostExist(_id: string): Promise<boolean>
     findPosts(dto: FindPostsQueryModel): Promise<Post[]>
     countPostsByBlogId(blogId: string): Promise<number>
 }
@@ -46,9 +45,6 @@ PostSchema.methods = {
     updatePost: Post.prototype.updatePost
 }
 PostSchema.statics = {
-    async isPostExist(_id: string): Promise<boolean> {
-        return !!(await PostModel.findById({_id}))
-    },
     async findPosts(dto: FindPostsQueryModel): Promise<Post[]> {
         let {pageNumber, pageSize, sortBy, sortDirection} = dto
 

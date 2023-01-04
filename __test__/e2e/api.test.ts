@@ -9,7 +9,7 @@ import {app} from "../../src/main/app";
 import {HTTP_Status} from "../../src/main/types/enums";
 import {DeviceViewModel} from "../../src/security/api/models/DeviceViewModel";
 import mongoose from "mongoose";
-import {runDb} from "../../src/main/repositories/db";
+import {runDb} from "../../src/main/db";
 
 const checkError = (apiErrorResult: ErrorResultType, field: string) => {
     expect(apiErrorResult).toEqual({

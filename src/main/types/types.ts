@@ -1,5 +1,8 @@
 import {Request} from "express";
-import {URIParamsModel} from "../models/URIParamsModel";
+
+type URIParamsModel = {
+    id: string
+}
 
 export type RequestWithParam = Request<URIParamsModel>
 export type RequestWithBody<B> = Request<{}, {}, B>

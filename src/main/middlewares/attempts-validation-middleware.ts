@@ -1,10 +1,19 @@
 import {NextFunction, Request, Response} from "express";
 import {HTTP_Status} from "../types/enums";
-import {AttemptsDataModel} from "../types/attemptsdata.schema";
+import {container} from "../composition-root";
+import {AttemptsService} from "../../auth/application/attempts-service";
+import {AttemptsDataDto} from "../../auth/application/dto/AttemptsDataDto";
 
 export const attemptsValidationMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-    await AttemptsDataModel.addAttemptToList(req.ip, req.url)
-    const countAttempts = await AttemptsDataModel.findAttempts(req.ip, req.url)
+    const attemptsService = container.resolve(AttemptsService)
+    const dto: AttemptsDataDto = {
+        ip: req.ip,
+        url: req.url
+    }
+
+    await attemptsService.addAttemptToList(dto)
+
+    const countAttempts = await attemptsService.findAttempts(dto)
     if (countAttempts > 5) {
         res.sendStatus(HTTP_Status.TOO_MANY_REQUESTS_429)
         return

@@ -9,7 +9,9 @@ import {EmailConfirmation, UserAccount, User, UserModel} from "../domain/user.sc
 export class UsersService {
     constructor(@inject(UsersRepository) protected usersRepository: UsersRepository) {}
 
-    async createUser({login, password, email}: CreateUserDto): Promise<string | null> {
+    async createUser(dto: CreateUserDto): Promise<string | null> {
+        const {login, password, email} = dto
+
         const isFreeLoginAndEmail: boolean = await this.usersRepository.isFreeLoginAndEmail(login, email)
         if (!isFreeLoginAndEmail) return null
 

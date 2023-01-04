@@ -1,5 +1,5 @@
 //LoginInputModel
-export type LoginUserDto = {
+export type CredentialsDto = {
     loginOrEmail: string
     password: string
 }
