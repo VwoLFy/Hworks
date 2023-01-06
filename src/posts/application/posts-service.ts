@@ -14,6 +14,7 @@ export class PostsService{
 
     async createPost(dto: CreatePostDto): Promise<string | null> {
         const {title, shortDescription, content, blogId} = dto
+
         const foundBlogName = await this.blogsRepository.findBlogNameById(blogId)
         if (!foundBlogName) return null
 

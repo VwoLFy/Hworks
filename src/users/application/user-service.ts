@@ -3,7 +3,7 @@ import bcrypt from "bcrypt"
 import {ObjectId} from "mongodb";
 import {CreateUserDto} from "./dto/CreateUserDto";
 import {inject, injectable} from "inversify";
-import {EmailConfirmation, UserAccount, User, UserModel} from "../domain/user.schema";
+import {User, UserModel} from "../domain/user.schema";
 
 @injectable()
 export class UsersService {
@@ -17,10 +17,7 @@ export class UsersService {
 
         const passwordHash = await this.getPasswordHash(password)
 
-        const newUserAccount = new UserAccount(login, passwordHash, email)
-        const newEmailConfirmation = new EmailConfirmation(true)
-        const newUser = new User(newUserAccount, newEmailConfirmation)
-
+        const newUser = new User(login, passwordHash, email, true)
         const user = new UserModel(newUser)
         await this.usersRepository.saveUser(user)
         return user.id

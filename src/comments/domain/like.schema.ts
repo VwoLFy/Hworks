@@ -15,6 +15,7 @@ export class Like {
 }
 
 export type LikeDocument = HydratedDocument<Like>
+
 const LikeSchema = new Schema<Like>({
     createdAt: {type: Date, required: true},
     commentId: {type: String, required: true},

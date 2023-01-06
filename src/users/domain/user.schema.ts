@@ -23,11 +23,17 @@ export class EmailConfirmation {
 }
 
 export class User {
-    _id: ObjectId
+    public _id: ObjectId
+    public accountData: UserAccount
+    public emailConfirmation: EmailConfirmation
 
-    constructor(public accountData: UserAccount,
-                public emailConfirmation: EmailConfirmation) {
+    constructor(public login: string,
+                public passwordHash: string,
+                public email: string,
+                public isConfirmed: boolean) {
         this._id = new ObjectId()
+        this.accountData = new UserAccount(login, passwordHash, email)
+        this.emailConfirmation = new EmailConfirmation(isConfirmed)
     }
 
     confirmUser() {

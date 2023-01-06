@@ -10,6 +10,7 @@ export class SecurityService {
 
     async saveSession(dto: SessionDto): Promise<void> {
         const {userId, exp, ip, title, iat, deviceId} = dto
+
         const newSession = new Session(userId, exp, ip, title, iat, deviceId)
         const session = new SessionModel(newSession)
         await this.securityRepository.saveSession(session)
