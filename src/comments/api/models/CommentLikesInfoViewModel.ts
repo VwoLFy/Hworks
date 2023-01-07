@@ -1,6 +1,6 @@
 import {LikeStatus} from "../../../main/types/enums";
 
-export type LikesInfoViewModel = {
+export type CommentLikesInfoViewModel = {
     likesCount: number
     dislikesCount: number
     myStatus: LikeStatus

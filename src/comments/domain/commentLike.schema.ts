@@ -1,29 +1,29 @@
 import {HydratedDocument, model, Schema} from "mongoose";
 import {LikeStatus} from "../../main/types/enums";
 
-export class Like {
-    createdAt: Date
+export class CommentLike {
+    addedAt: Date
 
     constructor(public commentId: string,
                 public userId: string,
                 public likeStatus: LikeStatus) {
-        this.createdAt = new Date()
+        this.addedAt = new Date()
     }
     updateLikeStatus(likeStatus: LikeStatus): void {
         this.likeStatus = likeStatus
     }
 }
 
-export type LikeDocument = HydratedDocument<Like>
+export type CommentLikeDocument = HydratedDocument<CommentLike>
 
-const LikeSchema = new Schema<Like>({
-    createdAt: {type: Date, required: true},
+const CommentLikeSchema = new Schema<CommentLike>({
+    addedAt: {type: Date, required: true},
     commentId: {type: String, required: true},
     userId: {type: String, required: true},
     likeStatus: {type: String, required: true},
 })
-LikeSchema.methods = {
-    updateLikeStatus: Like.prototype.updateLikeStatus
+CommentLikeSchema.methods = {
+    updateLikeStatus: CommentLike.prototype.updateLikeStatus
 }
 
-export const LikeModel = model<LikeDocument>('likes', LikeSchema)
+export const CommentLikeModel = model<CommentLikeDocument>('comment_likes', CommentLikeSchema)

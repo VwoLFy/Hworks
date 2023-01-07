@@ -4,6 +4,7 @@ import {inputValidationMiddleware} from "./input-validation-middleware";
 import {checkIdValidForMongodb} from "./check-id-valid-for-mongodb";
 import {SortDirection} from "../types/enums";
 import {postContentValidation, postShortDescriptionValidation, postTitleValidation} from "./post-validators";
+import {getUserIdAuthMiddleware} from "./get-user-id-auth-middleware";
 
 const blogNameValidation = body('name', "'name' must be a string in range from 1 to 15 symbols")
     .isString().trim().isLength({min: 1, max: 15});
@@ -37,10 +38,12 @@ const blogQueryValidation = [
 export const getBlogsValidation = blogQueryValidation
 export const getBlogValidation = checkIdValidForMongodb
 export const getPostsByBlogIdValidation = [
+    getUserIdAuthMiddleware,
     checkIdValidForMongodb,
     ...blogQueryValidation
 ]
 export const createPostsByBlogIdValidation = [
+    getUserIdAuthMiddleware,
     checkAuthorizationMiddleware,
     postTitleValidation,
     postShortDescriptionValidation,

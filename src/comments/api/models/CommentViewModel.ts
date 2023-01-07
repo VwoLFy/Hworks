@@ -1,4 +1,4 @@
-import {LikesInfoViewModel} from "./LikesInfoViewModel";
+import {CommentLikesInfoViewModel} from "./CommentLikesInfoViewModel";
 
 export type CommentViewModel = {
     id: string
@@ -6,5 +6,5 @@ export type CommentViewModel = {
     userId: string
     userLogin: string
     createdAt: string
-    likesInfo: LikesInfoViewModel
+    likesInfo: CommentLikesInfoViewModel
 }

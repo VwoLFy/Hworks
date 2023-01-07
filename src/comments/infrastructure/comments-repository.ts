@@ -1,7 +1,7 @@
 import {CommentDocument, CommentModel} from "../domain/comment.schema";
 import {injectable} from "inversify";
 import {ObjectId} from "mongodb";
-import {LikeDocument, LikeModel} from "../domain/like.schema";
+import {CommentLikeDocument, CommentLikeModel} from "../domain/commentLike.schema";
 
 @injectable()
 export class CommentsRepository {
@@ -11,10 +11,10 @@ export class CommentsRepository {
     async saveComment(comment: CommentDocument): Promise<void> {
         await comment.save()
     }
-    async findLikeStatus(commentId: string, userId: string): Promise<LikeDocument | null> {
-        return LikeModel.findOne({commentId, userId})
+    async findLikeStatus(commentId: string, userId: string): Promise<CommentLikeDocument | null> {
+        return CommentLikeModel.findOne({commentId, userId})
     }
-    async saveLike(like: LikeDocument): Promise<void> {
+    async saveLike(like: CommentLikeDocument): Promise<void> {
         await like.save()
     }
     async deleteAllCommentsOfPost(postId: string): Promise<boolean> {
@@ -22,19 +22,19 @@ export class CommentsRepository {
         return result.deletedCount !== 0
     }
     async deleteLike(_id: ObjectId): Promise<void> {
-        await LikeModel.deleteOne({_id})
+        await CommentLikeModel.deleteOne({_id})
     }
     async deleteComment(_id: ObjectId): Promise<number | null> {
         const result = await CommentModel.deleteOne({_id})
         if (!result.deletedCount) {
             return null
         } else {
-            await LikeModel.deleteMany({commentId: _id})
+            await CommentLikeModel.deleteMany({commentId: _id})
             return 204
         }
     }
     async deleteAll() {
         await CommentModel.deleteMany()
-        await LikeModel.deleteMany()
+        await CommentLikeModel.deleteMany()
     }
 }

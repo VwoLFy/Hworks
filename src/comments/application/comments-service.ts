@@ -49,7 +49,9 @@ export class CommentsService {
         const foundComment = await this.commentsRepository.findComment(commentId)
         if (!foundComment) return false
 
-        const like = await foundComment.setLikeStatus(userId, likeStatus)
+        const foundLike = await this.commentsRepository.findLikeStatus(commentId, userId)
+
+        const like = foundComment.setLikeStatus(foundLike, userId, likeStatus)
         await this.commentsRepository.saveComment(foundComment)
 
         if (likeStatus === LikeStatus.None) {

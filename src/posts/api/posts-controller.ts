@@ -21,6 +21,7 @@ import {inject, injectable} from "inversify";
 import {CreatePostDto} from "../application/dto/CreatePostDto";
 import {UpdatePostDto} from "../application/dto/UpdatePostDto";
 import {FindCommentsQueryModel} from "./models/FindCommentsQueryModel";
+import {PostLikeInputModel} from "./models/PostLikeInputModel";
 
 @injectable()
 export class PostController {
@@ -31,16 +32,18 @@ export class PostController {
     }
 
     async getPosts(req: RequestWithQuery<FindPostsQueryModel>, res: Response<PostsViewModelPage>) {
+        const userId = req.userId ? req.userId : null
         res.json(await this.postsQueryRepo.findPosts({
             pageNumber: req.query.pageNumber,
             pageSize: req.query.pageSize,
             sortBy: req.query.sortBy,
             sortDirection: req.query.sortDirection
-        }))
+        }, userId))
     }
 
     async getPost(req: RequestWithParam, res: Response<PostViewModel>) {
-        const foundPost = await this.postsQueryRepo.findPostById(req.params.id)
+        const userId = req.userId ? req.userId : null
+        const foundPost = await this.postsQueryRepo.findPostById(req.params.id, userId)
         if (!foundPost) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
@@ -58,7 +61,7 @@ export class PostController {
         if (!createdPostId) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
-            const createdPost = await this.postsQueryRepo.findPostById(createdPostId)
+            const createdPost = await this.postsQueryRepo.findPostById(createdPostId, req.userId)
             if (createdPost) res.status(HTTP_Status.CREATED_201).json(createdPost)
         }
     }
@@ -71,6 +74,19 @@ export class PostController {
             blogId: req.body.blogId
         })
         if (!isUpdatedPost) {
+            res.sendStatus(HTTP_Status.NOT_FOUND_404)
+        } else {
+            res.sendStatus(HTTP_Status.NO_CONTENT_204)
+        }
+    }
+
+    async likePost(req: RequestWithParamAndBody<PostLikeInputModel>, res: Response) {
+        const result = await this.postsService.likePost({
+            postId: req.params.id,
+            userId: req.userId,
+            likeStatus: req.body.likeStatus
+        })
+        if (!result) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
             res.sendStatus(HTTP_Status.NO_CONTENT_204)

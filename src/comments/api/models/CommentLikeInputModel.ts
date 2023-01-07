@@ -1,5 +1,5 @@
 import {LikeStatus} from "../../../main/types/enums";
 
-export type LikeInputModel = {
+export type CommentLikeInputModel = {
     likeStatus: LikeStatus
 }

@@ -1,6 +1,6 @@
 import {Comment, CommentModel} from "../domain/comment.schema";
 import {injectable} from "inversify";
-import {LikeModel} from "../domain/like.schema";
+import {CommentLikeModel} from "../domain/commentLike.schema";
 import {FindCommentsByPostIdDto} from "./dto/FindCommentsByPostIdDto";
 import {CommentViewModel} from "../api/models/CommentViewModel";
 import {CommentViewModelPage} from "../api/models/CommentViewModelPage";
@@ -47,7 +47,7 @@ export class CommentsQueryRepo {
     async commentWithReplaceId(comment: Comment, userId: string | null): Promise<CommentViewModel> {
         let myStatus: LikeStatus = LikeStatus.None
         if (userId) {
-            const status = await LikeModel.findOne({commentId: comment._id, userId}).lean()
+            const status = await CommentLikeModel.findOne({commentId: comment._id, userId}).lean()
             if (status) myStatus = status.likeStatus
         }
         const likesInfo = {...comment.likesInfo, myStatus: myStatus}

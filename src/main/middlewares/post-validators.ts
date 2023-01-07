@@ -4,8 +4,9 @@ import {inputValidationMiddleware} from "./input-validation-middleware";
 import {body, CustomValidator, query} from "express-validator";
 import {checkIdValidForMongodb} from "./check-id-valid-for-mongodb";
 import {BlogsQueryRepo} from "../../blogs/infrastructure/blogs-queryRepo";
-import {SortDirection} from "../types/enums";
+import {LikeStatus, SortDirection} from "../types/enums";
 import {container} from "../composition-root";
+import {getUserIdAuthMiddleware} from "./get-user-id-auth-middleware";
 
 export const postTitleValidation = body('title', "'title' must be  a string in range from 1 to 30 symbols")
     .isString().trim().isLength({min: 1, max: 30});
@@ -38,9 +39,21 @@ const postQueryValidation = [
         return SortDirection.asc
     }),
 ]
+const likeValidation = body('likeStatus', "'likeStatus' must be one of value: None, Like, Dislike")
+    .custom(value => {
+        if (![LikeStatus.Like, LikeStatus.None, LikeStatus.Dislike].includes(value)) throw new Error()
+        return true
+    })
+
 //list for post
-export const getPostsValidation = postQueryValidation
-export const getPostValidation = checkIdValidForMongodb
+export const getPostsValidation = [
+    getUserIdAuthMiddleware,
+    ...postQueryValidation
+]
+export const getPostValidation = [
+    getUserIdAuthMiddleware,
+    checkIdValidForMongodb
+    ]
 export const createPostValidation = [
     checkAuthorizationMiddleware,
     blogIdValidation,
@@ -55,6 +68,12 @@ export const updatePostValidation = [
     postTitleValidation,
     postShortDescriptionValidation,
     postContentValidation,
+    inputValidationMiddleware,
+    checkIdValidForMongodb
+]
+export const likePostValidation = [
+    checkAuthorizationMiddleware,
+    likeValidation,
     inputValidationMiddleware,
     checkIdValidForMongodb
 ]

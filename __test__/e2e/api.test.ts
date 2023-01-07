@@ -6,7 +6,7 @@ import {LoginSuccessViewModel} from "../../src/auth/api/models/LoginSuccessViewM
 import {CommentViewModel} from "../../src/comments/api/models/CommentViewModel";
 import {ErrorResultType} from "../../src/main/middlewares/input-validation-middleware";
 import {app} from "../../src/main/app";
-import {HTTP_Status} from "../../src/main/types/enums";
+import {HTTP_Status, LikeStatus} from "../../src/main/types/enums";
 import {DeviceViewModel} from "../../src/security/api/models/DeviceViewModel";
 import mongoose from "mongoose";
 import {runDb} from "../../src/main/db";
@@ -317,7 +317,17 @@ describe('Test of the Homework', () => {
                     blogId: `${blog1.id}`,
                     blogName: `${blog1.name}`,
                     shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
-                    createdAt: expect.any(String)
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 0,
+                        dislikesCount: 0,
+                        myStatus: LikeStatus.None,
+                        newestLikes: [{
+                            addedAt: expect.any(String),
+                            userId: expect.any(String),
+                            login: expect.any(String),
+                        }]
+                    }
                 }
             )
             await request(app)
@@ -405,7 +415,17 @@ describe('Test of the Homework', () => {
                     blogId: `${blog1.id}`,
                     blogName: `${blog1.name}`,
                     shortDescription: "Update shortDescription",
-                    createdAt: expect.any(String)
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 0,
+                        dislikesCount: 0,
+                        myStatus: LikeStatus.None,
+                        newestLikes: [{
+                            addedAt: expect.any(String),
+                            userId: expect.any(String),
+                            login: expect.any(String),
+                        }]
+                    }
                 })
             expect(post2).not.toEqual(post1)
         })
@@ -2236,6 +2256,268 @@ describe('Test of the Homework', () => {
         });
 
     })
+
+    describe('post likes', () => {
+        beforeAll(async () => {
+            await request(app)
+                .delete('/testing/all-data').expect(HTTP_Status.NO_CONTENT_204)
+        })
+        let token: LoginSuccessViewModel
+        let user: UserViewModel
+        let post: PostViewModel
+        let blog: BlogViewModel
+        let user2: UserViewModel
+        let token2: LoginSuccessViewModel
+        let user3: UserViewModel
+        let token3: LoginSuccessViewModel
+        let user4: UserViewModel
+        let token4: LoginSuccessViewModel
+        it('POST should create blog, post and 4 auth users', async () => {
+            const resultBlog = await request(app)
+                .post('/blogs')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    name: "blogName",
+                    description: "description",
+                    websiteUrl: " https://localhost1.uuu/blogs  "
+                })
+                .expect(HTTP_Status.CREATED_201)
+            blog = resultBlog.body
+
+            const resultPost = await request(app)
+                .post('/posts')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            post = resultPost.body
+
+            const resultUser = await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    login: "login",
+                    password: "password",
+                    email: "string@sdf.ee"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            user = resultUser.body
+
+            const resultToken = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login",
+                    password: "password"
+                })
+                .expect(HTTP_Status.OK_200)
+            token = resultToken.body
+
+            const resultUser2 = await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    login: "login2",
+                    password: "password2",
+                    email: "string2@sdf.ee"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            user2 = resultUser2.body
+
+            const resultToken2 = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login2",
+                    password: "password2"
+                })
+                .expect(HTTP_Status.OK_200)
+            token2 = resultToken2.body
+
+            const resultUser3 = await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    login: "login3",
+                    password: "password3",
+                    email: "string3@sdf.ee"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            user3 = resultUser3.body
+
+            const resultToken3 = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login3",
+                    password: "password3"
+                })
+                .expect(HTTP_Status.OK_200)
+            token3 = resultToken3.body
+
+            const resultUser4 = await request(app)
+                .post('/users')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    login: "login4",
+                    password: "password4",
+                    email: "string4@sdf.ee"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            user4 = resultUser4.body
+
+            const resultToken4 = await request(app)
+                .post('/auth/login')
+                .send({
+                    loginOrEmail: "login4",
+                    password: "password4"
+                })
+                .expect(HTTP_Status.OK_200)
+            token4 = resultToken4.body
+
+            expect(post).toEqual(
+                {
+                    id: expect.any(String),
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog.id}`,
+                    blogName: `${blog.name}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 0,
+                        dislikesCount: 0,
+                        myStatus: LikeStatus.None,
+                        newestLikes: []
+                    }
+                }
+            )
+        })
+        it('PUT shouldn`t like post and return 401', async () => {
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token.accessToken + 'd', {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.UNAUTHORIZED_401)
+        });
+        it('PUT shouldn`t like post and return 400', async () => {
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "ErrorStatus"})
+                .expect(HTTP_Status.BAD_REQUEST_400)
+        });
+        it('PUT shouldn`t like post and return 404', async () => {
+            await request(app)
+                .put(`/posts/${blog.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NOT_FOUND_404)
+        });
+        it('PUT should like post by user1', async () => {
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            const likedPost = await request(app)
+                .get(`/posts/${post.id}`)
+                .auth(token.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
+
+            expect(post).not.toEqual(likedPost.body)
+            post = likedPost.body
+            expect(post).toEqual(
+                {
+                    id: expect.any(String),
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog.id}`,
+                    blogName: `${blog.name}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 1,
+                        dislikesCount: 0,
+                        myStatus: LikeStatus.Like,
+                        newestLikes: [{
+                            addedAt: expect.any(String),
+                            userId: expect.any(String),
+                            login: expect.any(String),
+                        }]
+                    }
+                }
+            )
+        });
+        it('GET should return 200 and post with "myStatus": "None" for non auth user', async () => {
+            await request(app)
+                .get(`/posts/${post.id}`)
+                .expect(HTTP_Status.OK_200, {
+                        id: post.id,
+                        title: "valid",
+                        content: "valid",
+                        blogId: `${blog.id}`,
+                        blogName: `${blog.name}`,
+                        shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
+                        createdAt: post.createdAt,
+                        extendedLikesInfo: {
+                            likesCount: 1,
+                            dislikesCount: 0,
+                            myStatus: LikeStatus.None,
+                            newestLikes: post.extendedLikesInfo.newestLikes
+                        }
+                    }
+                )
+        })
+        it('PUT should like post by user2, user3 and dislike by user4 with get post by him', async () => {
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            const likedPost = await request(app)
+                .get(`/posts/${post.id}`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
+
+            expect(likedPost.body).toEqual(
+                {
+                    id: expect.any(String),
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog.id}`,
+                    blogName: `${blog.name}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 3,
+                        dislikesCount: 1,
+                        myStatus: LikeStatus.Dislike,
+                        newestLikes: expect.arrayContaining([{
+                            addedAt: expect.any(String),
+                            userId: expect.any(String),
+                            login: expect.any(String),
+                        }])
+                    }
+                }
+            )
+        });
+
+
+
+    })
+
     /*
     describe('test', () => {
         beforeAll(async () => {

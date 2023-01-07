@@ -5,7 +5,7 @@ import {Response} from "express";
 import {CommentViewModel} from "./models/CommentViewModel";
 import {HTTP_Status} from "../../main/types/enums";
 import {CommentInputModel} from "./models/CommentInputModel";
-import {LikeInputModel} from "./models/LikeInputModel";
+import {CommentLikeInputModel} from "./models/CommentLikeInputModel";
 import {inject, injectable} from "inversify";
 
 @injectable()
@@ -35,7 +35,7 @@ export class CommentsController {
         }
     }
 
-    async likeComment(req: RequestWithParamAndBody<LikeInputModel>, res: Response) {
+    async likeComment(req: RequestWithParamAndBody<CommentLikeInputModel>, res: Response) {
         const result = await this.commentsService.likeComment({
             commentId: req.params.id,
             userId: req.userId,

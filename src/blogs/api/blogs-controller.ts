@@ -73,7 +73,8 @@ export class BlogsController {
     }
 
     async getPostsForBlog(req: RequestWithParamAndQuery<FindPostsQueryModel>, res: Response<PostsViewModelPage>) {
-        const foundBlog = await this.postsQueryRepo.findPostsByBlogId(req.params.id, {
+        const userId = req.userId ? req.userId : null
+        const foundBlog = await this.postsQueryRepo.findPostsByBlogId(req.params.id, userId, {
             pageNumber: req.query.pageNumber,
             pageSize: req.query.pageSize,
             sortBy: req.query.sortBy,
@@ -87,6 +88,7 @@ export class BlogsController {
     }
 
     async createPostForBlog(req: RequestWithParamAndBody<BlogPostInputModel>, res: Response<PostViewModel>) {
+        const userId = req.userId ? req.userId : null
         const createdPostId = await this.postsService.createPost({
             title: req.body.title,
             shortDescription: req.body.shortDescription,
@@ -96,7 +98,7 @@ export class BlogsController {
         if (!createdPostId) {
             res.sendStatus(HTTP_Status.NOT_FOUND_404)
         } else {
-            const createdPost = await this.postsQueryRepo.findPostById(createdPostId)
+            const createdPost = await this.postsQueryRepo.findPostById(createdPostId, userId)
             if (createdPost) res.status(HTTP_Status.CREATED_201).json(createdPost)
         }
     }

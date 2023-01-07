@@ -1,7 +1,7 @@
 import {HydratedDocument, model, Schema} from "mongoose";
 import {LikeStatus} from "../../main/types/enums";
 import {ObjectId} from "mongodb";
-import {Like, LikeDocument, LikeModel} from "./like.schema";
+import {CommentLike, CommentLikeDocument, CommentLikeModel} from "./commentLike.schema";
 
 export class Comment {
     public _id: ObjectId
@@ -23,11 +23,9 @@ export class Comment {
         }
     }
 
-    async setLikeStatus(userId: string, likeStatus: LikeStatus): Promise<LikeDocument> {
+    setLikeStatus(oldLike: CommentLikeDocument | null, userId: string, likeStatus: LikeStatus): CommentLikeDocument {
         let oldLikeStatus: LikeStatus
-        let like: LikeDocument
-
-        const oldLike = await LikeModel.findOne({commentId: this._id, userId})
+        let like: CommentLikeDocument
 
         if (oldLike) {
             oldLikeStatus = oldLike.likeStatus
@@ -39,15 +37,12 @@ export class Comment {
         }
 
         this.updateLikesCount(likeStatus, oldLikeStatus)
-
         return like
     }
-
-    newLike(userId: string, likeStatus: LikeStatus): LikeDocument {
-        const newLike = new Like(this._id.toString(), userId, likeStatus)
-        return new LikeModel(newLike)
+    newLike(userId: string, likeStatus: LikeStatus): CommentLikeDocument {
+        const newLike = new CommentLike(this._id.toString(), userId, likeStatus)
+        return new CommentLikeModel(newLike)
     }
-
     updateLikesCount(likeStatus: LikeStatus, oldLikeStatus: LikeStatus) {
         if (likeStatus === LikeStatus.Like && oldLikeStatus !== LikeStatus.Like) {
             this.likesInfo.likesCount += 1
@@ -60,7 +55,6 @@ export class Comment {
             this.likesInfo.dislikesCount -= 1
         }
     }
-
     updateComment(content: string) {
         this.content = content
     }
