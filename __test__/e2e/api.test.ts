@@ -215,6 +215,7 @@ describe('Test of the Homework', () => {
         })
         let post1: PostViewModel
         let post2: PostViewModel
+        let post3: PostViewModel
         let blog1: BlogViewModel
         it('GET should return 200', async function () {
             await request(app)
@@ -322,11 +323,7 @@ describe('Test of the Homework', () => {
                         likesCount: 0,
                         dislikesCount: 0,
                         myStatus: LikeStatus.None,
-                        newestLikes: [{
-                            addedAt: expect.any(String),
-                            userId: expect.any(String),
-                            login: expect.any(String),
-                        }]
+                        newestLikes: []
                     }
                 }
             )
@@ -420,15 +417,66 @@ describe('Test of the Homework', () => {
                         likesCount: 0,
                         dislikesCount: 0,
                         myStatus: LikeStatus.None,
-                        newestLikes: [{
-                            addedAt: expect.any(String),
-                            userId: expect.any(String),
-                            login: expect.any(String),
-                        }]
+                        newestLikes: []
                     }
                 })
             expect(post2).not.toEqual(post1)
         })
+        it('GET all posts for bad blog should return 404', async function () {
+            await request(app)
+                .get(`/blogs/1/posts`)
+                .expect(HTTP_Status.NOT_FOUND_404)
+
+        });
+        it('POST should create post for new blog', async () => {
+            const resultBlog = await request(app)
+                .post('/blogs')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    name: "blogName",
+                    description: "description",
+                    websiteUrl: " https://localhost1.uuu/blogs  "
+                })
+                .expect(HTTP_Status.CREATED_201)
+            const blog2 = resultBlog.body
+
+            const resultPost = await request(app)
+                .post(`/blogs/${blog2.id}/posts`)
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog2.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            post3 = resultPost.body
+
+            expect(post3.blogId).toBe(blog2.id)
+        })
+        it('GET all posts for specific blog should return 200', async function () {
+            const result = await request(app)
+                .get(`/blogs/${blog1.id}/posts`)
+                .expect(HTTP_Status.OK_200)
+            const result2 = await request(app)
+                .get(`/blogs/${blog1.id}/posts`)
+                .expect(HTTP_Status.OK_200)
+
+            expect(result.body.items.length).toBe(1)
+            expect(result2.body.items.length).toBe(1)
+        });
+        it('GET should return 200', async function () {
+            await request(app)
+                .get('/posts')
+                .expect(HTTP_Status.OK_200, {
+                    pagesCount: 1,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 2,
+                    items: [post1, post3]
+                })
+        });
+
         it('DELETE shouldn`t delete blog with incorrect "id"', async () => {
             await request(app).delete(`/posts/1`)
                 .auth('admin', 'qwerty', {type: 'basic'})
@@ -445,11 +493,11 @@ describe('Test of the Homework', () => {
             await request(app)
                 .get('/posts')
                 .expect(HTTP_Status.OK_200, {
-                    pagesCount: 0,
+                    pagesCount: 1,
                     page: 1,
                     pageSize: 10,
-                    totalCount: 0,
-                    items: []
+                    totalCount: 1,
+                    items: [post3]
                 })
         })
         it('DELETE blog should delete all posts of this blog', async () => {
@@ -2256,7 +2304,6 @@ describe('Test of the Homework', () => {
         });
 
     })
-
     describe('post likes', () => {
         beforeAll(async () => {
             await request(app)
@@ -2407,6 +2454,10 @@ describe('Test of the Homework', () => {
                 .auth(token.accessToken, {type: "bearer"})
                 .send({likeStatus: "ErrorStatus"})
                 .expect(HTTP_Status.BAD_REQUEST_400)
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.BAD_REQUEST_400)
         });
         it('PUT shouldn`t like post and return 404', async () => {
             await request(app)
@@ -2513,9 +2564,430 @@ describe('Test of the Homework', () => {
                 }
             )
         });
+        it('GET should return 200 and post with "myStatus": "None" for non auth user', async () => {
+            await request(app)
+                .get(`/posts/${post.id}`)
+                .expect(HTTP_Status.OK_200, {
+                        id: post.id,
+                        title: "valid",
+                        content: "valid",
+                        blogId: `${blog.id}`,
+                        blogName: `${blog.name}`,
+                        shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
+                        createdAt: post.createdAt,
+                        extendedLikesInfo: {
+                            likesCount: 3,
+                            dislikesCount: 1,
+                            myStatus: LikeStatus.None,
+                            newestLikes: post.extendedLikesInfo.newestLikes
+                        }
+                    }
+                )
+        })
+        it('PUT should dislike post by user2, user3 and like by user4 with get post by him', async () => {
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            const likedPost = await request(app)
+                .get(`/posts/${post.id}`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
 
+            expect(likedPost.body).toEqual(
+                {
+                    id: expect.any(String),
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog.id}`,
+                    blogName: `${blog.name}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 2,
+                        dislikesCount: 2,
+                        myStatus: LikeStatus.Like,
+                        newestLikes: expect.arrayContaining([{
+                            addedAt: expect.any(String),
+                            userId: expect.any(String),
+                            login: expect.any(String),
+                        }])
+                    }
+                }
+            )
+        });
+        it('PUT should dislike post by user1 twice. Shouldn`t increase likes count', async () => {
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            const likedPost = await request(app)
+                .get(`/posts/${post.id}`)
+                .auth(token.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
 
+            expect(likedPost.body).toEqual(
+                {
+                    id: expect.any(String),
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog.id}`,
+                    blogName: `${blog.name}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 1,
+                        dislikesCount: 3,
+                        myStatus: LikeStatus.Dislike,
+                        newestLikes: expect.arrayContaining([{
+                            addedAt: expect.any(String),
+                            userId: expect.any(String),
+                            login: expect.any(String),
+                        }])
+                    }
+                }
+            )
+        });
+        it('PUT should set None status all users with get post by user1', async () => {
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "None"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "None"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "None"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .send({likeStatus: "None"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            const likedPost = await request(app)
+                .get(`/posts/${post.id}`)
+                .auth(token.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
 
+            expect(likedPost.body).toEqual(
+                {
+                    id: expect.any(String),
+                    title: "valid",
+                    content: "valid",
+                    blogId: `${blog.id}`,
+                    blogName: `${blog.name}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
+                    createdAt: expect.any(String),
+                    extendedLikesInfo: {
+                        likesCount: 0,
+                        dislikesCount: 0,
+                        myStatus: LikeStatus.None,
+                        newestLikes: []
+                    }
+                }
+            )
+        });
+        it('create +5 comments then:' +
+            ' like comment 1 by user 1, user 2;' +
+            ' like comment 2 by user 2, user 3;' +
+            ' dislike comment 3 by user 1;' +
+            ' like comment 4 by user 1, user 4, user 2, user 3;' +
+            ' like comment 5 by user 2, dislike by user 3;' +
+            ' like comment 6 by user 1, dislike by user 2.' +
+            ' Get the comments by user 1 after all likes', async () => {
+            let likedPost = await request(app)
+                .post('/posts')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    title: "valid2",
+                    content: "valid2",
+                    blogId: `${blog.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            const post2 = {...likedPost.body}
+
+            likedPost = await request(app)
+                .post('/posts')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    title: "valid3",
+                    content: "valid3",
+                    blogId: `${blog.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            const post3 = {...likedPost.body}
+
+            likedPost = await request(app)
+                .post('/posts')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    title: "valid4",
+                    content: "valid4",
+                    blogId: `${blog.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            const post4 = {...likedPost.body}
+
+            likedPost = await request(app)
+                .post('/posts')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    title: "valid5",
+                    content: "valid5",
+                    blogId: `${blog.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            const post5 = {...likedPost.body}
+
+            likedPost = await request(app)
+                .post('/posts')
+                .auth('admin', 'qwerty', {type: 'basic'})
+                .send({
+                    title: "valid6",
+                    content: "valid6",
+                    blogId: `${blog.id}`,
+                    shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx"
+                })
+                .expect(HTTP_Status.CREATED_201)
+            const post6 = {...likedPost.body}
+
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await request(app)
+                .put(`/posts/${post2.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post2.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await request(app)
+                .put(`/posts/${post3.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await request(app)
+                .put(`/posts/${post4.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post4.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post4.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post4.id}/like-status`)
+                .auth(token4.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await request(app)
+                .put(`/posts/${post5.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post5.id}/like-status`)
+                .auth(token3.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            await request(app)
+                .put(`/posts/${post6.id}/like-status`)
+                .auth(token.accessToken, {type: "bearer"})
+                .send({likeStatus: "Like"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+            await request(app)
+                .put(`/posts/${post6.id}/like-status`)
+                .auth(token2.accessToken, {type: "bearer"})
+                .send({likeStatus: "Dislike"})
+                .expect(HTTP_Status.NO_CONTENT_204)
+
+            const result = await request(app)
+                .get(`/posts`)
+                .auth(token.accessToken, {type: "bearer"})
+                .expect(HTTP_Status.OK_200)
+
+            expect(result.body).toEqual({
+                    pagesCount: 1,
+                    page: 1,
+                    pageSize: 10,
+                    totalCount: 6,
+                    items: [
+                        {
+                            id: post6.id,
+                            title: post6.title,
+                            content: post6.content,
+                            blogId: `${blog.id}`,
+                            blogName: `${blog.name}`,
+                            shortDescription: post6.shortDescription,
+                            createdAt: post6.createdAt,
+                            extendedLikesInfo: {
+                                likesCount: 1,
+                                dislikesCount: 1,
+                                myStatus: LikeStatus.Like,
+                                newestLikes: expect.arrayContaining([{
+                                    addedAt: expect.any(String),
+                                    userId: expect.any(String),
+                                    login: expect.any(String),
+                                }])
+                            }
+                        },
+                        {
+                            id: post5.id,
+                            title: post5.title,
+                            content: post5.content,
+                            blogId: `${blog.id}`,
+                            blogName: `${blog.name}`,
+                            shortDescription: post5.shortDescription,
+                            createdAt: post5.createdAt,
+                            extendedLikesInfo: {
+                                likesCount: 1,
+                                dislikesCount: 1,
+                                myStatus: LikeStatus.None,
+                                newestLikes: expect.arrayContaining([{
+                                    addedAt: expect.any(String),
+                                    userId: expect.any(String),
+                                    login: expect.any(String),
+                                }])
+                            }
+                        },
+                        {
+                            id: post4.id,
+                            title: post4.title,
+                            content: post4.content,
+                            blogId: `${blog.id}`,
+                            blogName: `${blog.name}`,
+                            shortDescription: post4.shortDescription,
+                            createdAt: post4.createdAt,
+                            extendedLikesInfo: {
+                                likesCount: 4,
+                                dislikesCount: 0,
+                                myStatus: LikeStatus.Like,
+                                newestLikes: expect.arrayContaining([{
+                                    addedAt: expect.any(String),
+                                    userId: expect.any(String),
+                                    login: expect.any(String),
+                                }])
+                            }
+                        },
+                        {
+                            id: post3.id,
+                            title: post3.title,
+                            content: post3.content,
+                            blogId: `${blog.id}`,
+                            blogName: `${blog.name}`,
+                            shortDescription: post3.shortDescription,
+                            createdAt: post3.createdAt,
+                            extendedLikesInfo: {
+                                likesCount: 0,
+                                dislikesCount: 1,
+                                myStatus: LikeStatus.Dislike,
+                                newestLikes: []
+                            }
+                        },
+                        {
+                            id: post2.id,
+                            title: post2.title,
+                            content: post2.content,
+                            blogId: `${blog.id}`,
+                            blogName: `${blog.name}`,
+                            shortDescription: post2.shortDescription,
+                            createdAt: post2.createdAt,
+                            extendedLikesInfo: {
+                                likesCount: 2,
+                                dislikesCount: 0,
+                                myStatus: LikeStatus.None,
+                                newestLikes: expect.arrayContaining([{
+                                    addedAt: expect.any(String),
+                                    userId: expect.any(String),
+                                    login: expect.any(String),
+                                }])
+                            }
+                        },
+                        {
+                            id: post.id,
+                            title: post.title,
+                            content: post.content,
+                            blogId: `${blog.id}`,
+                            blogName: `${blog.name}`,
+                            shortDescription: post.shortDescription,
+                            createdAt: post.createdAt,
+                            extendedLikesInfo: {
+                                likesCount: 2,
+                                dislikesCount: 0,
+                                myStatus: LikeStatus.Like,
+                                newestLikes: expect.arrayContaining([{
+                                    addedAt: expect.any(String),
+                                    userId: expect.any(String),
+                                    login: expect.any(String),
+                                }])
+                            }
+                        },
+                    ]
+                }
+            )
+            //
+            // expect(likedComment.body).toEqual(
+            //     {
+            //         id: expect.any(String),
+            //         content: "valid comment111111111",
+            //         userId: user.id,
+            //         userLogin: user.login,
+            //         createdAt: expect.any(String),
+            //         likesInfo: {
+            //             "likesCount": 0,
+            //             "dislikesCount": 0,
+            //             "myStatus": "None"
+            //         }
+            //     }
+            //)
+        });
     })
 
     /*
