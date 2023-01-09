@@ -3,15 +3,25 @@ import {injectable} from "inversify";
 import {FindBlogsQueryModel} from "../api/models/FindBlogsQueryModel";
 import {BlogViewModel} from "../api/models/BlogViewModel";
 import {BlogsViewModelPage} from "../api/models/BlogsViewModelPage";
+import {SortDirection} from "../../main/types/enums";
 
 @injectable()
 export class BlogsQueryRepo {
     async findBlogs(dto: FindBlogsQueryModel): Promise<BlogsViewModelPage> {
-        const {searchNameTerm, pageNumber, pageSize} = dto
-        const totalCount = await BlogModel.countBlogs(searchNameTerm)
+        let {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = dto
+
+        sortBy = sortBy === 'id' ? '_id' : sortBy
+        const optionsSort: { [key: string]: SortDirection } = {[sortBy]: sortDirection}
+
+        const totalCount = await BlogModel.countDocuments().where('name').regex(new RegExp(searchNameTerm, 'i'))
         const pagesCount = Math.ceil(totalCount / pageSize)
 
-        const items: BlogViewModel[] = (await BlogModel.findBlogs(dto)).map(b => this.blogWithReplaceId(b))
+        const items: BlogViewModel[] = (await BlogModel.find()
+            .where('name').regex(new RegExp(searchNameTerm, 'i'))
+            .skip((pageNumber - 1) * pageSize)
+            .limit(pageSize)
+            .sort(optionsSort)
+            .lean()).map(b => this.blogWithReplaceId(b))
         return {
             pagesCount,
             page: pageNumber,

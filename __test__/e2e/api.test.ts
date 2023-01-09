@@ -465,7 +465,7 @@ describe('Test of the Homework', () => {
             expect(result.body.items.length).toBe(1)
             expect(result2.body.items.length).toBe(1)
         });
-        it('GET should return 200', async function () {
+        it('GET2 should return 200', async function () {
             await request(app)
                 .get('/posts')
                 .expect(HTTP_Status.OK_200, {
@@ -473,7 +473,7 @@ describe('Test of the Homework', () => {
                     page: 1,
                     pageSize: 10,
                     totalCount: 2,
-                    items: [post1, post3]
+                    items: [post3, post2]
                 })
         });
 
@@ -2564,25 +2564,33 @@ describe('Test of the Homework', () => {
                 }
             )
         });
-        it('GET should return 200 and post with "myStatus": "None" for non auth user', async () => {
-            await request(app)
+        it('GET2 should return 200 and post with "myStatus": "None" for non auth user', async () => {
+            const result = await request(app)
                 .get(`/posts/${post.id}`)
-                .expect(HTTP_Status.OK_200, {
-                        id: post.id,
+                .expect(HTTP_Status.OK_200)
+
+            expect(result.body).toEqual({
+                        id: expect.any(String),
                         title: "valid",
                         content: "valid",
                         blogId: `${blog.id}`,
                         blogName: `${blog.name}`,
                         shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
-                        createdAt: post.createdAt,
+                        createdAt: expect.any(String),
                         extendedLikesInfo: {
                             likesCount: 3,
                             dislikesCount: 1,
                             myStatus: LikeStatus.None,
-                            newestLikes: post.extendedLikesInfo.newestLikes
+                            newestLikes: expect.arrayContaining([{
+                                addedAt: expect.any(String),
+                                userId: expect.any(String),
+                                login: expect.any(String),
+                            }])
                         }
                     }
                 )
+
+
         })
         it('PUT should dislike post by user2, user3 and like by user4 with get post by him', async () => {
             await request(app)

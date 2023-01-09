@@ -1,7 +1,7 @@
 import {BlogsRepository} from "../infrastructure/blogs-repository";
 import {PostsRepository} from "../../posts/infrastructure/posts-repository";
 import {UpdateBlogDto} from "./dto/UpdateBlogDto";
-import {BlogModel, Blog} from "../domain/blog.schema";
+import {Blog} from "../domain/blog.schema";
 import {inject, injectable} from "inversify";
 import {CreateBlogDto} from "./dto/CreateBlogDto";
 
@@ -11,8 +11,7 @@ export class BlogsService {
                 @inject(PostsRepository) protected postsRepository: PostsRepository) {}
 
     async createBlog(dto: CreateBlogDto): Promise<string> {
-        const newBlog = new Blog(dto.name, dto.description, dto.websiteUrl)
-        const blog = new BlogModel(newBlog)
+        const blog = Blog.createBlogDocument(dto.name, dto.description, dto.websiteUrl)
 
         await this.blogsRepository.saveBlog(blog)
         return blog.id

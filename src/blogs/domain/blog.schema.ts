@@ -1,8 +1,6 @@
-import {HydratedDocument, Model, model, Schema} from "mongoose";
+import {HydratedDocument, model, Schema} from "mongoose";
 import {UpdateBlogDto} from "../application/dto/UpdateBlogDto";
-import {SortDirection} from "../../main/types/enums";
 import {ObjectId} from "mongodb";
-import {FindBlogsQueryModel} from "../api/models/FindBlogsQueryModel";
 
 export class Blog {
     _id: ObjectId
@@ -20,15 +18,15 @@ export class Blog {
         this.description = dto.description
         this.websiteUrl = dto.websiteUrl
     }
+    static createBlogDocument(name: string, description: string, websiteUrl: string): BlogDocument {
+        const blog = new Blog(name, description, websiteUrl)
+        return new BlogModel(blog)
+    }
 }
 
-interface IBlogModel extends Model<Blog> {
-    findBlogs(dto: FindBlogsQueryModel): Promise<Blog[]>
-    countBlogs(searchNameTerm: string): Promise<number>
-}
 export type BlogDocument = HydratedDocument<Blog>
 
-const BlogSchema = new Schema<Blog, IBlogModel>({
+const BlogSchema = new Schema<Blog>({
     _id: {type: Schema.Types.ObjectId, required: true},
     name: {type: String, required: true, maxlength: 15},
     description: {type: String, required: true, maxlength: 500},
@@ -38,26 +36,6 @@ const BlogSchema = new Schema<Blog, IBlogModel>({
     },
     createdAt: {type: String, required: true}
 })
-BlogSchema.methods = {
-    updateBlog: Blog.prototype.updateBlog
-}
-BlogSchema.statics = {
-    async findBlogs(dto: FindBlogsQueryModel): Promise<Blog[]> {
-        let {searchNameTerm, pageNumber, pageSize, sortBy, sortDirection} = dto
+BlogSchema.loadClass(Blog)
 
-        sortBy = sortBy === 'id' ? '_id' : sortBy
-        const optionsSort: { [key: string]: SortDirection } = {[sortBy]: sortDirection}
-
-        return BlogModel.find()
-            .where('name').regex(new RegExp(searchNameTerm, 'i'))
-            .skip((pageNumber - 1) * pageSize)
-            .limit(pageSize)
-            .sort(optionsSort)
-            .lean()
-    },
-    async countBlogs(searchNameTerm: string): Promise<number> {
-        return BlogModel.countDocuments().where('name').regex(new RegExp(searchNameTerm, 'i'))
-    }
-}
-
-export const BlogModel = model<BlogDocument, IBlogModel>('blogs', BlogSchema)
+export const BlogModel = model('blogs', BlogSchema)
