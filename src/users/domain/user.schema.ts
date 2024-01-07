@@ -3,7 +3,7 @@ import add from "date-fns/add";
 import {v4 as uuidv4} from "uuid";
 import {ObjectId} from "mongodb";
 
-export class UserAccount {
+export class AccountData {
     createdAt: string
 
     constructor(public login: string,
@@ -24,15 +24,15 @@ export class EmailConfirmation {
 
 export class User {
     public _id: ObjectId
-    public accountData: UserAccount
+    public accountData: AccountData
     public emailConfirmation: EmailConfirmation
 
-    constructor(public login: string,
-                public passwordHash: string,
-                public email: string,
-                public isConfirmed: boolean) {
+    constructor(login: string,
+                passwordHash: string,
+                email: string,
+                isConfirmed: boolean) {
         this._id = new ObjectId()
-        this.accountData = new UserAccount(login, passwordHash, email)
+        this.accountData = new AccountData(login, passwordHash, email)
         this.emailConfirmation = new EmailConfirmation(isConfirmed)
     }
 
@@ -50,7 +50,8 @@ export class User {
 
 export type UserDocument = HydratedDocument<User>
 
-const UserAccountSchema = new Schema<UserAccount>({
+
+const UserAccountSchema = new Schema<AccountData>({
     login: {
         type: String, required: true, minlength: 3, maxlength: 30, validate: (val: string) => {
             return val.match("^[a-zA-Z0-9_-]*$")
@@ -64,11 +65,13 @@ const UserAccountSchema = new Schema<UserAccount>({
     },
     createdAt: {type: String, required: true}
 }, {_id: false})
+
 const EmailConfirmationSchema = new Schema<EmailConfirmation>({
     isConfirmed: {type: Boolean, required: true},
     confirmationCode: {type: String, required: true},
     expirationDate: {type: Date, required: true}
 }, {_id: false})
+
 const UserSchema = new Schema<User>({
     _id: {type: Schema.Types.ObjectId, required: true},
     accountData: {type: UserAccountSchema, required: true},

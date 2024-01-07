@@ -33,7 +33,7 @@ export class UsersController {
             password: req.body.password,
             email: req.body.email})
         if (!createdUserId) return res.sendStatus(HTTP_Status.BAD_REQUEST_400)
-        const createdUser = await this.usersQueryRepo.findUserById(createdUserId)
+        const createdUser = await this.     usersQueryRepo.findUserById(createdUserId)
         if (createdUser) res.status(HTTP_Status.CREATED_201).json(createdUser)
     }
 

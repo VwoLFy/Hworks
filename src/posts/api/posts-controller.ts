@@ -80,19 +80,6 @@ export class PostController {
         }
     }
 
-    async likePost(req: RequestWithParamAndBody<PostLikeInputModel>, res: Response) {
-        const result = await this.postsService.likePost({
-            postId: req.params.id,
-            userId: req.userId,
-            likeStatus: req.body.likeStatus
-        })
-        if (!result) {
-            res.sendStatus(HTTP_Status.NOT_FOUND_404)
-        } else {
-            res.sendStatus(HTTP_Status.NO_CONTENT_204)
-        }
-    }
-
     async getCommentsForPost(req: RequestWithParamAndQuery<FindCommentsQueryModel>, res: Response<CommentViewModelPage>) {
         const userId = req.userId ? req.userId : null
         const foundComments = await this.commentsQueryRepo.findCommentsByPostId({
@@ -120,6 +107,19 @@ export class PostController {
         } else {
             const createdComment = await this.commentsQueryRepo.findCommentById(createdCommentId, req.userId);
             if (createdComment) return res.status(HTTP_Status.CREATED_201).json(createdComment)
+        }
+    }
+
+    async likePost(req: RequestWithParamAndBody<PostLikeInputModel>, res: Response) {
+        const result = await this.postsService.likePost({
+            postId: req.params.id,
+            userId: req.userId,
+            likeStatus: req.body.likeStatus
+        })
+        if (!result) {
+            res.sendStatus(HTTP_Status.NOT_FOUND_404)
+        } else {
+            res.sendStatus(HTTP_Status.NO_CONTENT_204)
         }
     }
 

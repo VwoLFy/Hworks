@@ -101,6 +101,17 @@ export const loginAuthValidation = [
     authPasswordValidation,
     inputValidationMiddleware
 ]
+export const passwordRecoveryAuthValidation = [
+    attemptsValidationMiddleware,
+    authEmailPasswordRecoveryValidation,
+    inputValidationMiddleware
+]
+export const newPasswordAuthValidation = [
+    attemptsValidationMiddleware,
+    authNewPasswordValidation,
+    authRecoveryCodeValidation,
+    inputValidationMiddleware
+]
 export const registrationAuthValidation = [
     attemptsValidationMiddleware,
     authLoginRegValidation,
@@ -120,15 +131,4 @@ export const emailResendingAuthValidation = [
 ]
 export const getMyInfoAuthValidation = [
     checkAuthorizationMiddleware
-]
-export const passwordRecoveryAuthValidation = [
-    attemptsValidationMiddleware,
-    authEmailPasswordRecoveryValidation,
-    inputValidationMiddleware
-]
-export const newPasswordAuthValidation = [
-    attemptsValidationMiddleware,
-    authNewPasswordValidation,
-    authRecoveryCodeValidation,
-    inputValidationMiddleware
 ]

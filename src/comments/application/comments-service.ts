@@ -29,7 +29,7 @@ export class CommentsService {
         await this.commentsRepository.saveComment(comment)
         return comment.id
     }
-    async updateComment(dto: UpdateCommentDto): Promise<number | null> {
+    async updateComment(dto: UpdateCommentDto): Promise<number> {
         const {commentId, content, userId} = dto
 
         const foundComment = await this.commentsRepository.findComment(commentId)
