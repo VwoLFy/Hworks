@@ -4,7 +4,8 @@ import { app } from '../../src';
 import { HTTP_Status } from '../../src/enums';
 import { blogsRoute, testing_all_dataRoute } from '../../src/routes/routes';
 import { BlogInputModel, BlogViewModel } from '../../src/repositories/blogs-repository';
-import { BadRequestError, testCheckBadRequestError } from './TestCheckBadRequestError';
+import { testCheckBadRequestError } from './TestCheckBadRequestError';
+import { BadRequestError } from '../../src/middlewares/input-validation-middleware';
 
 class HelpersForTests {
   constructor() {}

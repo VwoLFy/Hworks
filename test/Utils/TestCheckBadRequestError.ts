@@ -1,10 +1,4 @@
-type FieldErrorType = {
-  message: string;
-  field: string;
-};
-export type BadRequestError = {
-  errorsMessages: FieldErrorType[];
-};
+import { BadRequestError } from '../../src/middlewares/input-validation-middleware';
 
 export const testCheckBadRequestError = (apiErrorResult: BadRequestError, field: string | string[]): void => {
   if (Array.isArray(field)) {
