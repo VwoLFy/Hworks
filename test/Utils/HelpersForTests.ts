@@ -29,9 +29,15 @@ class HelpersForTests {
     httpStatus: HTTP_Status = HTTP_Status.CREATED_201,
     field?: string | string[],
   ): Promise<BlogViewModel | null> {
+    if (httpStatus === HTTP_Status.UNAUTHORIZED_401) {
+      await request(app).post(blogsRoute).auth('notadmin', 'qwerty').send(dto).expect(httpStatus);
+      await request(app).post(blogsRoute).auth('admin', 'notqwerty').send(dto).expect(httpStatus);
+      await request(app).post(blogsRoute).send(dto).expect(httpStatus);
+      return null;
+    }
     const result = await request(app).post(blogsRoute).auth('admin', 'qwerty').send(dto).expect(httpStatus);
 
-    if (httpStatus !== HTTP_Status.BAD_REQUEST_400) return result.body;
+    if (httpStatus === HTTP_Status.CREATED_201) return result.body;
 
     if (field) {
       const error: BadRequestError = result.body;

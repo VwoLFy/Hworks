@@ -3,7 +3,7 @@ import { blogsRouter } from './routes/blogs-router';
 import { postsRouter } from './routes/posts-router';
 import { blogsRepository } from './repositories/blogs-repository';
 import { postsRepository } from './repositories/posts-repository';
-import { blogsRoute, postsRoute } from './routes/routes';
+import { blogsRoute, postsRoute, testing_all_dataRoute } from './routes/routes';
 
 export const app = express();
 const bodyMiddleware = express.json();
@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
   res.send('Hola!');
 });
 
-app.delete('/testing/all-data', (req: Request, res: Response) => {
+app.delete(testing_all_dataRoute, (req: Request, res: Response) => {
   blogsRepository.deleteAll();
   postsRepository.deleteAll();
   res.sendStatus(204);
