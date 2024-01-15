@@ -4,7 +4,12 @@ export type BlogViewModel = {
   description: string;
   websiteUrl: string;
 };
-export type BlogInputModel = {
+export type CreateBlogDto = {
+  name: string;
+  description: string;
+  websiteUrl: string;
+};
+export type UpdateBlogDto = {
   name: string;
   description: string;
   websiteUrl: string;
@@ -22,7 +27,7 @@ export const blogsRepository = {
     return foundBlog ?? null;
   },
 
-  createBlog(dto: BlogInputModel): BlogViewModel {
+  createBlog(dto: CreateBlogDto): BlogViewModel {
     const { name, description, websiteUrl } = dto;
 
     const newBlog: BlogViewModel = {
@@ -36,7 +41,7 @@ export const blogsRepository = {
     return newBlog;
   },
 
-  updateBlog(id: string, dto: BlogInputModel): boolean {
+  updateBlog(id: string, dto: UpdateBlogDto): boolean {
     const { name, description, websiteUrl } = dto;
 
     const foundBlog = blogs.find((b) => b.id === id);
