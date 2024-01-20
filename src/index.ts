@@ -13,7 +13,7 @@ app.use(bodyMiddleware);
 app.use(blogsRoute, blogsRouter);
 app.use(postsRoute, postsRouter);
 app.get('/', (req, res) => {
-  res.send('Hola!');
+  res.send('Hola! add tests for posts');
 });
 
 app.delete(testing_all_dataRoute, (req: Request, res: Response) => {

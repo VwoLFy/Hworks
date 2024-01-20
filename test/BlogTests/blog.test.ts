@@ -165,12 +165,12 @@ describe('Public-    blogs', () => {
     expect(blog3).toEqual(prepareDto(dto));
   });
   it('GET blog by id should return blog', async function () {
-    const blog = await HelpersForTests.findBlog(blog1.id);
+    const blog = await HelpersForTests.findBlogById(blog1.id);
     expect(blog).toEqual(blog1);
   });
   it('GET blog by bad id should return 404', async function () {
-    await HelpersForTests.findBlog('1', HTTP_Status.NOT_FOUND_404);
-    await HelpersForTests.findBlog('9f38bedb-370a-47d0-9ef1-42f6294a1478', HTTP_Status.NOT_FOUND_404);
+    await HelpersForTests.findBlogById('1', HTTP_Status.NOT_FOUND_404);
+    await HelpersForTests.findBlogById('9f38bedb-370a-47d0-9ef1-42f6294a1478', HTTP_Status.NOT_FOUND_404);
   });
   it('GET blogs should return 200', async function () {
     const blogs = await HelpersForTests.findBlogs();
@@ -300,7 +300,7 @@ describe('Public-    blogs', () => {
     };
     await HelpersForTests.updateBlog(blog1.id, dto);
 
-    const result = await HelpersForTests.findBlog(blog1.id);
+    const result = await HelpersForTests.findBlogById(blog1.id);
     if (result) blog1 = result;
 
     expect(blog1).toEqual({ ...prepareDto(dto), id: blog1.id });
@@ -314,7 +314,7 @@ describe('Public-    blogs', () => {
   });
   it('DELETE should delete blog', async () => {
     await HelpersForTests.deleteBlog(blog1.id);
-    await HelpersForTests.findBlog(blog1.id, HTTP_Status.NOT_FOUND_404);
+    await HelpersForTests.findBlogById(blog1.id, HTTP_Status.NOT_FOUND_404);
 
     const blogs = await HelpersForTests.findBlogs();
     expect(blogs).toEqual([blog2, blog3]);
