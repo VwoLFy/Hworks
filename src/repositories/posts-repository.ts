@@ -1,6 +1,32 @@
 import {postCollection} from "./db";
 import {ObjectId} from "mongodb";
 import {TypeNewPost} from "../domain/posts-service";
+import { blogsRepository } from './blogs-repository';
+
+export type PostViewModel = {
+  id: string;
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+  blogName: string;
+};
+
+export type CreatePostDto = {
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+};
+
+export type UpdatePostDto = {
+  title: string;
+  shortDescription: string;
+  content: string;
+  blogId: string;
+};
+
+const posts: PostViewModel[] = [];
 
 export const postsRepository = {
     async createPost(newPost: TypeNewPost): Promise<string> {

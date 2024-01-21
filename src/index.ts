@@ -6,14 +6,17 @@ import {blogsService} from "./domain/blogs-service";
 import {postsService} from "./domain/posts-service";
 
 const app = express();
-const bodyMiddle = express.json();
+const bodyMiddleware = express.json();
 const PORT = process.env.PORT || 5000;
 
-app.use(bodyMiddle);
-app.use('/blogs', blogsRouter)
-app.use('/posts', postsRouter)
+app.use(bodyMiddleware);
+app.use(blogsRoute, blogsRouter);
+app.use(postsRoute, postsRouter);
+app.get('/', (req, res) => {
+  res.send('Hola! add tests for posts');
+});
 
-app.delete('/testing/all-data', (req: Request, res: Response) => {
+app.delete(testing_all_dataRoute, (req: Request, res: Response) => {
     blogsService.deleteAll();
     postsService.deleteAll();
     res.sendStatus(204)

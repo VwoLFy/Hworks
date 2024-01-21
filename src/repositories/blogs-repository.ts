@@ -1,3 +1,21 @@
+export type BlogViewModel = {
+  id: string;
+  name: string;
+  description: string;
+  websiteUrl: string;
+};
+export type CreateBlogDto = {
+  name: string;
+  description: string;
+  websiteUrl: string;
+};
+export type UpdateBlogDto = {
+  name: string;
+  description: string;
+  websiteUrl: string;
+};
+
+const blogs: BlogViewModel[] = [];
 import {blogCollection} from "./db";
 import {ObjectId} from "mongodb";
 import {TypeNewBlog} from "../domain/blogs-service";
