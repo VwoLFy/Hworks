@@ -24,7 +24,7 @@ app.delete(testing_all_dataRoute, (req: Request, res: Response) => {
   res.sendStatus(HTTP_Status.NO_CONTENT_204);
 });
 
-const startApp = async () => {
+export const startApp = async () => {
   await runDb();
   app.listen(PORT, () => {
     console.log(`Server listening ${PORT}`);

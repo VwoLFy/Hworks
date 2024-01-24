@@ -3,9 +3,11 @@ import HelpersForTests from '../Utils/HelpersForTests';
 import { HTTP_Status } from '../../src/enums';
 import { CreateBlogDto, UpdateBlogDto } from '../../src/domain/blogs-service';
 import { BlogViewModel } from '../../src/repositories/blogs-queryRepo';
+import { runDb } from '../../src/repositories/db';
 
 describe('Public-    blogs', () => {
   beforeAll(async () => {
+    await runDb();
     await helpersForTests.deleteAllData();
   });
 

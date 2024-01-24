@@ -3,7 +3,7 @@ import { MongoClient, ObjectId } from 'mongodb';
 import { BlogType } from '../domain/blogs-service';
 import { PostType } from '../domain/posts-service';
 
-const mongoUri = process.env.MONGOURI || 'mongodb://0.0.0.0:27017';
+const mongoUri = process.env.MONGOURI_A || 'mongodb://0.0.0.0:27017';
 export const client = new MongoClient(mongoUri);
 
 export type BlogDBType = Omit<BlogType, 'id'> & { _id: ObjectId };

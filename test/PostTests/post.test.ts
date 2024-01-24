@@ -5,9 +5,11 @@ import { CreateBlogDto } from '../../src/domain/blogs-service';
 import { BlogViewModel } from '../../src/repositories/blogs-queryRepo';
 import { CreatePostDto, UpdatePostDto } from '../../src/domain/posts-service';
 import { PostViewModel } from '../../src/repositories/posts-queryRepo';
+import { runDb } from '../../src/repositories/db';
 
 describe('Public-    posts', () => {
   beforeAll(async () => {
+    await runDb();
     await helpersForTests.deleteAllData();
   });
 
