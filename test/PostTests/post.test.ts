@@ -1,8 +1,10 @@
 import helpersForTests from '../Utils/HelpersForTests';
 import HelpersForTests from '../Utils/HelpersForTests';
 import { HTTP_Status } from '../../src/enums';
-import { CreatePostDto, PostViewModel, UpdatePostDto } from '../../src/repositories/posts-repository';
-import { BlogViewModel, CreateBlogDto } from '../../src/repositories/blogs-repository';
+import { CreateBlogDto } from '../../src/domain/blogs-service';
+import { BlogViewModel } from '../../src/repositories/blogs-queryRepo';
+import { CreatePostDto, UpdatePostDto } from '../../src/domain/posts-service';
+import { PostViewModel } from '../../src/repositories/posts-queryRepo';
 
 describe('Public-    posts', () => {
   beforeAll(async () => {
@@ -10,6 +12,7 @@ describe('Public-    posts', () => {
   });
 
   let blog1: BlogViewModel;
+  let blog2: BlogViewModel;
   let post1: PostViewModel;
   let post2: PostViewModel;
   let post3: PostViewModel;
@@ -21,17 +24,26 @@ describe('Public-    posts', () => {
       content: dto.content.trim(),
       blogId: dto.blogId,
       blogName: expect.any(String),
+      createdAt: expect.any(String),
     };
   };
 
-  it('Create blog ', async function () {
+  it('Create 2 blogs ', async function () {
     let dto: CreateBlogDto = {
-      name: ' NEW NAME   ',
-      description: 'description   ',
-      websiteUrl: ' https://localhost1.uuu/blogs  ',
+      name: ' NEW NAME 1  ',
+      description: 'description 1  ',
+      websiteUrl: ' https://localhost1.uuu/blogs1  ',
     };
     let result = await HelpersForTests.createBlog(dto);
     if (result) blog1 = result;
+
+    dto = {
+      name: ' NAME 2  ',
+      description: 'description 2  ',
+      websiteUrl: ' https://localhost1.uuu/blogs2  ',
+    };
+    result = await HelpersForTests.createBlog(dto);
+    if (result) blog2 = result;
   });
 
   it('GET posts should return 200', async function () {
@@ -371,40 +383,44 @@ describe('Public-    posts', () => {
   });
   it('PUT should update post with correct data', async () => {
     const oldPost1 = { ...post1 };
+    let blogName;
 
     const dto: UpdatePostDto = {
       title: 'Updating title 1',
       content: 'Updating content 1',
       shortDescription: 'Updating shortDescription 1',
-      blogId: blog1.id,
+      blogId: blog2.id,
     };
     await HelpersForTests.updatePost(post1.id, dto);
 
     const result = await HelpersForTests.findPostById(post1.id);
     if (result) post1 = result;
 
-    expect(post1).toEqual({ ...prepareDto(dto), id: post1.id });
+    const blog = await HelpersForTests.findBlogById(dto.blogId);
+    if (blog) blogName = blog.name;
+
+    expect(post1).toEqual({ ...prepareDto(dto), id: post1.id, blogName });
     expect(post1).not.toEqual(oldPost1);
   });
   it('DELETE shouldn`t delete post without authorize', async () => {
-    await HelpersForTests.deletePost(post1.id, HTTP_Status.UNAUTHORIZED_401);
+    await HelpersForTests.deletePost(post2.id, HTTP_Status.UNAUTHORIZED_401);
 
     const posts = await HelpersForTests.findPosts();
     expect(posts).toEqual([post1, post2, post3]);
   });
   it('DELETE should delete post', async () => {
-    await HelpersForTests.deletePost(post1.id);
-    await HelpersForTests.findPostById(post1.id, HTTP_Status.NOT_FOUND_404);
+    await HelpersForTests.deletePost(post2.id);
+    await HelpersForTests.findPostById(post2.id, HTTP_Status.NOT_FOUND_404);
 
     const posts = await HelpersForTests.findPosts();
-    expect(posts).toEqual([post2, post3]);
+    expect(posts).toEqual([post1, post3]);
   });
   it('DELETE shouldn`t delete post with incorrect "id"', async () => {
-    await HelpersForTests.deletePost('post1.id', HTTP_Status.NOT_FOUND_404);
+    await HelpersForTests.deletePost('post2.id', HTTP_Status.NOT_FOUND_404);
     await HelpersForTests.deletePost('9f38bedb-370a-47d0-9ef1-42f6294a1478', HTTP_Status.NOT_FOUND_404);
-    await HelpersForTests.deletePost(post1.id, HTTP_Status.NOT_FOUND_404);
+    await HelpersForTests.deletePost(post2.id, HTTP_Status.NOT_FOUND_404);
 
     const posts = await HelpersForTests.findPosts();
-    expect(posts).toEqual([post2, post3]);
+    expect(posts).toEqual([post1, post3]);
   });
 });

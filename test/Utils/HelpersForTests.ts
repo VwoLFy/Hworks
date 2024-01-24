@@ -3,10 +3,12 @@ import { app } from '../../src';
 
 import { HTTP_Status } from '../../src/enums';
 import { blogsRoute, postsRoute, testing_all_dataRoute } from '../../src/routes/routes';
-import { CreateBlogDto, BlogViewModel, UpdateBlogDto } from '../../src/repositories/blogs-repository';
 import { testCheckBadRequestError } from './TestCheckBadRequestError';
 import { BadRequestError } from '../../src/middlewares/input-validation-middleware';
-import { CreatePostDto, PostViewModel, UpdatePostDto } from '../../src/repositories/posts-repository';
+import { CreateBlogDto, UpdateBlogDto } from '../../src/domain/blogs-service';
+import { BlogViewModel } from '../../src/repositories/blogs-queryRepo';
+import { CreatePostDto, UpdatePostDto } from '../../src/domain/posts-service';
+import { PostViewModel } from '../../src/repositories/posts-queryRepo';
 
 class HelpersForTests {
   constructor() {}

@@ -1,7 +1,8 @@
 import helpersForTests from '../Utils/HelpersForTests';
 import HelpersForTests from '../Utils/HelpersForTests';
-import { BlogViewModel, CreateBlogDto, UpdateBlogDto } from '../../src/repositories/blogs-repository';
 import { HTTP_Status } from '../../src/enums';
+import { CreateBlogDto, UpdateBlogDto } from '../../src/domain/blogs-service';
+import { BlogViewModel } from '../../src/repositories/blogs-queryRepo';
 
 describe('Public-    blogs', () => {
   beforeAll(async () => {
@@ -17,6 +18,8 @@ describe('Public-    blogs', () => {
       name: dto.name.trim(),
       description: dto.description.trim(),
       websiteUrl: dto.websiteUrl.trim(),
+      createdAt: expect.any(String),
+      isMembership: true,
     };
   };
 
