@@ -21,7 +21,7 @@ describe('Public-    blogs', () => {
       description: dto.description.trim(),
       websiteUrl: dto.websiteUrl.trim(),
       createdAt: expect.any(String),
-      isMembership: true,
+      isMembership: false,
     };
   };
 

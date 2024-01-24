@@ -30,7 +30,7 @@ export const blogsService = {
       description,
       websiteUrl,
       createdAt: new Date().toISOString(),
-      isMembership: true,
+      isMembership: false,
     };
     await blogsRepository.createBlog(newBlog);
 
