@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { app } from '../../src';
+import app from '../../src';
 
 import { HTTP_Status } from '../../src/enums';
 import { blogsRoute, postsRoute, testing_all_dataRoute } from '../../src/routes/routes';

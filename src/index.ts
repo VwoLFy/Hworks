@@ -7,7 +7,7 @@ import { postsService } from './domain/posts-service';
 import { blogsRoute, postsRoute, testing_all_dataRoute } from './routes/routes';
 import { HTTP_Status } from './enums';
 
-export const app = express();
+const app = express();
 const bodyMiddleware = express.json();
 const PORT = process.env.PORT || 5000;
 
@@ -32,3 +32,5 @@ const startApp = async () => {
 };
 
 startApp();
+
+export default app;
