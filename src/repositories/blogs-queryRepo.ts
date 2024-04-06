@@ -1,5 +1,6 @@
 import { blogCollection, BlogDBType } from './db';
 import { ObjectId } from 'mongodb';
+import { converters } from './converters';
 
 export type BlogViewModel = {
   id: string;
@@ -25,13 +26,6 @@ export const blogsQueryRepo = {
   },
 
   blogWithReplaceId(object: BlogDBType): BlogViewModel {
-    return {
-      id: object._id.toString(),
-      name: object.name,
-      description: object.description,
-      websiteUrl: object.websiteUrl,
-      createdAt: object.createdAt,
-      isMembership: object.isMembership,
-    };
+    return converters._id<BlogDBType, BlogViewModel>(object);
   },
 };

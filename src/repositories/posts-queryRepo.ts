@@ -1,15 +1,6 @@
 import { ObjectId } from 'mongodb';
-import { postCollection } from './db';
-
-type TypePostFromDB = {
-  _id: ObjectId;
-  title: string;
-  shortDescription: string;
-  content: string;
-  blogId: string;
-  blogName: string;
-  createdAt: string;
-};
+import { postCollection, PostDBType } from './db';
+import { converters } from './converters';
 
 export type PostViewModel = {
   id: string;
@@ -33,15 +24,7 @@ export const postsQueryRepo = {
       return this.postWithReplaceId(foundPost);
     }
   },
-  postWithReplaceId(object: TypePostFromDB): PostViewModel {
-    return {
-      id: object._id.toString(),
-      title: object.title,
-      shortDescription: object.shortDescription,
-      content: object.content,
-      blogId: object.blogId,
-      blogName: object.blogName,
-      createdAt: object.createdAt,
-    };
+  postWithReplaceId(object: PostDBType): PostViewModel {
+    return converters._id<PostDBType, PostViewModel>(object);
   },
 };
