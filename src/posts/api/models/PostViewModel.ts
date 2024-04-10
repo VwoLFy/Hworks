@@ -8,5 +8,5 @@ export type PostViewModel = {
     blogId: string
     blogName: string
     createdAt: string
-    extendedLikesInfo: PostLikesInfoViewModel
+    //extendedLikesInfo: PostLikesInfoViewModel
 }

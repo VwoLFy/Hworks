@@ -81,12 +81,12 @@ export class PostsQueryRepo{
             blogId: post.blogId,
             blogName: post.blogName,
             createdAt: post.createdAt,
-            extendedLikesInfo: {
-                likesCount: post.extendedLikesInfo.likesCount,
-                dislikesCount: post.extendedLikesInfo.dislikesCount,
-                myStatus,
-                newestLikes
-            }
+            // extendedLikesInfo: {
+            //     likesCount: post.extendedLikesInfo.likesCount,
+            //     dislikesCount: post.extendedLikesInfo.dislikesCount,
+            //     myStatus,
+            //     newestLikes
+            // }
         }
     }
 }
