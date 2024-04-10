@@ -5,12 +5,14 @@ import {ObjectId} from "mongodb";
 export class Blog {
     _id: ObjectId
     createdAt: string
+    isMembership: boolean
 
     constructor(public name: string,
                 public description: string,
                 public websiteUrl: string) {
         this._id = new ObjectId()
         this.createdAt = new Date().toISOString()
+        this.isMembership = false
     }
 
     updateBlog(dto: UpdateBlogDto) {
@@ -34,7 +36,8 @@ const BlogSchema = new Schema<Blog>({
         type: String, required: true, maxlength: 100,
         validate: (val: string) => val.match("^https://([a-zA-Z0-9_-]+\\.)+[a-zA-Z0-9_-]+(\\/[a-zA-Z0-9_-]+)*\\/?$")
     },
-    createdAt: {type: String, required: true}
+    createdAt: {type: String, required: true},
+    isMembership: {type: Boolean, required: true}
 })
 BlogSchema.loadClass(Blog)
 
