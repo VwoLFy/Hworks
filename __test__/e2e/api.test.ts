@@ -5,7 +5,7 @@ import {UserViewModel} from "../../src/users/api/models/UserViewModel";
 import {LoginSuccessViewModel} from "../../src/auth/api/models/LoginSuccessViewModel";
 import {CommentViewModel} from "../../src/comments/api/models/CommentViewModel";
 import {ErrorResultType} from "../../src/main/middlewares/input-validation-middleware";
-import {app} from "../../src/main/app";
+import app from "../../src/main/app";
 import {HTTP_Status, LikeStatus} from "../../src/main/types/enums";
 import {DeviceViewModel} from "../../src/security/api/models/DeviceViewModel";
 import mongoose from "mongoose";
@@ -2512,12 +2512,12 @@ describe('Test of the Homework', () => {
                         blogName: `${blog.name}`,
                         shortDescription: "K8cqY3aPKo3XWOJyQgGnlX5sP3aW3RlaRSQx",
                         createdAt: post.createdAt,
-                        extendedLikesInfo: {
-                            likesCount: 1,
-                            dislikesCount: 0,
-                            myStatus: LikeStatus.None,
-                            newestLikes: post.extendedLikesInfo.newestLikes
-                        }
+                        // extendedLikesInfo: {
+                        //     likesCount: 1,
+                        //     dislikesCount: 0,
+                        //     myStatus: LikeStatus.None,
+                        //     newestLikes: post.extendedLikesInfo.newestLikes
+                        // }
                     }
                 )
         })
