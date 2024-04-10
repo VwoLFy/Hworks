@@ -16,7 +16,7 @@ import {SecurityService} from "../security/application/security-service";
 import {AttemptsService} from "../auth/application/attempts-service";
 import {PasswordRecoveryRepository} from "../auth/infrastructure/password-recovery-repository";
 
-export const app = express();
+const app = express();
 const bodyMiddle = express.json();
 
 app.set('trust proxy', true)
@@ -39,3 +39,5 @@ app.delete('/testing/all-data', async (req: Request, res: Response) => {
     await container.resolve(AttemptsService).deleteAll();
     res.sendStatus(HTTP_Status.NO_CONTENT_204)
 })
+
+export default app
