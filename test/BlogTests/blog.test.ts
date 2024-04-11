@@ -238,6 +238,88 @@ describe("Public-    blogs", () => {
       items: [blog3, blog2, blog1]
     });
   });
+  it('GET blogs with query should return 200', async function () {
+    let query = '?searchNameTerm=name'
+    let blogs = await HelpersForTests.findBlogs(query);
+    expect(blogs).toEqual({
+      pagesCount: 1,
+      page: 1,
+      pageSize: 10,
+      totalCount: 2,
+      items: [blog2, blog1]
+    });
+
+    query = '?sortDirection=asc'
+    blogs = await HelpersForTests.findBlogs(query);
+    expect(blogs).toEqual({
+      pagesCount: 1,
+      page: 1,
+      pageSize: 10,
+      totalCount: 3,
+      items: [blog1, blog2, blog3],
+    });
+
+    query = '?sortBy=description'
+    blogs = await HelpersForTests.findBlogs(query);
+    expect(blogs).toEqual({
+      pagesCount: 1,
+      page: 1,
+      pageSize: 10,
+      totalCount: 3,
+      items: [blog3, blog2, blog1],
+    });
+
+    query = '?searchNameTerm=name&pageSize=1'
+    blogs = await HelpersForTests.findBlogs(query);
+    expect(blogs).toEqual({
+      pagesCount: 2,
+      page: 1,
+      pageSize: 1,
+      totalCount: 2,
+      items: [blog2]
+    });
+
+    query = '?searchNameTerm=name&pageSize=1&pageNumber=2'
+    blogs = await HelpersForTests.findBlogs(query);
+    expect(blogs).toEqual({
+      pagesCount: 2,
+      page: 2,
+      pageSize: 1,
+      totalCount: 2,
+      items: [blog1]
+    });
+
+    query = '?searchNameTerm=2'
+    blogs = await HelpersForTests.findBlogs(query);
+    expect(blogs).toEqual({
+      pagesCount: 1,
+      page: 1,
+      pageSize: 10,
+      totalCount: 2,
+      items: [blog3, blog2],
+    });
+
+    query = '?searchNameTerm=new'
+    blogs = await HelpersForTests.findBlogs(query);
+    expect(blogs).toEqual({
+      pagesCount: 1,
+      page: 1,
+      pageSize: 10,
+      totalCount: 1,
+      items: [blog1]
+    });
+
+    query = '?searchNameTerm=123'
+    blogs = await HelpersForTests.findBlogs(query);
+    expect(blogs).toEqual({
+      pagesCount: 0,
+      page: 1,
+      pageSize: 10,
+      totalCount: 0,
+      items: [],
+    });
+
+  });
   it("PUT shouldn`t update blog with incorrect data", async () => {
     let dto: UpdateBlogDto = {
       name: "    ",

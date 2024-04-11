@@ -25,9 +25,9 @@ class HelpersForTests {
       .expect(HTTP_Status.NO_CONTENT_204);
   }
 
-  async findBlogs(): Promise<BlogViewModel[]> {
+  async findBlogs(query: string = ''): Promise<BlogViewModel[]> {
     const result = await request(app)
-      .get(blogsRoute)
+      .get(blogsRoute + query)
       .expect(HTTP_Status.OK_200);
     return result.body;
   }

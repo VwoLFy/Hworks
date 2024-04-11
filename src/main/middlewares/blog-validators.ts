@@ -25,7 +25,7 @@ const blogQueryValidation = [
         return pageSize < 1 ? 10 : pageSize
     }),
     query('sortBy').customSanitizer(value => {
-        const fields = ['id', 'name', 'websiteUrl', 'createdAt'];
+        const fields = ['id', 'name', 'websiteUrl', 'createdAt', 'isMembership'];
         if (!value || !fields.includes(value)) return 'createdAt'
         return value
     }),
