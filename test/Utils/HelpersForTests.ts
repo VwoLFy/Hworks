@@ -15,6 +15,7 @@ import { UpdateBlogDto } from "../../src/blogs/application/dto/UpdateBlogDto";
 import { PostViewModel } from "../../src/posts/api/models/PostViewModel";
 import { CreatePostDto } from "../../src/posts/application/dto/CreatePostDto";
 import { UpdatePostDto } from "../../src/posts/application/dto/UpdatePostDto";
+import { BlogPostInputModel } from '../../src/blogs/api/models/BlogPostInputModel';
 
 class HelpersForTests {
   constructor() {}
@@ -137,9 +138,9 @@ class HelpersForTests {
     return;
   }
 
-  async findPosts(): Promise<PostViewModel[]> {
+  async findPosts(query: string = ''): Promise<PostViewModel[]> {
     const result = await request(app)
-      .get(postsRoute)
+      .get(postsRoute + query)
       .expect(HTTP_Status.OK_200);
     return result.body;
   }
@@ -150,6 +151,17 @@ class HelpersForTests {
   ): Promise<PostViewModel | null> {
     const result = await request(app)
       .get(`${postsRoute}/${postId}`)
+      .expect(httpStatus);
+    return result.body ?? null;
+  }
+
+  async findPostsForBlog(
+    blogId: string,
+    query: string = '',
+    httpStatus: HTTP_Status = HTTP_Status.OK_200,
+  ): Promise<PostViewModel | null> {
+    const result = await request(app)
+      .get(`${blogsRoute}/${blogId}/posts` + query)
       .expect(httpStatus);
     return result.body ?? null;
   }
@@ -175,6 +187,41 @@ class HelpersForTests {
     }
     const result = await request(app)
       .post(postsRoute)
+      .auth("admin", "qwerty")
+      .send(dto)
+      .expect(httpStatus);
+
+    if (httpStatus === HTTP_Status.CREATED_201) return result.body;
+
+    if (HTTP_Status.BAD_REQUEST_400 && field) {
+      const error: ErrorResultType = result.body;
+      testCheckBadRequestError(error, field);
+    }
+    return null;
+  }
+
+  async createPostForBlog(
+    blogId: string,
+    dto: BlogPostInputModel,
+    httpStatus: HTTP_Status = HTTP_Status.CREATED_201,
+    field?: string | string[],
+  ): Promise<PostViewModel | null> {
+    if (httpStatus === HTTP_Status.UNAUTHORIZED_401) {
+      await request(app)
+        .post(postsRoute)
+        .auth("not_admin", "qwerty")
+        .send(dto)
+        .expect(httpStatus);
+      await request(app)
+        .post(postsRoute)
+        .auth("admin", "not_qwerty")
+        .send(dto)
+        .expect(httpStatus);
+      await request(app).post(postsRoute).send(dto).expect(httpStatus);
+      return null;
+    }
+    const result = await request(app)
+      .post(`${blogsRoute}/${blogId}/posts`)
       .auth("admin", "qwerty")
       .send(dto)
       .expect(httpStatus);
